@@ -79,21 +79,40 @@ Belum ada notifikasi
 
 window.onload = function(){
 
-    setTimeout(() => {
+    const adaNotifBaru = {{ $notifikasi->where('status_baca','belum')->count() }};
 
-        fetch(
-            '/admin/notifikasi/baca',
-            {
-                method: 'POST',
+    if(adaNotifBaru > 0){
 
-                headers: {
-                    'X-CSRF-TOKEN':
-                        '{{ csrf_token() }}'
-                }
-            }
-        );
+  fetch('/admin/notifikasi/baca', {
+    method: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    }
+})
+.then(res => {
+    console.log(res.status);
+    return res.json();
+})
+.then(data => {
+    console.log(data);
 
-    }, 2000);
+    if(data.success){
+
+    document
+        .querySelectorAll('.badgeBaru')
+        .forEach(el => {
+
+            el.remove();
+
+        });
+
+}
+})
+.catch(err => {
+    console.log(err);
+});
+
+    }
 
 };
 

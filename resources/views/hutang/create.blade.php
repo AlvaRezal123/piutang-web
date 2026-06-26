@@ -36,18 +36,97 @@
 
 @endif
 
-<!-- LIMIT -->
-<div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm mb-8">
+<!-- LIMIT & STATUS -->
+<div class="grid md:grid-cols-2 gap-6 mb-8">
 
-    <p class="text-sm text-gray-500">
-        Limit Pinjaman
-    </p>
+    <!-- LIMIT PINJAMAN -->
+    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
-    <h2 class="text-3xl font-bold text-[#5628C7] mt-2">
-        Rp{{ number_format($agen->limit_pinjaman,0,',','.') }}
-    </h2>
+        <div class="flex items-center gap-4">
+
+            <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-2xl">
+                💳
+            </div>
+
+            <div>
+
+                <p class="text-sm font-bold text-gray-500">
+                    Limit Pinjaman
+                </p>
+
+                <h2 class="text-3xl font-bold text-[#5628C7] mt-1">
+                    Rp{{ number_format($agen->limit_pinjaman,0,',','.') }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- STATUS KREDIT -->
+    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+
+        <div class="flex items-center gap-4">
+
+            <div class="
+                w-14 h-14 rounded-2xl flex items-center justify-center text-2xl
+
+                @if($agen->status_kredit == 'terpercaya')
+                    bg-green-100
+                @elseif($agen->status_kredit == 'bermasalah')
+                    bg-red-100
+                @else
+                    bg-blue-100
+                @endif
+            ">
+                🛡️
+            </div>
+
+            <div class="flex-1">
+
+                <div class="flex items-center gap-3">
+
+                    <p class="text-sm font-bold text-gray-500">
+                        Status Kredit
+                    </p>
+
+                    <span class="
+                        px-3 py-1 rounded-full text-xs font-semibold
+
+                        @if($agen->status_kredit == 'terpercaya')
+                            bg-green-100 text-green-700
+                        @elseif($agen->status_kredit == 'bermasalah')
+                            bg-red-100 text-red-700
+                        @else
+                            bg-blue-100 text-blue-700
+                        @endif
+                    ">
+                        {{ ucfirst($agen->status_kredit) }}
+                    </span>
+
+                </div>
+
+                <p class="text-gray-500 mt-2">
+
+                    @if($agen->status_kredit == 'terpercaya')
+                        Riwayat pembayaran baik dan tepat waktu.
+                    @elseif($agen->status_kredit == 'bermasalah')
+                        Terdapat riwayat keterlambatan pembayaran.
+                    @else
+                        Agen baru dan belum memiliki riwayat kredit.
+                    @endif
+
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
+
 
 <!-- FORM -->
 <div class="bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
@@ -61,7 +140,7 @@
 
             <label class="block text-sm font-semibold text-gray-700 mb-2">
 
-                Jumlah Hutang
+                Masukkan Jumlah Pengajuan Hutang
 
             </label>
 
@@ -102,11 +181,11 @@
                 class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
                 <option value="cash">
-                    Cash
+                    Pembayaran Penuh
                 </option>
 
                 <option value="cicil">
-                    Cicil
+                    Cicilan
                 </option>
 
             </select>
@@ -128,34 +207,30 @@
                 class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
                 <option value="2 bulan">
-                    2 Bulan
+                    Tempo 2 Bulan
                 </option>
 
                 <option value="3 bulan">
-                    3 Bulan
+                    Tempo 3 Bulan
                 </option>
 
             </select>
 
         </div>
 
-        <!-- CATATAN -->
-        <div class="mb-8">
+<!-- PREVIEW CICILAN -->
+<div id="preview_cicilan" class="hidden mb-6">
 
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
+    <h3 class="font-semibold text-gray-800 mb-3">
+        Simulasi Cicilan
+    </h3>
 
-                Catatan Pengajuan (Opsional)
+<div
+    id="preview_content"
+    class="flex gap-4 overflow-x-auto pb-2">
+</div>
 
-            </label>
-
-            <textarea
-                name="catatan_pengajuan"
-                rows="5"
-                placeholder="Tambahkan catatan jika diperlukan"
-                class="w-full border border-gray-300 rounded-xl px-4 py-3"></textarea>
-
-        </div>
-
+</div>
         <!-- BUTTON -->
         <div class="flex gap-3">
 
@@ -259,6 +334,122 @@ inputRupiah.addEventListener('input', function () {
     }
 
 });
+const lamaTempo =
+    document.getElementById('lama_tempo');
+
+const previewCicilan =
+    document.getElementById('preview_cicilan');
+
+const previewContent =
+    document.getElementById('preview_content');
+
+function tampilkanSimulasi() {
+
+    if (
+        metode.value !== 'cicil'
+    ) {
+        previewCicilan.classList.add('hidden');
+        return;
+    }
+
+    let jumlah =
+        parseInt(
+            inputReal.value || 0
+        );
+
+    if (!jumlah) {
+        previewCicilan.classList.add('hidden');
+        return;
+    }
+
+    let bulan =
+        lamaTempo.value === '2 bulan'
+        ? 2
+        : 3;
+
+    let nominal =
+        Math.ceil(jumlah / bulan);
+
+    let html = '';
+
+    for (
+        let i = 1;
+        i <= bulan;
+        i++
+    ) {
+
+        let tanggal =
+            new Date();
+
+        tanggal.setMonth(
+            tanggal.getMonth() + i
+        );
+
+html += `
+<div class="min-w-[320px] bg-purple-50 border border-purple-200 rounded-2xl p-5">
+
+    <div class="flex items-center gap-3 mb-4">
+
+        <div class="w-10 h-10 bg-[#5628C7] text-white rounded-full flex items-center justify-center font-bold">
+            ${i}
+        </div>
+
+        <h4 class="font-bold text-[#5628C7] text-lg">
+            Cicilan Ke-${i}
+        </h4>
+
+    </div>
+
+    <div class="space-y-3">
+
+        <div>
+            <p class="text-sm text-gray-500">
+                Nominal Cicilan
+            </p>
+
+            <p class="font-bold text-2xl text-gray-800">
+                Rp${nominal.toLocaleString('id-ID')}
+            </p>
+        </div>
+
+        <div>
+            <p class="text-sm text-gray-500">
+                Jatuh Tempo
+            </p>
+
+            <p class="font-semibold text-red-500">
+                ${tanggal.toLocaleDateString('id-ID')}
+            </p>
+        </div>
+
+    </div>
+
+</div>
+`;
+    }
+
+    previewContent.innerHTML =
+        html;
+
+    previewCicilan.classList.remove(
+        'hidden'
+    );
+}
+
+metode.addEventListener(
+    'change',
+    tampilkanSimulasi
+);
+
+lamaTempo.addEventListener(
+    'change',
+    tampilkanSimulasi
+);
+
+inputRupiah.addEventListener(
+    'input',
+    tampilkanSimulasi
+);
 
 </script>
 

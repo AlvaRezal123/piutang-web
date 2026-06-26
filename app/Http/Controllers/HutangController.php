@@ -1,13 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Agen;
 use App\Models\Hutang;
 use App\Models\Pembayaran;
 use Illuminate\Http\Request;
 use App\Models\Notifikasi;
 use App\Models\Cicilan;
+use App\Models\User;
+use App\Mail\NotificationMail;
+use Illuminate\Support\Facades\Mail;    
+
 
 class HutangController extends Controller
 {
@@ -71,25 +74,26 @@ class HutangController extends Controller
         $tanggal_pengajuan = now();
 
         // menentukan jatuh tempo
-        if ($request->metode == 'cash') {
+  if ($request->metode == 'cash') {
 
-            $tanggal_jatuh_tempo = now()->addMonth(1);
+    $lama_tempo = null;
 
-            $lama_tempo = '1 bulan';
+    $tanggal_jatuh_tempo = now()->addMonth();
 
-        } else {
+} else {
 
-            $lama_tempo = $request->lama_tempo;
+    $lama_tempo = $request->lama_tempo;
 
-            if ($request->lama_tempo == '2 bulan') {
+    if ($lama_tempo == '2 bulan') {
 
-                $tanggal_jatuh_tempo = now()->addMonths(2);
+        $tanggal_jatuh_tempo = now()->addMonths(2);
 
-            } else {
+    } else {
 
-                $tanggal_jatuh_tempo = now()->addMonths(3);
-            }
-        }
+        $tanggal_jatuh_tempo = now()->addMonths(3);
+
+    }
+}
 
         // simpan hutang
        $hutang = Hutang::create([
@@ -108,37 +112,72 @@ class HutangController extends Controller
 
             'sisa_hutang' => $request->jumlah_hutang,
 
-            'status' => 'pending',
+            'status' => 'pending'
 
-             'catatan_pengajuan' => $request->catatan_pengajuan
+             
         ]);
+       $owner = User::where('role', 'owner')->first();
 
-        Notifikasi::create([
+if ($owner) {
+  
+    Mail::to($owner->email)->send(
 
-    'id_agen' => $agen->id,
+        new NotificationMail(
 
-    'judul' => 'Pengajuan Piutang',
+            $owner->username,
 
-    'pesan' =>
-    'Pengajuan piutang sebesar Rp' .
-    number_format(
-        $hutang->jumlah_hutang,
-        0,
-        ',',
-        '.'
-    ) .
-    ' telah berhasil dikirim dan sedang menunggu proses verifikasi.',
+            'Pengajuan Hutang Baru',
 
-    'tipe' => 'pengajuan',
+            'Halo ' . $owner->username . ',
 
-    'media' => 'web',
+Agen ' . $agen->username . ' telah mengajukan hutang sebesar Rp' .
+number_format(
+    $hutang->jumlah_hutang,
+    0,
+    ',',
+    '.'
+) . '.
 
-    'tanggal' => now(),
+Silakan login ke Sistem Informasi Piutang untuk melakukan proses persetujuan.'
 
-    'status_baca' => 'belum'
-]);
+        )
 
+    );
+}
+        $admin = User::where('role', 'admin')->first();
 
+       
+if ($admin) {
+
+    Notifikasi::create([
+
+        'id_user' => $admin->id,
+
+        'judul' => 'Pengajuan Hutang Baru',
+
+        'pesan' =>
+            'Agen ' .
+            $agen->username .
+            ' mengajukan hutang sebesar Rp' .
+            number_format(
+                $hutang->jumlah_hutang,
+                0,
+                ',',
+                '.'
+            ) .
+            ' dan menunggu proses verifikasi.',
+
+        'tipe' => 'pengajuan',
+
+        'media' => 'web',
+
+        'tanggal' => now(),
+
+        'status_baca' => 'belum'
+
+    ]);
+
+}
      return redirect()->to('/hutang-saya')->with(
     'success',
     'Pengajuan hutang berhasil dikirim'
@@ -147,61 +186,86 @@ class HutangController extends Controller
 
     // OWNER LIHAT HUTANG
     public function index()
-    {
-        $hutang = Hutang::with('agen')->get();
-
-        return view('hutang.index', compact('hutang'));
-    }
-    public function detail($id)
 {
-    // hutang yang sedang dipilih
-    $hutang = Hutang::with('agen')
-        ->findOrFail($id);
+    $hutang = Hutang::with('agen')->latest()->get();
 
-    // semua riwayat hutang agen tersebut
-    $riwayat = Hutang::where(
-        'id_agen',
-        $hutang->id_agen
-    )
-    ->orderBy(
-        'tanggal_pengajuan',
-        'desc'
-    )
-    ->get();
+    // Card 1: Total Piutang yang sudah dicairkan
+    $totalPiutang = Hutang::whereIn('status', ['berjalan', 'terlambat', 'lunas'])
+        ->sum('jumlah_hutang');
 
-    return view(
-        'hutang.detail',
-        compact(
-            'hutang',
-            'riwayat'
-        )
-    );
+    // Card 2: Sudah Kembali (lunas)
+    $sudahKembali = Hutang::where('status', 'lunas')
+        ->sum('jumlah_hutang');
+
+    // Card 3: Belum Kembali (berjalan + terlambat) — pakai sisa_hutang bukan jumlah_hutang
+    $belumKembali = Hutang::whereIn('status', ['berjalan', 'terlambat'])
+        ->sum('sisa_hutang');
+
+    // Card 4: Jumlah hutang terlambat (count, bukan nominal)
+    $jumlahTerlambat = Hutang::where('status', 'terlambat')->count();
+
+    return view('hutang.index', compact(
+        'hutang',
+        'totalPiutang',
+        'sudahKembali',
+        'belumKembali',
+        'jumlahTerlambat'
+    ));
 }
-
     // OWNER SETUJUI
     public function setujui($id)
     {
-        $hutang = Hutang::findOrFail($id);
+        $hutang = Hutang::with('agen')->findOrFail($id);
+        $userAgen = $hutang->agen->user;
+
+        $admin = User::where(
+            'role',
+            'admin'
+        )->first();
         $hutang->status = 'disetujui';
         $hutang->save();
+        $user = User::find($hutang->agen->user_id);
 
-        Notifikasi::create([
-    'id_agen' => $hutang->id_agen,
+if ($user) {
 
-    'judul' => 'Hutang Disetujui',
+    Mail::to($user->email)->send(
 
-    'pesan' =>
-    'Pengajuan piutang Anda telah disetujui dan siap diproses untuk pencairan saldo.',
+        new NotificationMail(
 
-    'tipe' => 'persetujuan',
+            $user->username,
 
-    'media' => 'web',
+            'Pengajuan Hutang Disetujui',
 
-    'tanggal' => now(),
+            'Selamat!
 
-    'status_baca' => 'belum'
-]);
+Pengajuan hutang Anda telah disetujui oleh Owner Partner Pulsa.
 
+Silakan menunggu proses pencairan saldo oleh Admin.'
+
+        )
+
+    );
+
+}
+
+
+
+// NOTIFIKASI UNTUK ADMIN
+if ($admin) {
+    Notifikasi::create([
+        'id_user' => $admin->id,
+        'judul' => 'Pengajuan Disetujui',
+        'pesan' =>
+            'Owner baru saja menyetujui pengajuan hutang agen ' .
+            $hutang->agen->username .
+            '.',
+        'tipe' => 'persetujuan',
+        'media' => 'web',
+        'tanggal' => now(),
+        'status_baca' => 'belum'
+    ]);
+}
+    
         return back()->with(
             'success',
             'Pengajuan berhasil disetujui owner'
@@ -225,48 +289,80 @@ class HutangController extends Controller
 // FORM TOLAK HUTANG
 public function formTolak($id)
 {
-    $hutang = Hutang::findOrFail($id);
+    $hutang = Hutang::with('agen')->findOrFail($id);
 
-    return view(
-        'hutang.tolak',
-        compact('hutang')
-    );
+return view(
+    'hutang.tolak',
+    compact('hutang')
+);
 }
 
 // SIMPAN PENOLAKAN
-public function simpanTolak(
-    Request $request,
-    $id
-)
+public function simpanTolak(Request $request, $id)
 {
     $request->validate([
-
-        'alasan_penolakan' =>
-            'required'
-
+        'alasan_penolakan' => 'required'
     ], [
-
-        'alasan_penolakan.required' =>
-            'Alasan penolakan wajib diisi'
-
+        'alasan_penolakan.required' => 'Alasan penolakan wajib diisi'
     ]);
 
-    $hutang = Hutang::findOrFail($id);
-
-    $hutang->status =
-        'ditolak';
-
-    $hutang->alasan_penolakan =
-        $request->alasan_penolakan;
-
+    $hutang = Hutang::with('agen')->findOrFail($id);
+    $userAgen = $hutang->agen->user;
+    $admin = User::where(
+        'role',
+        'admin'
+    )->first();
+    $hutang->status = 'ditolak';
+    $hutang->alasan_penolakan = $request->alasan_penolakan;
     $hutang->save();
+    $user = User::find($hutang->agen->user_id);
 
-    return redirect(
-        '/owner/hutang'
-    )->with(
-        'success',
-        'Pengajuan berhasil ditolak'
+if ($user) {
+
+    Mail::to($user->email)->send(
+
+        new NotificationMail(
+
+            $user->username,
+
+            'Pengajuan Hutang Ditolak',
+
+            'Halo ' . $user->username . ',
+
+Mohon maaf, pengajuan hutang Anda belum dapat disetujui oleh Owner Partner Pulsa.
+
+Alasan penolakan:
+
+' . $request->alasan_penolakan . '
+
+Silakan lakukan pengajuan kembali setelah memenuhi persyaratan yang berlaku.
+
+Terima kasih.'
+
+        )
+
     );
+
+}
+
+// NOTIFIKASI UNTUK ADMIN
+if ($admin) {
+    Notifikasi::create([
+        'id_user' => $admin->id,
+        'judul' => 'Pengajuan Ditolak',
+        'pesan' =>
+            'Owner baru saja menolak pengajuan hutang agen ' .
+            $hutang->agen->username .
+            '.',
+        'tipe' => 'pengajuan',
+        'media' => 'web',
+        'tanggal' => now(),
+        'status_baca' => 'belum'
+    ]);
+
+}
+    return redirect('/owner/hutang')
+        ->with('success', 'Pengajuan berhasil ditolak');
 }
     // HALAMAN PENCAIRAN ADMIN
 public function pencairan()
@@ -301,21 +397,43 @@ public function pencairan()
     }
 
     // MONITORING HUTANG
-    public function semuaHutang()
-    {
-        $hutang = Hutang::with('agen')->get();
+  public function semuaHutang()
+{
+    $hutang = Hutang::with('agen')->get();
 
-        return view('hutang.semua', compact('hutang'));
-    }
+    // Card 1: Total Piutang yang sudah dicairkan
+    $totalPiutang = Hutang::whereIn('status', ['berjalan', 'terlambat', 'lunas'])
+        ->sum('jumlah_hutang');
+
+    // Card 2: Sudah Kembali (lunas)
+    $sudahKembali = Hutang::where('status', 'lunas')
+        ->sum('jumlah_hutang');
+
+    // Card 3: Belum Kembali (berjalan + terlambat)
+    $belumKembali = Hutang::whereIn('status', ['berjalan', 'terlambat'])
+        ->sum('sisa_hutang');
+
+    // Card 4: Jumlah hutang terlambat
+    $jumlahTerlambat = Hutang::where('status', 'terlambat')->count();
+
+    return view('hutang.semua', compact(
+        'hutang',
+        'totalPiutang',
+        'sudahKembali',
+        'belumKembali',
+        'jumlahTerlambat'
+    ));
+}
 public function hutangSaya()
 {
-$id_agen = session('id_agen');
+    $idAgen = session('id_agen');
 
-
-$hutang = Hutang::where(
-    'id_agen',
-    $id_agen
-)->get();
+    $hutang = Hutang::where(
+        'id_agen',
+        $idAgen
+    )
+    ->latest()
+    ->get();
 
 foreach ($hutang as $h) {
 
@@ -377,12 +495,14 @@ public function simpanPencairan(
         'bukti_pencairan' =>
             'required|image|mimes:jpg,jpeg,png',
 
-        'keterangan_pencairan' =>
-            'required'
-
     ]);
 
-    $hutang = Hutang::findOrFail($id);
+    $hutang = Hutang::with('agen')->findOrFail($id);
+    $userAgen = $hutang->agen->user;
+    $admin = User::where(
+        'role',
+        'admin'
+    )->first();
 
     // upload bukti
 
@@ -397,9 +517,6 @@ public function simpanPencairan(
     $hutang->bukti_pencairan =
         $namaFile;
 
-    $hutang->keterangan_pencairan =
-        $request->keterangan_pencairan;
-
     $hutang->tanggal_pencairan =
         now();
 
@@ -407,6 +524,38 @@ public function simpanPencairan(
         'berjalan';
 
     $hutang->save();
+    $user = User::find($hutang->agen->user_id);
+
+if ($user) {
+
+    Mail::to($user->email)->send(
+
+        new NotificationMail(
+
+            $user->username,
+
+            'Saldo Piutang Berhasil Dicairkan',
+
+            'Halo ' . $user->username . ',
+
+Saldo piutang Anda sebesar Rp' .
+number_format(
+    $hutang->jumlah_hutang,
+    0,
+    ',',
+    '.'
+) .
+' telah berhasil dicairkan ke akun Partner Pulsa.
+
+Silakan login ke aplikasi Partner Pulsa untuk mulai menggunakan saldo tersebut.
+
+Terima kasih.'
+
+        )
+
+    );
+
+}
 
     $jumlahBulan = 1;
 
@@ -446,22 +595,55 @@ for ($i = 1; $i <= $jumlahBulan; $i++) {
 
     ]);
 }
- Notifikasi::create([
-    'id_agen' => $hutang->id_agen,
 
-    'judul' => 'Saldo Dicairkan',
+// NOTIFIKASI UNTUK ADMIN
+if ($admin) {
+    Notifikasi::create([
+        'id_user' => $admin->id,
+        'judul' => 'Saldo Dicairkan',
+        'pesan' =>
+            'Saldo piutang milik agen ' .
+            $hutang->agen->username .
+            ' telah berhasil dicairkan.',
+        'tipe' => 'pencairan',
+        'media' => 'web',
+        'tanggal' => now(),
+        'status_baca' => 'belum'
+    ]);
 
-    'pesan' =>
-    'Saldo piutang telah berhasil dicairkan dan telah masuk ke akun Partner Pulsa Anda.',
+$owner = User::where('role', 'owner')->first();
 
-    'tipe' => 'pencairan',
+if ($owner) {
 
-    'media' => 'web',
+    Mail::to($owner->email)->send(
 
-    'tanggal' => now(),
+        new NotificationMail(
 
-    'status_baca' => 'belum'
-]);
+            $owner->username,
+
+            'Saldo Piutang Telah Dicairkan',
+
+            'Halo ' . $owner->username . ',
+
+Saldo piutang milik agen ' .
+$hutang->agen->username .
+' sebesar Rp' .
+number_format(
+    $hutang->jumlah_hutang,
+    0,
+    ',',
+    '.'
+) .
+' telah berhasil dicairkan oleh Admin.'
+
+        )
+
+    );
+
+
+}
+
+}
     return redirect(
         '/admin/pencairan'
     )->with(
@@ -493,40 +675,55 @@ public function detailSaya($id)
         )
     );
 }
+
+public function detail($id)
+{
+    $hutang = Hutang::with('agen')->findOrFail($id);
+
+    $riwayat = Hutang::where('id_agen', $hutang->id_agen)
+        ->orderBy('tanggal_pengajuan', 'desc')
+        ->get();
+
+    return view('hutang.detail', compact('hutang', 'riwayat'));
+}
 public function dashboardOwner()
 {
+    // Statistik Dashboard
     $totalPengajuan = Hutang::count();
 
-    $pending = Hutang::where(
-        'status',
-        'pending'
-    )->count();
+    $pending = Hutang::where('status', 'pending')->count();
 
-    $disetujui = Hutang::where(
-        'status',
-        'disetujui'
-    )->count();
+    $disetujui = Hutang::where('status', 'disetujui')->count();
 
-    $ditolak = Hutang::where(
-        'status',
-        'ditolak'
-    )->count();
+    $ditolak = Hutang::where('status', 'ditolak')->count();
 
+    $terlambat = Hutang::where('status', 'terlambat')->count();
+
+    $pengajuanHariIni = Hutang::whereDate('created_at', today())->count();
+
+    // Aktivitas Terbaru
     $aktivitas = Hutang::with('agen')
         ->latest()
         ->take(5)
         ->get();
 
-    return view(
-        'dashboard.owner',
-        compact(
-            'totalPengajuan',
-            'pending',
-            'disetujui',
-            'ditolak',
-            'aktivitas'
-        )
-    );
+    // Antrian Approval
+    $antrianPending = Hutang::where('status', 'pending')
+        ->with('agen')
+        ->latest()
+        ->take(5)
+        ->get();
+
+    return view('dashboard.owner', compact(
+        'totalPengajuan',
+        'pending',
+        'disetujui',
+        'ditolak',
+        'terlambat',
+        'pengajuanHariIni',
+        'aktivitas',
+        'antrianPending'
+    ));
 }
 
 }

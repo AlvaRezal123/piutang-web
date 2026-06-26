@@ -250,19 +250,6 @@
 
     </div>
 
-    <!-- KETERANGAN -->
-    <div class="mt-6">
-
-        <label class="block text-sm font-semibold text-gray-700 mb-2">
-            Keterangan Pembayaran
-        </label>
-
-        <textarea
-            name="keterangan_pembayaran"
-            rows="4"
-            placeholder="Contoh: pembayaran cicilan pertama"
-            class="w-full border border-gray-300 rounded-xl px-4 py-3"></textarea>
-
     </div>
 
     <!-- BUTTON -->

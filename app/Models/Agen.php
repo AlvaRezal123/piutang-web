@@ -38,6 +38,8 @@ class Agen extends Model
 
         'approved_at',
 
+        'riwayat_tepat_waktu',  
+
         'status_kredit'
     ];
 
@@ -57,11 +59,5 @@ class Agen extends Model
     }
 
     // relasi ke notifikasi
-    public function notifikasi()
-    {
-        return $this->hasMany(
-            Notifikasi::class,
-            'id_agen'
-        );
-    }
+   
 }

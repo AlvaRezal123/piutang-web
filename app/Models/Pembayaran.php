@@ -23,7 +23,6 @@ class Pembayaran extends Model
 
         'nama_pengirim',
         'bank_pengirim',
-        'keterangan_pembayaran'
     ];
 
     public function hutang()

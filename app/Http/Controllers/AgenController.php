@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AgenDitolakMail;
 use App\Mail\AgenDisetujuiMail;
+use App\Models\Cicilan;
 
 
 class AgenController extends Controller
@@ -353,24 +354,31 @@ if ($agenLama) {
 
         'status' => 'pending'
     ]);
+ $admin = User::where('role', 'admin')->first();
+
+if ($admin) {
+
     Notifikasi::create([
 
-    'id_agen' => null,
+        'id_user' => $admin->id,
 
-    'judul' => 'Registrasi Agen Baru',
+        'judul' => 'Registrasi Agen Baru',
 
-    'pesan' =>
-        $request->username .
-        ' mendaftar sebagai agen baru dan menunggu validasi admin',
+        'pesan' =>
+            $request->username .
+            ' mendaftar sebagai agen baru dan menunggu validasi admin.',
 
-    'tipe' => 'pengajuan',
+        'tipe' => 'pengajuan',
 
-    'media' => 'web',
+        'media' => 'web',
 
-    'tanggal' => now(),
+        'tanggal' => now(),
 
-    'status_baca' => 'belum'
-]);
+        'status_baca' => 'belum'
+
+    ]);
+
+}
 
     return back()->with(
         'success',
@@ -393,6 +401,8 @@ if ($agenLama) {
    public function setujui($id)
 {
     $agen = Agen::findOrFail($id);
+    $userAgen = User::find($agen->user_id);
+    $admin = User::where('role', 'admin')->first();
 
     $agen->status = 'aktif';
 
@@ -415,7 +425,7 @@ if ($agenLama) {
         ->send(
             new AgenDisetujuiMail($agen)
         );
-
+    
     return redirect('/agen')
         ->with(
             'success',
@@ -479,10 +489,55 @@ public function aktifkan($id)
 
     return redirect('/agen');
 }
+private function cekKeterlambatan()
+{
+    $cicilanTerlambat = Cicilan::where(
+        'status',
+        'belum'
+    )
+    ->whereDate(
+        'tanggal_jatuh_tempo',
+        '<',
+        now()
+    )
+    ->get();
+
+    foreach ($cicilanTerlambat as $cicilan) {
+
+        $hutang = Hutang::find(
+            $cicilan->id_hutang
+        );
+
+        if (!$hutang) {
+            continue;
+        }
+
+        $hutang->status = 'terlambat';
+        $hutang->save();
+
+        $agen = Agen::find(
+            $hutang->id_agen
+        );
+
+       if ($agen) {
+
+    $agen->status_kredit =
+        'bermasalah';
+
+    $agen->limit_pinjaman =
+        150000;
+
+    $agen->riwayat_tepat_waktu =
+        0;
+
+    $agen->save();
+}
+    }
+}
 public function dashboard()
 {
     $idAgen = session('id_agen');
-
+    $this->cekKeterlambatan();
     $agen = Agen::find($idAgen);
 
     $hutangAktif = Hutang::where('id_agen', $idAgen)
@@ -514,22 +569,51 @@ public function dashboard()
     }
 
 $aktivitas = Notifikasi::where(
-        'id_agen',
-        $idAgen
-    )
-    ->latest()
-    ->take(5)
-    ->get();
+    'id_user',
+    session('id_user')
+)
+->latest()
+->take(5)
+->get();
+
+    $totalPengajuanHutang = Hutang::where(
+    'id_agen',
+    $idAgen
+)->count();
+
+$totalPengajuanPembayaran = Pembayaran::whereHas(
+    'hutang',
+    function ($q) use ($idAgen) {
+        $q->where('id_agen', $idAgen);
+    }
+)->count();
+
+$totalUangDipinjam = Hutang::where(
+    'id_agen',
+    $idAgen
+)
+->whereIn('status', [
+    'disetujui',
+    'berjalan',
+    'lunas',
+    'terlambat'
+])
+->sum('jumlah_hutang');
 
     return view(
         'dashboard.agen',
-       compact(
+      compact(
     'agen',
     'hutangAktif',
     'jumlahHutangAktif',
     'tanggalJatuhTempo',
     'sisaHari',
-    'aktivitas'
+    'aktivitas',
+
+    'totalPengajuanHutang',
+    'totalPengajuanPembayaran',
+    'totalUangDipinjam'
+
 )
     );
 }
@@ -673,7 +757,7 @@ public function dashboardAdmin()
 }
 
 
-public function notifikasi()
+public function notifikasiAdmin()
 {
     $hutangTempo = Hutang::with('agen')
         ->whereIn('status', [
@@ -705,7 +789,7 @@ public function notifikasi()
                 ],
 
                 [
-                    'id_agen' => $h->id_agen,
+                    'id_user' => User::where('role','admin')->first()->id,
                     'tipe' => 'keterlambatan',
                     'media' => 'web',
                     'tanggal' => now(),
@@ -736,7 +820,7 @@ public function notifikasi()
                 ],
 
                 [
-                    'id_agen' => $h->id_agen,
+                    'id_user' => User::where('role','admin')->first()->id,
                     'tipe' => 'keterlambatan',
                     'media' => 'web',
                     'tanggal' => now(),
@@ -745,45 +829,51 @@ public function notifikasi()
             );
         }
     }
+        
+    $admin = User::where('role','admin')->first();
+        $notifikasi = Notifikasi::where(
+            'id_user',
+            $admin->id
+)
+    ->latest()
+    ->limit(20)
+    ->get();
 
-    $notifikasi = Notifikasi::latest()
-        ->limit(20)
-        ->get();
-
-    return view(
-        'notifikasi.index',
-        compact('notifikasi')
-    );
-}
+return view(
+    'notifikasi.index',
+    compact('notifikasi')
+);
+                }
 public function jumlahNotifikasi()
 {
     return response()->json([
 
         'jumlah' =>
-            Notifikasi::where(
-                'status_baca',
-                'belum'
-            )->count()
+        Notifikasi::where(
+    'id_user',
+    session('id_user')
+        )
+        ->where(
+            'status_baca',
+            'belum'
+        )->count()
 
     ]);
 }
 public function bacaNotif()
 {
-    Notifikasi::where(
-        'status_baca',
-        'belum'
-    )->update([
-
-        'status_baca' =>
-            'dibaca'
-
-    ]);
+    $jumlah = Notifikasi::where('id_user', session('id_user'))
+        ->where('status_baca', 'belum')
+        ->update([
+            'status_baca' => 'dibaca'
+        ]);
 
     return response()->json([
-        'success' => true
+        'success' => true,
+        'updated' => $jumlah,
+        'id_user' => session('id_user')
     ]);
 }
-
 public function simpanTolak(Request $request, $id)
 {
     $request->validate([
@@ -808,6 +898,25 @@ public function simpanTolak(Request $request, $id)
 
     // KIRIM EMAIL
     $user = User::find($agen->user_id);
+    Notifikasi::create([
+
+    'id_user' => $user->id,
+
+    'judul' => 'Registrasi Ditolak',
+
+    'pesan' =>
+        'Registrasi Anda ditolak oleh Admin. Alasan: ' .
+        $request->alasan_penolakan,
+
+    'tipe' => 'persetujuan',
+
+    'media' => 'web',
+
+    'tanggal' => now(),
+
+    'status_baca' => 'belum'
+
+]);
 
     Mail::to($user->email)
         ->send(

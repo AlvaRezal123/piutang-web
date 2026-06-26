@@ -157,22 +157,7 @@
         </div>
 
         <!-- Keterangan -->
-        <div class="mb-6">
-
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-
-                Keterangan Pencairan
-
-            </label>
-
-            <textarea
-                name="keterangan_pencairan"
-                rows="5"
-                required
-                placeholder="Contoh: Dana telah ditransfer ke rekening agen..."
-                class="w-full border border-gray-300 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-purple-300 focus:outline-none"></textarea>
-
-        </div>
+     
 
         <!-- Tombol -->
         <div class="flex justify-end gap-3">

@@ -18,80 +18,161 @@
 
 </div>
 
+@php
+$totalDibayar = $pembayaran
+    ->where('status', 'disetujui')
+    ->sum('jumlah_bayar');
+
+$totalPengajuan = $pembayaran->count();
+
+$totalDisetujui = $pembayaran
+    ->where('status', 'disetujui')
+    ->count();
+
+$totalDitolak = $pembayaran
+    ->where('status', 'ditolak')
+    ->count();
+@endphp
+
 <!-- CARD RINGKASAN -->
 <div class="grid md:grid-cols-4 gap-6 mb-8">
 
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- TOTAL UANG DIBAYARKAN -->
+    <div class="bg-gradient-to-r from-[#5628C7] to-purple-600 rounded-3xl p-6 shadow-sm text-white">
 
-        <p class="text-sm text-gray-500">
-            Total Pembayaran
-        </p>
+        <div class="flex items-center gap-3 mb-4">
 
-        <h2 class="text-3xl font-bold text-[#5628C7] mt-3">
-            {{ $pembayaran->count() }}
+            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
+                💰
+            </div>
+
+            <p class="text-sm font-bold uppercase tracking-wide text-white/80">
+                Total Dibayarkan
+            </p>
+
+        </div>
+
+        <h2 class="text-4xl font-bold">
+            Rp{{ number_format($totalDibayar,0,',','.') }}
         </h2>
+
+        <div class="border-t border-white/20 mt-4 pt-4">
+            <p class="text-sm text-white/80">
+                Total pembayaran yang telah disetujui
+            </p>
+        </div>
 
     </div>
 
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- TOTAL PENGAJUAN -->
+    <div class="bg-purple-50 rounded-3xl p-6 border border-purple-100 shadow-sm">
 
-        <p class="text-sm text-gray-500">
-            Menunggu Validasi
-        </p>
+        <div class="flex items-center gap-3 mb-4">
 
-        <h2 class="text-3xl font-bold text-yellow-500 mt-3">
-            {{ $pembayaran->where('status','pending')->count() }}
+            <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
+                📄
+            </div>
+
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
+                Total Pengajuan
+            </p>
+
+        </div>
+
+        <h2 class="text-4xl font-bold text-[#5628C7]">
+            {{ $totalPengajuan }}
         </h2>
+
+        <p class="text-sm text-gray-500 mt-4">
+            Total pengajuan pembayaran yang pernah dibuat
+        </p>
 
     </div>
 
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- DISETUJUI -->
+    <div class="bg-green-50 rounded-3xl p-6 border border-green-100 shadow-sm">
 
-        <p class="text-sm text-gray-500">
-            Disetujui
-        </p>
+        <div class="flex items-center gap-3 mb-4">
 
-        <h2 class="text-3xl font-bold text-green-600 mt-3">
-            {{ $pembayaran->where('status','disetujui')->count() }}
+            <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center text-xl">
+                ✅
+            </div>
+
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
+                Disetujui
+            </p>
+
+        </div>
+
+        <h2 class="text-4xl font-bold text-green-600">
+            {{ $totalDisetujui }}
         </h2>
+
+        <p class="text-sm text-gray-500 mt-4">
+            Total pembayaran yang berhasil diverifikasi
+        </p>
 
     </div>
 
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- DITOLAK -->
+    <div class="bg-red-50 rounded-3xl p-6 border border-red-100 shadow-sm">
 
-        <p class="text-sm text-gray-500">
-            Ditolak
-        </p>
+        <div class="flex items-center gap-3 mb-4">
 
-        <h2 class="text-3xl font-bold text-red-600 mt-3">
-            {{ $pembayaran->where('status','ditolak')->count() }}
+            <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center text-xl">
+                ❌
+            </div>
+
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
+                Ditolak
+            </p>
+
+        </div>
+
+        <h2 class="text-4xl font-bold text-red-600">
+            {{ $totalDitolak }}
         </h2>
+
+        <p class="text-sm font-bold text-gray-500 mt-4">
+            Total pengajuan pembayaran yang ditolak
+        </p>
 
     </div>
 
 </div>
-
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
-    <div class="flex justify-between items-center mb-6">
+  <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
 
-        <h2 class="text-xl font-bold text-gray-800">
-            Data Pembayaran
-        </h2>
+    <h2 class="text-xl font-bold text-gray-800">
+        Data Pembayaran
+    </h2>
 
-        <select
-            id="filterStatus"
-            class="border border-gray-300 rounded-xl px-4 py-2">
+ <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
 
-            <option value="all">Semua Status</option>
-            <option value="pending">Pending</option>
-            <option value="disetujui">Disetujui</option>
-            <option value="ditolak">Ditolak</option>
+<div class="flex flex-wrap gap-3">
 
-        </select>
+    <input
+        type="date"
+        id="filterTanggal"
+        class="border border-gray-300 rounded-xl px-4 py-2">
 
-    </div>
+    <select
+        id="filterStatus"
+        class="border border-gray-300 rounded-xl px-4 py-2">
+
+        <option value="all">Semua Status</option>
+        <option value="pending">Pending</option>
+        <option value="disetujui">Disetujui</option>
+        <option value="ditolak">Ditolak</option>
+
+    </select>
+
+</div>
+</div>
+
+</div>
 
     <div class="overflow-x-auto">
 
@@ -106,6 +187,7 @@
                     <th class="text-left py-3">Metode</th>
                     <th class="text-left py-3">Status</th>
                     <th class="text-left py-3">Bukti</th>
+                    <th class="text-left py-3">Aksi</th>
 
                 </tr>
 
@@ -115,9 +197,10 @@
 
                 @forelse($pembayaran as $p)
 
-                <tr
-                    class="border-b status-row"
-                    data-status="{{ $p->status }}">
+              <tr
+    class="border-b status-row"
+    data-status="{{ $p->status }}"
+    data-tanggal="{{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('Y-m-d') }}">
 
                     <td class="py-4">
                         {{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('d M Y') }}
@@ -168,6 +251,28 @@
 
                     </td>
 
+                    <td>
+
+    @if($p->status == 'ditolak')
+
+        <button
+            onclick="openModal({{ $p->id }})"
+            class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200">
+
+            Lihat Alasan
+
+        </button>
+
+    @else
+
+        <span class="text-gray-400">
+            -
+        </span>
+
+    @endif
+
+</td>
+
                 </tr>
 
                 @empty
@@ -187,35 +292,102 @@
         </table>
 
     </div>
+@foreach($pembayaran as $p)
 
+@if($p->status == 'ditolak')
+
+<div
+    id="modal{{ $p->id }}"
+    class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+
+    <div class="bg-white rounded-3xl p-6 w-full max-w-lg">
+
+        <h2 class="text-xl font-bold text-red-600 mb-4">
+            Alasan Penolakan
+        </h2>
+
+        <p class="text-gray-700">
+            {{ $p->alasan_penolakan }}
+        </p>
+
+        <div class="mt-6 text-right">
+
+            <button
+                onclick="closeModal({{ $p->id }})"
+                class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">
+
+                Tutup
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@endif
+
+@endforeach
 </div>
 
 <script>
 
-document.getElementById('filterStatus')
-.addEventListener('change', function(){
+const filterStatus =
+document.getElementById('filterStatus');
 
-    let status = this.value;
+const filterTanggal =
+document.getElementById('filterTanggal');
+
+function filterData() {
+
+    let status = filterStatus.value;
+    let tanggal = filterTanggal.value;
 
     document.querySelectorAll('.status-row')
     .forEach(function(row){
 
-        if(status === 'all'){
+        let cocokStatus =
+            status === 'all' ||
+            row.dataset.status === status;
 
-            row.style.display = '';
+        let cocokTanggal =
+            tanggal === '' ||
+            row.dataset.tanggal === tanggal;
 
-        }else{
-
-            row.style.display =
-            row.dataset.status === status
+        row.style.display =
+            cocokStatus && cocokTanggal
             ? ''
             : 'none';
 
-        }
-
     });
+}
 
-});
+filterStatus.addEventListener(
+    'change',
+    filterData
+);
+
+filterTanggal.addEventListener(
+    'change',
+    filterData
+);
+
+function openModal(id)
+{
+    document
+        .getElementById('modal' + id)
+        .classList
+        .remove('hidden');
+}
+
+function closeModal(id)
+{
+    document
+        .getElementById('modal' + id)
+        .classList
+        .add('hidden');
+}
 
 </script>
 

@@ -2,165 +2,259 @@
 
 @section('content')
 
-<!-- HEADER -->
-<div class="bg-white rounded-3xl p-8 shadow-sm border border-purple-100">
+<!-- GREETING BANNER -->
+<div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#5628C7] to-[#7B52E0] p-8 text-white mb-8 flex items-center justify-between">
 
-    <h1 class="text-3xl font-black text-gray-800">
-        Halo Owner 👋
-    </h1>
+    <div>
+        <h1 class="text-2xl font-bold">Halo, Owner 👋</h1>
+      <div class="mt-4 flex flex-wrap gap-3">
 
-    <p class="text-gray-500 mt-2">
-        Kelola persetujuan pengajuan hutang dan monitoring seluruh transaksi SIMPAN.
-    </p>
+    <span class="bg-white/15 px-4 py-2 rounded-xl text-sm">
+        📝 {{ $pengajuanHariIni }} Pengajuan Hari Ini
+    </span>
+
+    <span class="bg-white/15 px-4 py-2 rounded-xl text-sm">
+        ⚠️ {{ $pending }} Menunggu Persetujuan
+    </span>
+
+    <span class="bg-white/15 px-4 py-2 rounded-xl text-sm">
+        🚨 {{ $terlambat }} Terlambat
+    </span>
+
+</div>
+    </div>
+
+    @if($pending > 0)
+    <div class="bg-white/15 border border-white/25 rounded-2xl px-6 py-4 text-center flex-shrink-0">
+        <p class="text-3xl font-bold">{{ $pending }}</p>
+        <p class="text-xs text-white/70 mt-1">Perlu ditinjau</p>
+    </div>
+    @endif
 
 </div>
 
-<!-- CARD STATISTIK -->
-<div class="grid md:grid-cols-4 gap-6 mt-8">
+<!-- STATISTIK -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
-    <!-- Total Pengajuan -->
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <div class="text-4xl mb-4">
-            📄
+    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center mb-4">
+            <i class="ti ti-file-text text-[#5628C7] text-lg"></i>
         </div>
-
-        <p class="text-gray-500 text-sm">
-            Total Pengajuan
+        <p class="text-xs text-gray-400 mb-1">Total pengajuan</p>
+        <p class="text-3xl font-bold text-[#5628C7]">{{ $totalPengajuan }}</p>
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
+            <i class="ti ti-minus text-xs"></i> Sepanjang masa
         </p>
-
-        <h2 class="text-3xl font-black text-[#5628C7] mt-2">
-          {{ $totalPengajuan }}
-        </h2>
-
     </div>
 
-    <!-- Pending -->
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <div class="text-4xl mb-4">
-            ⏳
+    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-clock text-yellow-600 text-lg"></i>
         </div>
-
-        <p class="text-gray-500 text-sm">
-            Menunggu Persetujuan
+        <p class="text-xs text-gray-400 mb-1">Menunggu persetujuan</p>
+        <p class="text-3xl font-bold text-yellow-600">{{ $pending }}</p>
+        <p class="text-xs text-yellow-500 mt-2 flex items-center gap-1">
+            <i class="ti ti-alert-circle text-xs"></i> Perlu ditinjau segera
         </p>
-
-        <h2 class="text-3xl font-black text-yellow-500 mt-2">
-        {{ $pending }}
-        </h2>
-
     </div>
 
-    <!-- Disetujui -->
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <div class="text-4xl mb-4">
-            ✅
+    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center mb-4">
+            <i class="ti ti-circle-check text-green-600 text-lg"></i>
         </div>
-
-        <p class="text-gray-500 text-sm">
-            Disetujui
+        <p class="text-xs text-gray-400 mb-1">Disetujui</p>
+        <p class="text-3xl font-bold text-green-600">{{ $disetujui }}</p>
+        <p class="text-xs text-green-500 mt-2 flex items-center gap-1">
+            <i class="ti ti-trending-up text-xs"></i> Aktif berjalan
         </p>
-
-        <h2 class="text-3xl font-black text-green-500 mt-2">
-         {{ $disetujui }}
-        </h2>
-
     </div>
 
-    <!-- Ditolak -->
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <div class="text-4xl mb-4">
-            ❌
+    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
+        <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center mb-4">
+            <i class="ti ti-circle-x text-red-500 text-lg"></i>
         </div>
-
-        <p class="text-gray-500 text-sm">
-            Ditolak
+        <p class="text-xs text-gray-400 mb-1">Ditolak</p>
+        <p class="text-3xl font-bold text-red-500">{{ $ditolak }}</p>
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
+            <i class="ti ti-minus text-xs"></i> Total ditolak
         </p>
-
-        <h2 class="text-3xl font-black text-red-500 mt-2">
-          {{ $ditolak }}
-        </h2>
-
     </div>
 
 </div>
 
-<!-- QUICK MENU -->
-<div class="grid md:grid-cols-2 gap-6 mt-8">
+<!-- BAWAH: AKTIVITAS + ANTRIAN -->
+<div class="grid md:grid-cols-2 gap-5">
 
-    <!-- Approval -->
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- AKTIVITAS TERBARU -->
+    <div class="bg-white rounded-2xl p-6 border border-purple-100 shadow-sm">
 
-        <h2 class="font-bold text-lg text-gray-800">
-            📋 Approval Pengajuan Hutang
-        </h2>
+        <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-5">
+            <span class="w-2 h-2 rounded-full bg-[#5628C7] inline-block"></span>
+            Aktivitas terbaru
+        </h3>
 
-        <p class="text-gray-500 mt-2">
-            Review dan validasi seluruh pengajuan hutang dari agen.
-        </p>
+        <div class="space-y-1">
+            @forelse($aktivitas as $a)
 
-        <a
-            href="/owner/hutang"
-            class="inline-block mt-5 bg-[#5628C7] text-white px-5 py-3 rounded-xl font-semibold">
+            <div class="flex items-start gap-3 py-3 {{ !$loop->last ? 'border-b border-gray-50' : '' }}">
 
-            Buka Menu →
+                <div class="w-8 h-8 rounded-full bg-purple-100 text-[#5628C7] flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                    {{ strtoupper(substr($a->agen->username, 0, 2)) }}
+                </div>
 
-        </a>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-700 leading-snug">
+
+@if($a->status == 'pending')
+
+📝
+<span class="font-medium">{{ $a->agen->username }}</span>
+mengajukan pinjaman
+<span class="font-semibold text-[#5628C7]">
+Rp{{ number_format($a->jumlah_hutang,0,',','.') }}
+</span>
+
+@elseif($a->status == 'disetujui')
+
+✅
+Pengajuan Hutang Agen
+<span class="font-medium">{{ $a->agen->username }}</span>
+telah disetujui.
+
+@elseif($a->status == 'ditolak')
+
+❌
+Pengajuan Hutang Agen
+<span class="font-medium">{{ $a->agen->username }}</span>
+ditolak.
+
+@elseif($a->status == 'berjalan')
+
+🔵
+Pengajuan Hutang Agen
+<span class="font-medium">{{ $a->agen->username }}</span>
+sedang berjalan.
+
+@elseif($a->status == 'lunas')
+
+🎉
+Hutang Agen
+<span class="font-medium">{{ $a->agen->username }}</span>
+telah lunas.
+
+@elseif($a->status == 'terlambat')
+
+⚠️
+<span class="font-medium">{{ $a->agen->username }}</span>
+terlambat membayar.
+
+@endif
+
+</p>
+                    <p class="text-xs text-gray-400 mt-1">{{ $a->created_at->diffForHumans() }}</p>
+                </div>
+
+            </div>
+
+            @empty
+
+            <div class="text-center py-8">
+                <i class="ti ti-inbox text-3xl text-gray-300 block mb-2"></i>
+                <p class="text-sm text-gray-400">Belum ada aktivitas</p>
+            </div>
+
+            @endforelse
+        </div>
 
     </div>
 
-    <!-- Monitoring -->
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- ANTRIAN APPROVAL -->
+    <div class="bg-white rounded-2xl p-6 border border-purple-100 shadow-sm">
 
-        <h2 class="font-bold text-lg text-gray-800">
-            📊 Monitoring Hutang
-        </h2>
+      <h2 class="flex items-center justify-between mb-5">
 
-        <p class="text-gray-500 mt-2">
-            Pantau seluruh hutang yang sedang berjalan maupun yang telah lunas.
+    <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+
+        <p class="text-sm font-semibold text-gray-800">
+            Antrian Approval
         </p>
-
-        <a
-            href="/admin/hutang"
-            class="inline-block mt-5 bg-[#5628C7] text-white px-5 py-3 rounded-xl font-semibold">
-
-            Buka Menu →
-
-        </a>
-
     </div>
 
-</div>
+    <span
+        class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
+        {{ $pending }} Pending
+    </span>
 
-<!-- AKTIVITAS -->
-<div class="space-y-4">
+</h2>
 
-    @forelse($aktivitas as $a)
+        <div class="space-y-1">
+            @forelse($antrianPending as $h)
 
-        <div class="border-l-4 border-purple-500 pl-4">
+            <div class="flex items-center gap-3 py-3 {{ !$loop->last ? 'border-b border-gray-50' : '' }}">
 
-           <p class="font-semibold">
-    {{ $a->agen->username }}
-    mengajukan pinjaman sebesar
-    Rp{{ number_format($a->jumlah_hutang,0,',','.') }}
+                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-700 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                    {{ strtoupper(substr($h->agen->username, 0, 2)) }}
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">{{ $h->agen->username }}</p>
+                    <p class="text-xs font-semibold text-gray-700">
+    Rp{{ number_format($h->jumlah_hutang,0,',','.') }}
 </p>
 
-            <p class="text-sm text-gray-500">
-                {{ $a->created_at->diffForHumans() }}
-            </p>
+<p class="text-xs text-gray-400 mt-1">
+    {{ ucfirst($h->metode) }}
+</p>
 
+<p class="text-xs text-gray-400">
+    Diajukan {{ $h->created_at->format('d M Y') }}
+</p>
+                </div>
+
+               @php
+    $jamMenunggu = $h->created_at->diffInHours(now());
+@endphp
+
+@if($jamMenunggu < 24)
+
+<span
+class="flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-700">
+
+Baru
+
+</span>
+
+@else
+
+<span
+class="flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-700">
+
+Mendesak
+
+</span>
+
+@endif
+
+            </div>
+
+            @empty
+
+            <div class="text-center py-8">
+                <i class="ti ti-circle-check text-3xl text-green-300 block mb-2"></i>
+                <p class="text-sm text-gray-400">Semua sudah ditinjau</p>
+            </div>
+
+            @endforelse
         </div>
 
-    @empty
+        @if($pending > 0)
+        <a href="/owner/hutang" class="mt-5 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#5628C7] text-white text-sm font-semibold hover:bg-[#4b22b0] transition-colors">
+            Tinjau semua <i class="ti ti-arrow-right text-sm"></i>
+        </a>
+        @endif
 
-        <p class="text-gray-500">
-            Belum ada aktivitas
-        </p>
-
-    @endforelse
+    </div>
 
 </div>
 

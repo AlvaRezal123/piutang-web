@@ -14,7 +14,6 @@ class Hutang extends Model
         'jumlah_hutang',
         'metode',
         'lama_tempo',
-        'catatan_pengajuan',
         'tanggal_pengajuan',
         'tanggal_jatuh_tempo',
         'sisa_hutang',

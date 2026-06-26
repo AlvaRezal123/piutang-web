@@ -15,26 +15,36 @@ public function up(): void
         $table->id();
 
         // relasi (nullable karena bisa ke agen atau admin)
-       $table->foreignId('id_agen')->nullable()->constrained('agen');
-$table->foreignId('id_admin')->nullable()->constrained('admin');
 
-        $table->string('judul', 255);
-        $table->text('pesan');
+$table->foreignId('id_user')
+      ->constrained('users')
+      ->cascadeOnDelete();
 
-        $table->enum('tipe', [
-            'pengajuan',
-            'pembayaran',
-            'keterlambatan',
-            'konfirmasi_saldo'
-        ]);
+$table->string('judul');
 
-        $table->enum('media', ['web', 'whatsapp']);
+$table->text('pesan');
 
-        $table->dateTime('tanggal');
+$table->enum('tipe',[
+    'pengajuan',
+    'pembayaran',
+    'persetujuan',
+    'pencairan',
+    'keterlambatan'
+]);
 
-        $table->enum('status_baca', ['dibaca', 'belum'])->default('belum');
+$table->enum('media',[
+    'web',
+    'whatsapp'
+]);
 
-        $table->timestamps();
+$table->dateTime('tanggal');
+
+$table->enum('status_baca',[
+    'dibaca',
+    'belum'
+])->default('belum');
+
+$table->timestamps();
     });
 }
     public function down(): void

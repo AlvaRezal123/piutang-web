@@ -10,7 +10,6 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::resource('agen', AgenController::class);
 Route::get('/agen/setujui/{id}', [AgenController::class, 'setujui']);
 Route::get('/agen/tolak/{id}', [AgenController::class, 'tolak']);
 //Route::get('/login', [AgenController::class, 'login']);
@@ -21,7 +20,7 @@ Route::get('/hutang/create', [HutangController::class, 'create']);
 Route::post('/hutang/store', [HutangController::class, 'store']);
 Route::get('/owner/hutang', [HutangController::class, 'index']);
 Route::get('/owner/hutang/setujui/{id}', [HutangController::class, 'setujui']);
-Route::get('/owner/hutang/tolak/{id}', [HutangController::class, 'tolak']);
+Route::post('/owner/hutang/tolak/{id}',[HutangController::class, 'simpanTolak']);
 Route::get('/admin/pencairan', [HutangController::class, 'pencairan']);
 Route::get('/admin/berikan-saldo/{id}', [HutangController::class, 'berikanSaldo']);
 Route::get('/admin/hutang', [HutangController::class, 'semuaHutang']);
@@ -35,7 +34,13 @@ Route::get('/login', [LoginController::class, 'index']);
 Route::post('/proses-login', [LoginController::class, 'prosesLogin']);
 Route::get('/logout', [LoginController::class, 'logout']);
 
+// NOTIFIKASI ADMIN
+Route::get('/admin/notifikasi', [AgenController::class, 'notifikasiAdmin']);
+Route::get('/jumlah-notifikasi', [AgenController::class, 'jumlahNotifikasi']);
+Route::post('/admin/notifikasi/baca', [AgenController::class, 'bacaNotif']);
+
 // pembayaran agen
+Route::resource('agen', AgenController::class);
 Route::get('/pembayaran/create/{id}',[PembayaranController::class, 'create']);
 Route::post('/pembayaran/store',[PembayaranController::class, 'store']);
 
@@ -73,10 +78,6 @@ Route::get('/hutang/detail/{id}',[HutangController::class, 'detailSaya']);
 //edit/update
 Route::post('/agen/update/{id}',[AgenController::class, 'update']);
 
-//notifikasi admin
-Route::get('/admin/notifikasi',[AgenController::class, 'notifikasi']);
-Route::get('/jumlah-notifikasi',[AgenController::class, 'jumlahNotifikasi']);
-Route::post('/admin/notifikasi/baca',[AgenController::class, 'bacaNotif']);
 
 //penolakan registrasi
 Route::post('/agen/simpan-tolak/{id}', [AgenController::class, 'simpanTolak']);
