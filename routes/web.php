@@ -9,7 +9,7 @@ use App\Http\Controllers\PembayaranController;
 Route::get('/', function () {
     return redirect('/login');
 });
-
+Route::get('/profil-agen', [AgenController::class, 'profil']);
 Route::get('/agen/setujui/{id}', [AgenController::class, 'setujui']);
 Route::get('/agen/tolak/{id}', [AgenController::class, 'tolak']);
 //Route::get('/login', [AgenController::class, 'login']);
@@ -24,7 +24,10 @@ Route::post('/owner/hutang/tolak/{id}',[HutangController::class, 'simpanTolak'])
 Route::get('/admin/pencairan', [HutangController::class, 'pencairan']);
 Route::get('/admin/berikan-saldo/{id}', [HutangController::class, 'berikanSaldo']);
 Route::get('/admin/hutang', [HutangController::class, 'semuaHutang']);
+Route::get('/admin/pengajuan-hutang', [HutangController::class, 'pengajuanHutangAdmin']); // TAMBAH INI
+Route::get('/admin/hutang/detail/{id}', [HutangController::class, 'detailAdmin']);
 Route::get('/hutang-saya',[HutangController::class, 'hutangSaya']); // menampilkan hutang yang sedang berlangsung pada agen
+
 
 Route::get('/dashboard-agen',[AgenController::class, 'dashboard']);
 Route::get('/dashboard-admin',[AgenController::class, 'dashboardAdmin']);

@@ -166,10 +166,15 @@
 
                             @if($h->status == 'pending')
 
-                                <a href="/owner/hutang/setujui/{{ $h->id }}"
-                                   class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 text-xs font-semibold transition-colors">
-                                    <i class="ti ti-check text-xs"></i> Setujui
-                                </a>
+                          <a
+                                href="/owner/hutang/setujui/{{ $h->id }}"
+                                onclick="return confirmSetujui(event)"
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 text-xs font-semibold transition-colors">
+
+                                <i class="ti ti-check text-xs"></i>
+                                Setujui
+
+                            </a>
 
                                 <button
                                     data-id="{{ $h->id }}"
@@ -281,6 +286,16 @@ function openModal(id) {
 
 function closeModal(id) {
     document.getElementById('modal' + id).classList.add('hidden');
+}
+function confirmSetujui(event){
+
+    if(!confirm('Apakah Anda yakin ingin menyetujui pengajuan hutang ini?')){
+        event.preventDefault();
+        return false;
+    }
+
+    return true;
+
 }
 </script>
 

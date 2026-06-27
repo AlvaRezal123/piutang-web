@@ -73,27 +73,18 @@ class HutangController extends Controller
         // tanggal pengajuan
         $tanggal_pengajuan = now();
 
-        // menentukan jatuh tempo
-  if ($request->metode == 'cash') {
+
+if ($request->metode == 'cash') {
 
     $lama_tempo = null;
-
-    $tanggal_jatuh_tempo = now()->addMonth();
 
 } else {
 
     $lama_tempo = $request->lama_tempo;
 
-    if ($lama_tempo == '2 bulan') {
-
-        $tanggal_jatuh_tempo = now()->addMonths(2);
-
-    } else {
-
-        $tanggal_jatuh_tempo = now()->addMonths(3);
-
-    }
 }
+
+$tanggal_jatuh_tempo = null;
 
         // simpan hutang
        $hutang = Hutang::create([
@@ -485,27 +476,17 @@ public function formPencairan($id)
     );
 }
 // SIMPAN PENCAIRAN
-public function simpanPencairan(
-    Request $request,
-    $id
-)
+public function simpanPencairan(Request $request, $id)
 {
     $request->validate([
-
-        'bukti_pencairan' =>
-            'required|image|mimes:jpg,jpeg,png',
-
+        'bukti_pencairan' => 'required|image|mimes:jpg,jpeg,png',
     ]);
 
     $hutang = Hutang::with('agen')->findOrFail($id);
     $userAgen = $hutang->agen->user;
-    $admin = User::where(
-        'role',
-        'admin'
-    )->first();
+    $admin = User::where('role', 'admin')->first();
 
-    // upload bukti
-
+    // Upload bukti
     $namaFile = time() . '_pencairan.' .
         $request->bukti_pencairan->extension();
 
@@ -514,29 +495,48 @@ public function simpanPencairan(
         $namaFile
     );
 
-    $hutang->bukti_pencairan =
-        $namaFile;
+    $hutang->bukti_pencairan = $namaFile;
 
-    $hutang->tanggal_pencairan =
-        now();
+    // Tanggal pencairan
+    $tanggalPencairan = now();
 
-    $hutang->status =
-        'berjalan';
+    $hutang->tanggal_pencairan = $tanggalPencairan;
+
+    // Hitung tanggal jatuh tempo mulai dari tanggal pencairan
+    if ($hutang->metode == 'cash') {
+
+        $hutang->tanggal_jatuh_tempo = $tanggalPencairan->copy()->addMonth();
+
+    } else {
+
+        if ($hutang->lama_tempo == '2 bulan') {
+
+            $hutang->tanggal_jatuh_tempo = $tanggalPencairan->copy()->addMonths(2);
+
+        } else {
+
+            $hutang->tanggal_jatuh_tempo = $tanggalPencairan->copy()->addMonths(3);
+
+        }
+    }
+
+    $hutang->status = 'berjalan';
 
     $hutang->save();
+
     $user = User::find($hutang->agen->user_id);
 
-if ($user) {
+    if ($user) {
 
-    Mail::to($user->email)->send(
+        Mail::to($user->email)->send(
 
-        new NotificationMail(
+            new NotificationMail(
 
-            $user->username,
+                $user->username,
 
-            'Saldo Piutang Berhasil Dicairkan',
+                'Saldo Piutang Berhasil Dicairkan',
 
-            'Halo ' . $user->username . ',
+                'Halo ' . $user->username . ',
 
 Saldo piutang Anda sebesar Rp' .
 number_format(
@@ -551,79 +551,78 @@ Silakan login ke aplikasi Partner Pulsa untuk mulai menggunakan saldo tersebut.
 
 Terima kasih.'
 
-        )
+            )
 
-    );
+        );
 
-}
+    }
 
     $jumlahBulan = 1;
 
-if ($hutang->lama_tempo == '2 bulan') {
+    if ($hutang->lama_tempo == '2 bulan') {
 
-    $jumlahBulan = 2;
+        $jumlahBulan = 2;
 
-} elseif ($hutang->lama_tempo == '3 bulan') {
+    } elseif ($hutang->lama_tempo == '3 bulan') {
 
-    $jumlahBulan = 3;
-}
+        $jumlahBulan = 3;
 
-$nominalCicilan =
-    $hutang->jumlah_hutang /
-    $jumlahBulan;
+    }
 
-for ($i = 1; $i <= $jumlahBulan; $i++) {
+    $nominalCicilan =
+        $hutang->jumlah_hutang /
+        $jumlahBulan;
 
-    Cicilan::create([
+    for ($i = 1; $i <= $jumlahBulan; $i++) {
 
-        'id_hutang' =>
-            $hutang->id,
+        Cicilan::create([
 
-        'cicilan_ke' =>
-            $i,
+            'id_hutang' => $hutang->id,
 
-        'jumlah_cicilan' =>
-            $nominalCicilan,
+            'cicilan_ke' => $i,
 
-        'tanggal_jatuh_tempo' =>
-            \Carbon\Carbon::parse(
-                $hutang->tanggal_pengajuan
-            )->addMonths($i),
+            'jumlah_cicilan' => $nominalCicilan,
 
-        'status' =>
-            'belum'
+            // Sekarang dihitung dari tanggal pencairan
+            'tanggal_jatuh_tempo' =>
+                \Carbon\Carbon::parse(
+                    $hutang->tanggal_pencairan
+                )->addMonths($i),
 
-    ]);
-}
+            'status' => 'belum'
 
-// NOTIFIKASI UNTUK ADMIN
-if ($admin) {
-    Notifikasi::create([
-        'id_user' => $admin->id,
-        'judul' => 'Saldo Dicairkan',
-        'pesan' =>
-            'Saldo piutang milik agen ' .
-            $hutang->agen->username .
-            ' telah berhasil dicairkan.',
-        'tipe' => 'pencairan',
-        'media' => 'web',
-        'tanggal' => now(),
-        'status_baca' => 'belum'
-    ]);
+        ]);
+    }
 
-$owner = User::where('role', 'owner')->first();
+    // NOTIFIKASI UNTUK ADMIN
+    if ($admin) {
 
-if ($owner) {
+        Notifikasi::create([
+            'id_user' => $admin->id,
+            'judul' => 'Saldo Dicairkan',
+            'pesan' =>
+                'Saldo piutang milik agen ' .
+                $hutang->agen->username .
+                ' telah berhasil dicairkan.',
+            'tipe' => 'pencairan',
+            'media' => 'web',
+            'tanggal' => now(),
+            'status_baca' => 'belum'
+        ]);
 
-    Mail::to($owner->email)->send(
+        $owner = User::where('role', 'owner')->first();
 
-        new NotificationMail(
+        if ($owner) {
 
-            $owner->username,
+            Mail::to($owner->email)->send(
 
-            'Saldo Piutang Telah Dicairkan',
+                new NotificationMail(
 
-            'Halo ' . $owner->username . ',
+                    $owner->username,
+
+                    'Saldo Piutang Telah Dicairkan',
+
+                    'Halo ' . $owner->username . ',
 
 Saldo piutang milik agen ' .
 $hutang->agen->username .
@@ -636,17 +635,15 @@ number_format(
 ) .
 ' telah berhasil dicairkan oleh Admin.'
 
-        )
+                )
 
-    );
+            );
 
+        }
 
-}
+    }
 
-}
-    return redirect(
-        '/admin/pencairan'
-    )->with(
+    return redirect('/admin/pencairan')->with(
         'success',
         'Saldo berhasil dicairkan'
     );
@@ -724,6 +721,29 @@ public function dashboardOwner()
         'aktivitas',
         'antrianPending'
     ));
+}
+// HALAMAN PENGAJUAN HUTANG KHUSUS ADMIN
+public function pengajuanHutangAdmin()
+{
+    $hutang = Hutang::with('agen')
+        ->latest()
+        ->get();
+
+    return view('hutang.pengajuan-admin', compact('hutang'));
+}
+public function detailAdmin($id)
+{
+    $hutang = Hutang::with(['agen', 'cicilan'])->findOrFail($id);
+
+    $riwayat = Hutang::where('id_agen', $hutang->id_agen)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $pembayaran = Pembayaran::where('id_hutang', $id)
+        ->orderBy('tanggal_pembayaran', 'desc')
+        ->get();
+
+    return view('hutang.detail-admin', compact('hutang', 'riwayat', 'pembayaran'));
 }
 
 }

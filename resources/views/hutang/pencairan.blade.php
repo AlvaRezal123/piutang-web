@@ -19,59 +19,136 @@
 
 </div>
 
-<!-- CARD STATISTIK -->
-<div class="grid md:grid-cols-4 gap-6 mb-8">
+<!-- STATISTIK -->
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-8">
 
-    <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
+    <!-- TOTAL NOMINAL HUTANG -->
+    <div class="lg:col-span-2 bg-gradient-to-r from-[#5628C7] to-purple-600 rounded-3xl p-8 text-white shadow-sm flex flex-col justify-center">
 
-        <p class="text-sm text-gray-500">
+        <p class="text-sm uppercase tracking-wider text-white/80">
+            Total Nominal Hutang
+        </p>
+
+        <h2
+         class="text-5xl font-bold mt-4 break-words">
+            Rp{{ number_format($hutang->sum('jumlah_hutang'),0,',','.') }}
+        </h2>
+
+        <p class="mt-4 text-white/80 leading-relaxed">
+            Akumulasi seluruh nominal hutang yang telah diajukan oleh agen.
+        </p>
+
+    </div>
+
+    <!-- MENUNGGU PENCAIRAN -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+
+        <div class="absolute top-0 left-0 right-0 h-1 bg-[#EF9F27]"></div>
+
+        <div class="w-10 h-10 rounded-lg bg-[#FAEEDA] flex items-center justify-center mb-3">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-[#854F0B]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.5">
+
+                <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+            </svg>
+
+        </div>
+
+        <p class="text-xs uppercase tracking-wide font-bold">
             Menunggu Pencairan
         </p>
 
-        <h2 class="text-3xl font-bold text-yellow-500 mt-2">
+        <h2 class="text-4xl font-semibold text-[#BA7517] mt-2">
             {{ $hutang->where('status','disetujui')->count() }}
         </h2>
 
+        <p class="text-xs text-gray-400 mt-2">
+            Siap dicairkan
+        </p>
+
     </div>
 
-    <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
+    <!-- SUDAH DICAIRKAN -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
 
-        <p class="text-sm text-gray-500">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-[#639922]"></div>
+
+        <div class="w-10 h-10 rounded-lg bg-[#EAF3DE] flex items-center justify-center mb-3">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-[#3B6D11]"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.5">
+
+                <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 6v6m0 0l3-3m-3 3l-3-3M5.25 15.75A2.25 2.25 0 017.5 13.5h9a2.25 2.25 0 012.25 2.25v2.25A2.25 2.25 0 0116.5 20.25h-9a2.25 2.25 0 01-2.25-2.25v-2.25z"/>
+
+            </svg>
+
+        </div>
+
+        <p class="text-xs uppercase tracking-wide font-bold">
             Sudah Dicairkan
         </p>
 
-        <h2 class="text-3xl font-bold text-green-600 mt-2">
+        <h2 class="text-4xl font-semibold text-[#639922] mt-2">
             {{ $hutang->where('status','berjalan')->count() }}
         </h2>
 
+        <p class="text-xs text-gray-400 mt-2">
+            Saldo telah diberikan
+        </p>
+
     </div>
 
-    <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
+    <!-- HUTANG LUNAS -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
 
-        <p class="text-sm text-gray-500">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-[#3B82F6]"></div>
+
+        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mb-3">
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="w-5 h-5 text-blue-700"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.5">
+
+                <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+            </svg>
+
+        </div>
+
+        <p class="text-xs uppercase tracking-wide font-bold">
             Hutang Lunas
         </p>
 
-        <h2 class="text-3xl font-bold text-blue-600 mt-2">
+        <h2 class="text-4xl font-semibold text-blue-600 mt-2">
             {{ $hutang->where('status','lunas')->count() }}
         </h2>
 
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
-
-        <p class="text-sm text-gray-500">
-            Total Nominal
+        <p class="text-xs text-gray-400 mt-2">
+            Telah dilunasi
         </p>
-
-        <h2 class="text-2xl font-bold text-[#5628C7] mt-2">
-            Rp{{ number_format($hutang->sum('jumlah_hutang'),0,',','.') }}
-        </h2>
 
     </div>
 
 </div>
-
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
 
@@ -82,37 +159,59 @@
             Data Pencairan
         </h2>
 
-        <div class="flex gap-3">
+       <div class="flex flex-wrap gap-3">
 
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="Cari Agen..."
-                class="border border-gray-300 rounded-xl px-4 py-2">
+    <!-- Cari -->
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Cari Agen..."
+        class="border border-gray-300 rounded-xl px-4 py-2">
 
-            <select
-                id="filterStatus"
-                class="border border-gray-300 rounded-xl px-4 py-2">
+    <!-- Status -->
+    <select
+        id="filterStatus"
+        class="border border-gray-300 rounded-xl px-4 py-2">
 
-                <option value="all">
-                    Semua Status
-                </option>
+        <option value="all">Semua Status</option>
+        <option value="disetujui">Menunggu</option>
+        <option value="berjalan">Dicairkan</option>
+        <option value="lunas">Lunas</option>
 
-                <option value="disetujui">
-                    Menunggu
-                </option>
+    </select>
 
-                <option value="berjalan">
-                    Dicairkan
-                </option>
+    <!-- Tanggal -->
+    <input
+        type="date"
+        id="filterTanggal"
+        class="border border-gray-300 rounded-xl px-4 py-2">
 
-                <option value="lunas">
-                    Lunas
-                </option>
+    <!-- Tahun -->
+    <select
+        id="filterTahun"
+        class="border border-gray-300 rounded-xl px-4 py-2">
 
-            </select>
+        <option value="">Semua Tahun</option>
 
-        </div>
+        @for($i = date('Y'); $i >= 2024; $i--)
+
+            <option value="{{ $i }}">{{ $i }}</option>
+
+        @endfor
+
+    </select>
+
+    <!-- Reset -->
+    <button
+        type="button"
+        id="resetFilter"
+        class="bg-gray-100 hover:bg-gray-200 px-4 rounded-xl">
+
+        Reset
+
+    </button>
+
+</div>
 
     </div>
 
@@ -160,10 +259,12 @@
 
                 @forelse($hutang as $h)
 
-                <tr
-                    class="border-b pencairan-row"
-                    data-status="{{ $h->status }}"
-                    data-agen="{{ strtolower($h->agen->username) }}">
+        <tr
+    class="border-b pencairan-row"
+    data-status="{{ $h->status }}"
+    data-agen="{{ strtolower($h->agen->username) }}"
+    data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}"
+    data-tahun="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y') }}">
 
                     <td class="py-5">
 
@@ -304,6 +405,15 @@
 
 <script>
 
+const filterTanggal =
+document.getElementById('filterTanggal');
+
+const filterTahun =
+document.getElementById('filterTahun');
+
+const resetFilter =
+document.getElementById('resetFilter');
+
 const searchInput =
 document.getElementById('searchInput');
 
@@ -312,21 +422,19 @@ document.getElementById('filterStatus');
 
 function filterData(){
 
-    let keyword =
-        searchInput.value.toLowerCase();
-
-    let status =
-        filterStatus.value;
+    let keyword = searchInput.value.toLowerCase();
+    let status = filterStatus.value;
+    let tanggal = filterTanggal.value;
+    let tahun = filterTahun.value;
 
     document
     .querySelectorAll('.pencairan-row')
     .forEach(function(row){
 
-        let nama =
-            row.dataset.agen;
-
-        let rowStatus =
-            row.dataset.status;
+        let nama = row.dataset.agen;
+        let rowStatus = row.dataset.status;
+        let rowTanggal = row.dataset.tanggal;
+        let rowTahun = row.dataset.tahun;
 
         let cocokNama =
             nama.includes(keyword);
@@ -335,14 +443,26 @@ function filterData(){
             status === 'all'
             || rowStatus === status;
 
+        let cocokTanggal =
+            tanggal === ''
+            || rowTanggal === tanggal;
+
+        let cocokTahun =
+            tahun === ''
+            || rowTahun === tahun;
+
         row.style.display =
-            cocokNama && cocokStatus
-            ? ''
-            : 'none';
+            (cocokNama &&
+             cocokStatus &&
+             cocokTanggal &&
+             cocokTahun)
+             ? ''
+             : 'none';
 
     });
 
 }
+
 
 searchInput.addEventListener(
     'keyup',
@@ -353,6 +473,26 @@ filterStatus.addEventListener(
     'change',
     filterData
 );
+filterTanggal.addEventListener(
+    'change',
+    filterData
+);
+
+filterTahun.addEventListener(
+    'change',
+    filterData
+);
+
+resetFilter.addEventListener('click', function(){
+
+    searchInput.value = '';
+    filterStatus.value = 'all';
+    filterTanggal.value = '';
+    filterTahun.value = '';
+
+    filterData();
+
+});
 
 </script>
 

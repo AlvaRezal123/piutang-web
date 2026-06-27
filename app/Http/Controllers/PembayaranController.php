@@ -86,7 +86,12 @@ class PembayaranController extends Controller
             'Bukti pembayaran wajib diupload'
 
         ]);
+// Jika memilih "Lainnya", gunakan nama bank yang diketik
+$bankPengirim = $request->bank_pengirim;
 
+if ($request->bank_pengirim == 'lainnya') {
+    $bankPengirim = $request->bank_lain;
+}
         // upload bukti
 
         $bukti = null;
@@ -168,8 +173,8 @@ class PembayaranController extends Controller
             'nama_pengirim' =>
             $request->nama_pengirim,
 
-            'bank_pengirim' =>
-            $request->bank_pengirim,
+          'bank_pengirim' =>
+            $bankPengirim,
 
             'bukti_pembayaran' =>
             $bukti,
@@ -210,51 +215,55 @@ class PembayaranController extends Controller
     // ADMIN LIHAT PEMBAYARAN
     // ==========================
 
-    public function index(Request $request)
-    {
-        $query = Pembayaran::with(
-    'hutang.agen',
-    'cicilan'
+   // ==========================
+// ADMIN LIHAT PEMBAYARAN
+// ==========================
+
+public function index(Request $request)
+{
+    $query = Pembayaran::with(
+        'hutang.agen',
+        'cicilan'
     );
 
-        if ($request->filled('range_tanggal')) {
+    // Filter berdasarkan tanggal
+    if ($request->filled('tanggal')) {
 
-            $tanggal = explode(
-                ' to ',
-                $request->range_tanggal
-            );
-
-            // JIKA 1 TANGGAL
-            if (count($tanggal) == 1) {
-
-                $query->whereDate(
-                    'tanggal_pembayaran',
-                    $tanggal[0]
-                );
-            }
-
-            // JIKA RANGE
-            if (count($tanggal) == 2) {
-
-                $query->whereBetween(
-                    'tanggal_pembayaran',
-                    [
-                        trim($tanggal[0]),
-                        trim($tanggal[1])
-                    ]
-                );
-            }
-        }
-
-        $pembayaran = $query
-            ->latest()
-            ->get();
-
-        return view(
-            'pembayaran.index',
-            compact('pembayaran')
+        $query->whereDate(
+            'tanggal_pembayaran',
+            $request->tanggal
         );
+
     }
+    // Filter Tahun
+if ($request->filled('tahun')) {
+
+    $query->whereYear(
+        'tanggal_pembayaran',
+        $request->tahun
+    );
+
+}
+
+// Filter Status
+if ($request->filled('status')) {
+
+    $query->where(
+        'status',
+        $request->status
+    );
+
+}
+
+    $pembayaran = $query
+        ->latest()
+        ->get();
+
+    return view(
+        'pembayaran.index',
+        compact('pembayaran')
+    );
+}
     // ==========================
     // ADMIN SETUJUI PEMBAYARAN
     // ==========================

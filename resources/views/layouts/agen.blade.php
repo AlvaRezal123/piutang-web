@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMPAN</title>
 
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
@@ -101,6 +103,7 @@
             background: rgba(255, 100, 100, 0.15);
         }
     </style>
+    @stack('styles')
 </head>
 
 <body class="bg-[#f7f5ff]">
@@ -150,10 +153,15 @@
                 <span class="icon-wrap">💳</span>
                 Pembayaran
             </a>
+<div class="section-label">Akun</div>
 
-            <div class="section-label">Akun</div>
+<a href="/profil-agen"
+   class="nav-link {{ request()->is('profil-agen') ? 'active' : '' }}">
+    <span class="icon-wrap">👤</span>
+    Profil Saya
+</a>
 
-            <a href="/logout" class="nav-link danger">
+<a href="/logout" class="nav-link danger">
                 <span class="icon-wrap">🚪</span>
                 Logout
             </a>

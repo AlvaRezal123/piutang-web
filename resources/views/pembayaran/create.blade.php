@@ -40,7 +40,7 @@
 
         @foreach($errors->all() as $error)
 
-            <li>{{ $error }}</li>
+        <li>{{ $error }}</li>
 
         @endforeach
 
@@ -56,7 +56,27 @@
     <h2 class="text-xl font-bold text-gray-800 mb-5">
         Informasi Hutang
     </h2>
-@if($cicilanAktif)
+@if($hutang->metode == 'cash')
+
+<div class="bg-green-50 border border-green-200 rounded-2xl p-4 mb-6">
+
+    <p class="font-semibold text-green-700">
+        Pembayaran Penuh
+    </p>
+
+    <p class="mt-2">
+        Nominal:
+        Rp{{ number_format($hutang->sisa_hutang,0,',','.') }}
+    </p>
+
+    <p>
+        Jatuh Tempo:
+        {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}
+    </p>
+
+</div>
+
+@elseif($cicilanAktif)
 
 <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
 
@@ -128,147 +148,269 @@
 <!-- FORM -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
-<form
-    action="/pembayaran/store"
-    method="POST"
-    enctype="multipart/form-data">
+    <form
+        action="/pembayaran/store"
+        method="POST"
+        enctype="multipart/form-data">
 
-    @csrf
-
-    <input
-        type="hidden"
-        name="id_hutang"
-        value="{{ $hutang->id }}">
+        @csrf
 
         <input
-    type="hidden"
-    name="id_cicilan"
-    value="{{ $cicilanAktif->id }}">
-    <div class="grid md:grid-cols-2 gap-6">
+            type="hidden"
+            name="id_hutang"
+            value="{{ $hutang->id }}">
 
-        <!-- JUMLAH BAYAR -->
-        <div>
+        <input
+            type="hidden"
+            name="id_cicilan"
+            value="{{ $cicilanAktif->id }}">
+        <div class="grid md:grid-cols-2 gap-6">
 
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Jumlah Bayar
-            </label>
+            <!-- JUMLAH BAYAR -->
+            <div>
+
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Jumlah Bayar
+                </label>
 
                 <input
-            type="text"
-            value="Rp{{ number_format($cicilanAktif->jumlah_cicilan,0,',','.') }}"
-            readonly
-            class="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3">
+                    type="text"
+                    value="Rp{{ number_format($cicilanAktif->jumlah_cicilan,0,',','.') }}"
+                    readonly
+                    class="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3">
 
-            <input
-            type="hidden"
-            name="jumlah_bayar"
-            value="{{ $cicilanAktif->jumlah_cicilan }}">
-            <p
-                id="warning_hutang"
-                class="text-red-500 text-sm mt-2 hidden">
+                <input
+                    type="hidden"
+                    name="jumlah_bayar"
+                    value="{{ $cicilanAktif->jumlah_cicilan }}">
+                <p
+                    id="warning_hutang"
+                    class="text-red-500 text-sm mt-2 hidden">
 
-                Jumlah pembayaran melebihi sisa hutang
+                    Jumlah pembayaran melebihi sisa hutang
 
-            </p>
+                </p>
 
-        </div>
+            </div>
 
-        <!-- NAMA PENGIRIM -->
-        <div>
+            <!-- NAMA PENGIRIM -->
+            <div>
 
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Nama Pemilik Rekening
-            </label>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Nama Pemilik Rekening
+                </label>
 
-            <input
-                type="text"
-                name="nama_pengirim"
-                required
-                placeholder="Masukkan nama pemilik rekening"
-                class="w-full border border-gray-300 rounded-xl px-4 py-3">
+                <input
+                    type="text"
+                    name="nama_pengirim"
+                    required
+                    placeholder="Masukkan nama pemilik rekening"
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3">
 
-        </div>
+            </div>
 
-        <!-- METODE -->
-        <div>
+            <!-- METODE PEMBAYARAN -->
+            <div>
 
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Metode Pembayaran
-            </label>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Metode Pembayaran
+                </label>
+<select
+    id="bank_pengirim"
+    name="bank_pengirim"
+    required
+    class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#5628C7] focus:border-[#5628C7]">
 
-            <select
-                name="bank_pengirim"
-                required
-                class="w-full border border-gray-300 rounded-xl px-4 py-3">
+                    <option value="">💳 Pilih Metode Pembayaran</option>
 
-                <option value="">
-                    Pilih Metode Pembayaran
-                </option>
+                    <optgroup label="🏦 Transfer Bank">
+                        <option>BCA</option>
+                        <option>BRI</option>
+                        <option>BNI</option>
+                        <option>Mandiri</option>
+                        <option>BSI</option>
+                        <option>SeaBank</option>
+                        <option>Bank Jago</option>
+                    </optgroup>
 
-                <optgroup label="Bank">
+                    <optgroup label="📱 E-Wallet">
+                        <option>DANA</option>
+                        <option>GoPay</option>
+                        <option>OVO</option>
+                        <option>ShopeePay</option>
+                    </optgroup>
 
-                    <option value="BCA">BCA</option>
-                    <option value="BRI">BRI</option>
-                    <option value="BNI">BNI</option>
-                    <option value="Mandiri">Mandiri</option>
-                    <option value="BSI">BSI</option>
-                    <option value="SeaBank">SeaBank</option>
-                    <option value="Bank Jago">Bank Jago</option>
+                    <optgroup label="⚡ Lainnya">
+                        <option value="QRIS">QRIS</option>
+                        <option value="lainnya">✏️ Lainnya...</option>
+                    </optgroup>
 
-                </optgroup>
+                </select>
+                <div id="bank_lain_container" class="mt-3 hidden">
 
-                <optgroup label="E-Wallet">
+                    <input
+                        type="text"
+                        id="bank_lain"
+                        name="bank_lain"
+                        placeholder="Contoh: CIMB Niaga, Neo Bank, LINE Bank..."
+                        class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#5628C7]">
 
-                    <option value="DANA">DANA</option>
-                    <option value="GoPay">GoPay</option>
-                    <option value="OVO">OVO</option>
-                    <option value="ShopeePay">ShopeePay</option>
+                </div>
+            </div>
 
-                </optgroup>
+            <!-- BUKTI PEMBAYARAN -->
+            <div>
 
-                <option value="QRIS">
-                    QRIS
-                </option>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Bukti Pembayaran
+                </label>
 
-            </select>
+                <label
+                    id="upload_area"
+                    for="bukti_pembayaran"
+                    class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-gray-50 hover:bg-purple-50 hover:border-[#5628C7] transition">
 
-        </div>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-14 h-14 text-[#5628C7] mb-3"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor">
 
-        <!-- BUKTI -->
-        <div>
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M7 18a4.6 4.6 0 01-2-8.7A5 5 0 0110.2 4a5 5 0 014.7 3.2A4 4 0 0118 18H7zm5-8v6m0 0l-2-2m2 2l2-2" />
 
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Bukti Pembayaran
-            </label>
+                    </svg>
 
-            <input
-                type="file"
-                name="bukti_pembayaran"
-                class="w-full border border-gray-300 rounded-xl px-4 py-3">
+                    <p class="font-semibold text-gray-700">
+                        Klik di sini untuk memilih bukti pembayaran
+                    </p>
 
-        </div>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Format JPG, JPEG, PNG
+                    </p>
 
-    </div>
+                    <p
+                        id="nama_file"
+                        class="mt-3 text-[#5628C7] font-semibold hidden">
+                    </p>
 
-    </div>
+                </label>
 
-    <!-- BUTTON -->
-    <div class="mt-8 flex justify-end">
+                <input
+                    type="file"
+                    id="bukti_pembayaran"
+                    name="bukti_pembayaran"
+                    accept=".jpg,.jpeg,.png"
+                    class="hidden">
 
-        <button
-            type="submit"
-            id="btn_submit"
-            class="bg-[#5628C7] hover:bg-[#4b22b0] text-white px-8 py-3 rounded-xl font-semibold">
+                <!-- Preview -->
+                <div
+                    id="preview_container"
+                    class="hidden mt-5">
 
-            Kirim Pembayaran
+                    <p class="font-semibold text-gray-700 mb-2">
+                        Preview Bukti Pembayaran
+                    </p>
 
-        </button>
+                    <img
+                        id="preview_image"
+                        class="rounded-xl border border-gray-300 shadow-md max-h-72">
 
-    </div>
+                </div>
 
-</form>
+            </div>
+              </div>
+            <!-- BUTTON -->
+            <div class="mt-8 flex justify-end">
+
+                <button
+                    type="submit"
+                    id="btn_submit"
+                    class="bg-[#5628C7] hover:bg-[#4b22b0] text-white px-8 py-3 rounded-xl font-semibold">
+
+                    Kirim Pembayaran
+
+                </button>
+
+            </div>
+
+    </form>
 
 </div>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // ==========================
+        // METODE PEMBAYARAN
+        // ==========================
+
+        const selectBank = document.getElementById('bank_pengirim');
+        const container = document.getElementById('bank_lain_container');
+        const inputBank = document.getElementById('bank_lain');
+
+        if (selectBank) {
+
+            selectBank.addEventListener('change', function() {
+
+                if (this.value === 'lainnya') {
+
+                    container.classList.remove('hidden');
+                    inputBank.required = true;
+
+                } else {
+
+                    container.classList.add('hidden');
+                    inputBank.required = false;
+                    inputBank.value = '';
+
+                }
+
+            });
+
+        }
+
+        // ==========================
+        // UPLOAD BUKTI PEMBAYARAN
+        // ==========================
+
+        const inputFile = document.getElementById('bukti_pembayaran');
+        const namaFile = document.getElementById('nama_file');
+        const previewContainer = document.getElementById('preview_container');
+        const previewImage = document.getElementById('preview_image');
+
+        if (inputFile) {
+
+            inputFile.addEventListener('change', function() {
+
+                if (this.files.length > 0) {
+
+                    const file = this.files[0];
+
+                    namaFile.classList.remove('hidden');
+                    namaFile.innerHTML = "✅ " + file.name;
+
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+
+                        previewContainer.classList.remove('hidden');
+                        previewImage.src = e.target.result;
+
+                    };
+
+                    reader.readAsDataURL(file);
+
+                }
+
+            });
+
+        }
+
+    });
+</script>
 
 @endsection

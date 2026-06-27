@@ -222,7 +222,7 @@
 <div id="preview_cicilan" class="hidden mb-6">
 
     <h3 class="font-semibold text-gray-800 mb-3">
-        Simulasi Cicilan
+        Ringkasan Cicilan
     </h3>
 
 <div
@@ -345,95 +345,124 @@ const previewContent =
 
 function tampilkanSimulasi() {
 
-    if (
-        metode.value !== 'cicil'
-    ) {
-        previewCicilan.classList.add('hidden');
-        return;
-    }
-
-    let jumlah =
-        parseInt(
-            inputReal.value || 0
-        );
+    let jumlah = parseInt(inputReal.value || 0);
 
     if (!jumlah) {
         previewCicilan.classList.add('hidden');
         return;
     }
 
-    let bulan =
-        lamaTempo.value === '2 bulan'
-        ? 2
-        : 3;
-
-    let nominal =
-        Math.ceil(jumlah / bulan);
-
     let html = '';
 
-    for (
-        let i = 1;
-        i <= bulan;
-        i++
-    ) {
+    // ========================
+    // PEMBAYARAN PENUH
+    // ========================
+    if (metode.value === 'cash') {
 
-        let tanggal =
-            new Date();
+        html = `
+        <div class="min-w-[320px] bg-green-50 border border-green-200 rounded-2xl p-5">
 
-        tanggal.setMonth(
-            tanggal.getMonth() + i
-        );
+            <div class="flex items-center gap-3 mb-4">
 
-html += `
-<div class="min-w-[320px] bg-purple-50 border border-purple-200 rounded-2xl p-5">
+                <div class="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">
+                    ✓
+                </div>
 
-    <div class="flex items-center gap-3 mb-4">
+                <h4 class="font-bold text-green-700 text-lg">
+                    Pembayaran Penuh
+                </h4>
 
-        <div class="w-10 h-10 bg-[#5628C7] text-white rounded-full flex items-center justify-center font-bold">
-            ${i}
+            </div>
+
+            <div class="space-y-3">
+
+                <div>
+                    <p class="text-sm text-gray-500">
+                        Nominal Pembayaran
+                    </p>
+
+                    <p class="font-bold text-2xl text-gray-800">
+                        Rp${jumlah.toLocaleString('id-ID')}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-500">
+                        Informasi Tempo
+                    </p>
+
+                    <p class="font-semibold text-amber-600">
+                        Ditentukan setelah saldo dicairkan Admin
+                    </p>
+                </div>
+
+            </div>
+
         </div>
+        `;
 
-        <h4 class="font-bold text-[#5628C7] text-lg">
-            Cicilan Ke-${i}
-        </h4>
-
-    </div>
-
-    <div class="space-y-3">
-
-        <div>
-            <p class="text-sm text-gray-500">
-                Nominal Cicilan
-            </p>
-
-            <p class="font-bold text-2xl text-gray-800">
-                Rp${nominal.toLocaleString('id-ID')}
-            </p>
-        </div>
-
-        <div>
-            <p class="text-sm text-gray-500">
-                Jatuh Tempo
-            </p>
-
-            <p class="font-semibold text-red-500">
-                ${tanggal.toLocaleDateString('id-ID')}
-            </p>
-        </div>
-
-    </div>
-
-</div>
-`;
+        previewContent.innerHTML = html;
+        previewCicilan.classList.remove('hidden');
+        return;
     }
 
-    previewContent.innerHTML =
-        html;
+    // ========================
+    // CICILAN
+    // ========================
 
-    previewCicilan.classList.remove(
-        'hidden'
-    );
+    let bulan = lamaTempo.value === '2 bulan' ? 2 : 3;
+
+    let nominal = Math.ceil(jumlah / bulan);
+
+    html = '';
+
+    for (let i = 1; i <= bulan; i++) {
+
+        html += `
+        <div class="min-w-[320px] bg-purple-50 border border-purple-200 rounded-2xl p-5">
+
+            <div class="flex items-center gap-3 mb-4">
+
+                <div class="w-10 h-10 bg-[#5628C7] text-white rounded-full flex items-center justify-center font-bold">
+                    ${i}
+                </div>
+
+                <h4 class="font-bold text-[#5628C7] text-lg">
+                    Cicilan Ke-${i}
+                </h4>
+
+            </div>
+
+            <div class="space-y-3">
+
+                <div>
+                    <p class="text-sm text-gray-500">
+                        Nominal Cicilan
+                    </p>
+
+                    <p class="font-bold text-2xl text-gray-800">
+                        Rp${nominal.toLocaleString('id-ID')}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-500">
+                        Informasi Tempo
+                    </p>
+
+                    <p class="font-semibold text-amber-600">
+                        Ditentukan setelah saldo dicairkan Admin
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+        `;
+    }
+
+    previewContent.innerHTML = html;
+    previewCicilan.classList.remove('hidden');
 }
 
 metode.addEventListener(

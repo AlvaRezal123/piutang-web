@@ -741,7 +741,13 @@ public function dashboardAdmin()
 
     $aktivitas = $aktivitas
         ->sortByDesc('tanggal')
-        ->take(3);
+        ->take(8);
+
+    // TAMBAH INI
+    $pengajuanHutang = Hutang::with('agen')
+        ->latest()
+        ->take(5)
+        ->get();
         
 
     return view(
@@ -751,7 +757,8 @@ public function dashboardAdmin()
             'agenAktif',
             'pencairanPending',
             'pembayaranPending',
-            'aktivitas'
+            'aktivitas',
+            'pengajuanHutang'
         )
     );
 }
@@ -928,6 +935,12 @@ public function simpanTolak(Request $request, $id)
             'success',
             'Agen berhasil ditolak'
         );
+}
+public function profil()
+{
+    $agen = Agen::find(session('id_agen'));
+
+    return view('agen.profil', compact('agen'));
 }
 
 }
