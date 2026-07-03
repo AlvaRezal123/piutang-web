@@ -237,6 +237,33 @@ Silakan menunggu proses pencairan saldo oleh Admin.'
 
     );
 
+    // NOTIFIKASI UNTUK AGEN
+    Notifikasi::create([
+
+        'id_user' => $user->id,
+
+        'judul' => 'Pengajuan Hutang Disetujui',
+
+        'pesan' =>
+            'Pengajuan hutang Anda sebesar Rp' .
+            number_format(
+                $hutang->jumlah_hutang,
+                0,
+                ',',
+                '.'
+            ) .
+            ' telah disetujui oleh Owner. Menunggu proses pencairan oleh Admin.',
+
+        'tipe' => 'persetujuan',
+
+        'media' => 'web',
+
+        'tanggal' => now(),
+
+        'status_baca' => 'belum'
+
+    ]);
+
 }
 
 
@@ -333,6 +360,27 @@ Terima kasih.'
         )
 
     );
+
+    // NOTIFIKASI UNTUK AGEN
+    Notifikasi::create([
+
+        'id_user' => $user->id,
+
+        'judul' => 'Pengajuan Hutang Ditolak',
+
+        'pesan' =>
+            'Pengajuan hutang Anda ditolak oleh Owner. Alasan: ' .
+            $request->alasan_penolakan,
+
+        'tipe' => 'pengajuan',
+
+        'media' => 'web',
+
+        'tanggal' => now(),
+
+        'status_baca' => 'belum'
+
+    ]);
 
 }
 
@@ -555,6 +603,33 @@ Terima kasih.'
 
         );
 
+        // NOTIFIKASI UNTUK AGEN
+        Notifikasi::create([
+
+            'id_user' => $user->id,
+
+            'judul' => 'Saldo Piutang Dicairkan',
+
+            'pesan' =>
+                'Saldo piutang Anda sebesar Rp' .
+                number_format(
+                    $hutang->jumlah_hutang,
+                    0,
+                    ',',
+                    '.'
+                ) .
+                ' telah berhasil dicairkan.',
+
+            'tipe' => 'pencairan',
+
+            'media' => 'web',
+
+            'tanggal' => now(),
+
+            'status_baca' => 'belum'
+
+        ]);
+
     }
 
     $jumlahBulan = 1;
@@ -677,12 +752,71 @@ public function detail($id)
 {
     $hutang = Hutang::with('agen')->findOrFail($id);
 
-    $riwayat = Hutang::where('id_agen', $hutang->id_agen)
-        ->orderBy('tanggal_pengajuan', 'desc')
+    $riwayat = Hutang::where(
+        'id_agen',
+        $hutang->id_agen
+    )
+    ->orderBy(
+        'tanggal_pengajuan',
+        'desc'
+    )
+    ->get();
+
+    // Ambil cicilan yang sedang aktif
+    $cicilanAktif = null;
+
+    if ($hutang->metode == 'cicil') {
+
+        $cicilanAktif = Cicilan::where(
+            'id_hutang',
+            $hutang->id
+        )
+        ->whereIn(
+            'status',
+            [
+                'belum',
+                'terlambat'
+            ]
+        )
+        ->orderBy(
+            'cicilan_ke'
+        )
+        ->first();
+    }
+
+    return view(
+        'hutang.detail',
+        compact(
+            'hutang',
+            'riwayat',
+            'cicilanAktif'
+        )
+    );
+}
+// HUTANG KHUSUS ADMIN
+public function pengajuanHutangAdmin()
+{
+    $hutang = Hutang::with('agen')
+        ->latest()
         ->get();
 
-    return view('hutang.detail', compact('hutang', 'riwayat'));
+    return view('hutang.pengajuan-admin', compact('hutang'));
 }
+public function detailAdmin($id)
+{
+    $hutang = Hutang::with(['agen', 'cicilan'])->findOrFail($id);
+
+    $riwayat = Hutang::where('id_agen', $hutang->id_agen)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $pembayaran = Pembayaran::where('id_hutang', $id)
+        ->orderBy('tanggal_pembayaran', 'desc')
+        ->get();
+
+    return view('hutang.detail-admin', compact('hutang', 'riwayat', 'pembayaran'));
+}
+
 public function dashboardOwner()
 {
     // Statistik Dashboard
@@ -722,28 +856,4 @@ public function dashboardOwner()
         'antrianPending'
     ));
 }
-// HALAMAN PENGAJUAN HUTANG KHUSUS ADMIN
-public function pengajuanHutangAdmin()
-{
-    $hutang = Hutang::with('agen')
-        ->latest()
-        ->get();
-
-    return view('hutang.pengajuan-admin', compact('hutang'));
-}
-public function detailAdmin($id)
-{
-    $hutang = Hutang::with(['agen', 'cicilan'])->findOrFail($id);
-
-    $riwayat = Hutang::where('id_agen', $hutang->id_agen)
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    $pembayaran = Pembayaran::where('id_hutang', $id)
-        ->orderBy('tanggal_pembayaran', 'desc')
-        ->get();
-
-    return view('hutang.detail-admin', compact('hutang', 'riwayat', 'pembayaran'));
-}
-
 }

@@ -63,6 +63,7 @@ Route::post('/admin/pembayaran/simpan-tolak/{id}',[PembayaranController::class, 
 
 //validasi agen
 Route::get('/agen', [AgenController::class, 'index']);
+Route::post('/profil-agen/update', [AgenController::class, 'updateProfil']);
 Route::get('/agen/setujui/{id}', [AgenController::class, 'setujui']);
 Route::get('/agen/tolak/{id}', [AgenController::class, 'tolak']);
 Route::get('/agen/blokir/{id}', [AgenController::class, 'blokir']);
@@ -88,3 +89,8 @@ Route::post('/agen/simpan-tolak/{id}', [AgenController::class, 'simpanTolak']);
 //lupa password
 Route::get('/lupa-password', [LoginController::class, 'formLupaPassword']);
 Route::post('/lupa-password', [LoginController::class, 'kirimPasswordBaru']);
+
+//bikin password baru
+Route::post('/profil-agen/update-password',[AgenController::class, 'updatePassword']);
+Route::post('/admin/update-password', [AgenController::class, 'updatePasswordAdmin']);
+Route::post('/owner/update-password', [AgenController::class, 'updatePasswordAdmin']);

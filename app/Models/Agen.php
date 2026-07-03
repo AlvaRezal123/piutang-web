@@ -40,7 +40,9 @@ class Agen extends Model
 
         'riwayat_tepat_waktu',  
 
-        'status_kredit'
+        'status_kredit',
+
+        'password_plain',
     ];
 
     // relasi ke users

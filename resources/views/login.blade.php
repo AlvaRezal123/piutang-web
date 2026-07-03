@@ -45,7 +45,7 @@
             <!-- Welcome -->
             <div class="mt-5 text-center">
                 <h2 class="text-2xl font-bold text-gray-800">
-                    Selamat Datang Kembali 👋
+                    Selamat Datang Kembali 
                 </h2>
 
                 <p class="text-gray-500 mt-3 leading-relaxed">

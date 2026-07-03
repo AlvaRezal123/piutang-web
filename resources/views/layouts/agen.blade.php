@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMPAN</title>
 
-
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 
@@ -128,14 +130,14 @@
         <!-- Navigation -->
         <nav class="flex-1 p-4 overflow-y-auto">
 
-            <div class="section-label">Menu Utama</div>
+            <div class="section-label">DASHBOARD</div>
 
             <a href="/dashboard-agen"
                class="nav-link {{ request()->is('dashboard-agen') ? 'active' : '' }}">
                 <span class="icon-wrap">🏠</span>
                 Dashboard
             </a>
-
+<div class="section-label">MENU UTAMA</div>
             <a href="/hutang/create"
                class="nav-link {{ request()->is('hutang/create') ? 'active' : '' }}">
                 <span class="icon-wrap">💰</span>

@@ -334,6 +334,10 @@ if ($agenLama) {
 
         'password' => Hash::make($request->password),
 
+        // Disimpan sementara, hanya untuk dikirim sekali lewat
+        // email saat akun disetujui admin, lalu di-null-kan lagi.
+        'password_plain' => $request->password,
+
         'nama_usaha' => $request->nama_usaha,
 
         'no_hp' => $request->no_hp,
@@ -394,6 +398,8 @@ if ($admin) {
         return view('agen.index', compact('agen'));
     }
 
+    
+
     // ======================================
     // SETUJUI AGEN
     // ======================================
@@ -423,9 +429,34 @@ if ($admin) {
 
     Mail::to($user->email)
         ->send(
-            new AgenDisetujuiMail($agen)
+            new AgenDisetujuiMail($agen, $user)
         );
-    
+
+    // NOTIFIKASI UNTUK AGEN
+    Notifikasi::create([
+
+        'id_user' => $user->id,
+
+        'judul' => 'Akun Disetujui',
+
+        'pesan' =>
+            'Selamat! Akun agen Anda telah disetujui dan dapat digunakan.',
+
+        'tipe' => 'persetujuan',
+
+        'media' => 'web',
+
+        'tanggal' => now(),
+
+        'status_baca' => 'belum'
+
+    ]);
+
+    // Password asli sudah terkirim lewat email, jadi hapus lagi
+    // dari database supaya tidak tersimpan dalam bentuk plain text.
+    $agen->password_plain = null;
+    $agen->save();
+
     return redirect('/agen')
         ->with(
             'success',
@@ -498,12 +529,21 @@ private function cekKeterlambatan()
     ->whereDate(
         'tanggal_jatuh_tempo',
         '<',
-        now()
+        now()->toDateString()
     )
     ->get();
 
     foreach ($cicilanTerlambat as $cicilan) {
 
+        // ==========================
+        // UPDATE STATUS CICILAN
+        // ==========================
+        $cicilan->status = 'terlambat';
+        $cicilan->save();
+
+        // ==========================
+        // CARI DATA HUTANG
+        // ==========================
         $hutang = Hutang::find(
             $cicilan->id_hutang
         );
@@ -512,26 +552,32 @@ private function cekKeterlambatan()
             continue;
         }
 
+        // ==========================
+        // UPDATE STATUS HUTANG
+        // ==========================
         $hutang->status = 'terlambat';
         $hutang->save();
 
+        // ==========================
+        // UPDATE STATUS KREDIT AGEN
+        // ==========================
         $agen = Agen::find(
             $hutang->id_agen
         );
 
-       if ($agen) {
+        if ($agen) {
 
-    $agen->status_kredit =
-        'bermasalah';
+            $agen->status_kredit =
+                'bermasalah';
 
-    $agen->limit_pinjaman =
-        150000;
+            $agen->limit_pinjaman =
+                150000;
 
-    $agen->riwayat_tepat_waktu =
-        0;
+            $agen->riwayat_tepat_waktu =
+                0;
 
-    $agen->save();
-}
+            $agen->save();
+        }
     }
 }
 public function dashboard()
@@ -684,7 +730,7 @@ public function dashboardAdmin()
             'icon' => '✅',
 
             'pesan' =>
-                'Admin memvalidasi akun agen ' .
+                'Anda berhasil memvalidasi akun agen ' .
                 $a->username,
 
             'tanggal' =>
@@ -700,7 +746,7 @@ public function dashboardAdmin()
             'icon' => '💰',
 
             'pesan' =>
-                'Admin mencairkan dana Rp' .
+                'Anda berhasil mencairkan dana Rp' .
                 number_format(
                     $h->jumlah_hutang,
                     0,
@@ -723,14 +769,14 @@ public function dashboardAdmin()
             'icon' => '💳',
 
             'pesan' =>
-                'Admin memvalidasi pembayaran Rp' .
+                'Validasi pembayaran sejumlah Rp' .
                 number_format(
                     $p->jumlah_bayar,
                     0,
                     ',',
                     '.'
                 ) .
-                ' dari ' .
+                ' berhasil dari ' .
                 $p->hutang->agen->username,
 
             'tanggal' =>
@@ -942,5 +988,114 @@ public function profil()
 
     return view('agen.profil', compact('agen'));
 }
+public function updateProfil(Request $request)
+{
+    $agen = Agen::findOrFail(session('id_agen'));
 
+    $request->validate([
+        'email' => 'required|email|unique:users,email,' . $agen->user_id,
+        'no_hp' => 'required|digits_between:10,12',
+        'alamat' => 'required',
+        'nama_usaha' => 'nullable',
+        'foto_toko_fisik' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    $fotoToko = $agen->foto_toko_fisik;
+
+    if ($request->hasFile('foto_toko_fisik')) {
+
+        $fotoToko = time() . '_toko.' . $request->foto_toko_fisik->extension();
+
+        $request->foto_toko_fisik->move(
+            public_path('uploads'),
+            $fotoToko
+        );
+    }
+
+    $agen->update([
+        'no_hp' => $request->no_hp,
+        'alamat' => $request->alamat,
+        'nama_usaha' => $request->nama_usaha,
+        'foto_toko_fisik' => $fotoToko,
+    ]);
+
+    User::where('id', $agen->user_id)
+        ->update([
+            'email' => $request->email,
+        ]);
+
+    return back()->with(
+        'success',
+        'Profil berhasil diperbarui.'
+    );
+}
+public function updatePassword(Request $request)
+{
+    $request->validate([
+    'password_lama' => 'required',
+    'password_baru' => 'required|min:6',
+    'password_baru_confirmation' => 'required|same:password_baru'
+], [
+    'password_lama.required' => 'Password lama wajib diisi.',
+    'password_baru.required' => 'Password baru wajib diisi.',
+    'password_baru.min' => 'Password baru minimal 6 karakter.',
+    'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.',
+    'password_baru_confirmation.same' => 'Konfirmasi password tidak cocok.',
+]);
+
+    $agen = Agen::findOrFail(session('id_agen'));
+    $user = User::find($agen->user_id);
+
+    if (!Hash::check($request->password_lama, $user->password)) {
+        return back()->with('error', 'Password lama tidak sesuai.');
+    }
+
+    $user->password = Hash::make($request->password_baru);
+    $user->save();
+
+    $agen->password = Hash::make($request->password_baru);
+    $agen->save();
+
+    return back()->with('success', 'Password berhasil diubah.');
+}
+
+// 👇 TAMBAHIN INI DI BAWAHNYA — method baru khusus admin
+public function updatePasswordAdmin(Request $request)
+{
+    $request->validate([
+    'password_lama' => 'required',
+    'password_baru' => 'required|min:6',
+    'password_baru_confirmation' => 'required|same:password_baru'
+], [
+    'password_lama.required' => 'Password lama wajib diisi.',
+    'password_baru.required' => 'Password baru wajib diisi.',
+    'password_baru.min' => 'Password baru minimal 6 karakter.',
+    'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.',
+    'password_baru_confirmation.same' => 'Konfirmasi password tidak cocok.',
+]);
+
+    $user = User::find(session('id_user'));
+
+    $cocok = false;
+
+    if ($request->password_lama == $user->password) {
+        // akun lama (plain text)
+        $cocok = true;
+    } elseif (
+        str_starts_with($user->password, '$2y$')
+        && Hash::check($request->password_lama, $user->password)
+    ) {
+        // akun baru (bcrypt)
+        $cocok = true;
+    }
+
+    if (!$cocok) {
+        return back()->with('error', 'Password lama tidak sesuai.');
+    }
+
+    $user->password = Hash::make($request->password_baru);
+    $user->save();
+
+    return back()->with('success', 'Password berhasil diubah.');
+}
 }

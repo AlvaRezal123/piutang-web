@@ -8,60 +8,91 @@
     <p class="text-gray-500 mt-2">Informasi akun dan data diri kamu.</p>
 </div>
 
-<!-- BANNER INFO -->
-<div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-4 mb-6">
-    <div class="flex-shrink-0 mt-0.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
-        </svg>
-    </div>
-    <div class="flex-1">
-        <p class="text-sm font-semibold text-blue-700">Data tidak bisa diubah sendiri</p>
-        <p class="text-sm text-blue-600 mt-0.5">Jika ingin mengubah data profil, silakan hubungi admin melalui WhatsApp.</p>
-        <a href="https://wa.me/628997911040?text=Halo%20Admin%20SIMPAN,%20saya%20ingin%20mengubah%20data%20profil%20saya%20atas%20nama%20{{ urlencode($agen->username) }}%20(ID:%20{{ $agen->id_agen_pp }})."
-            target="_blank"
-            class="inline-flex items-center gap-2 mt-3 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.135 1.528 5.887L.057 23.882a.75.75 0 00.920.943l6.184-1.622A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.698-.497-5.25-1.367l-.371-.214-3.924 1.029 1.004-3.805-.234-.381A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-            </svg>
-            Hubungi Admin via WhatsApp
-        </a>
-    </div>
-</div>
-
 <!-- HERO CARD -->
 <div class="relative overflow-hidden rounded-3xl p-8 text-white mb-6" style="background: linear-gradient(135deg, #6C5CE7 0%, #5628C7 100%);">
     <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full opacity-10 bg-white"></div>
     <div class="absolute -right-2 bottom-0 w-20 h-20 rounded-full opacity-10 bg-white"></div>
-    <div class="relative z-10 flex items-center gap-6">
-        <div class="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-black flex-shrink-0">
-            {{ strtoupper(substr($agen->username, 0, 2)) }}
-        </div>
-        <div>
-            <h2 class="text-2xl font-black">{{ $agen->username }}</h2>
-            <p class="text-white/70 text-sm mt-1">ID Agen: {{ $agen->id_agen_pp }}</p>
-            <div class="flex items-center gap-2 mt-2">
-                @if($agen->status == 'aktif')
-                    <span class="inline-flex items-center gap-1.5 bg-green-400/20 text-green-200 border border-green-300/30 px-3 py-1 rounded-full text-xs font-semibold">
-                        <span class="w-1.5 h-1.5 rounded-full bg-green-300 inline-block"></span> Aktif
-                    </span>
-                @elseif($agen->status == 'pending')
-                    <span class="inline-flex items-center gap-1.5 bg-yellow-400/20 text-yellow-200 border border-yellow-300/30 px-3 py-1 rounded-full text-xs font-semibold">
-                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-300 inline-block"></span> Pending
-                    </span>
-                @else
-                    <span class="inline-flex items-center gap-1.5 bg-gray-400/20 text-gray-200 border border-gray-300/30 px-3 py-1 rounded-full text-xs font-semibold">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block"></span> {{ ucfirst($agen->status) }}
-                    </span>
-                @endif
+    <div class="relative z-10">
 
-                <span class="inline-flex items-center gap-1.5 bg-white/10 text-white/80 border border-white/20 px-3 py-1 rounded-full text-xs font-semibold">
-                    Kredit: {{ ucfirst($agen->status_kredit ?? '-') }}
-                </span>
+        <div class="flex items-center gap-6">
+
+            <div class="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center text-3xl font-black flex-shrink-0">
+                {{ strtoupper(substr($agen->username, 0, 2)) }}
+            </div>
+            <div>
+                <h2 class="text-2xl font-black">{{ $agen->username }}</h2>
+                <p class="text-white/70 text-sm mt-1">ID Agen: {{ $agen->id_agen_pp }}</p>
+                <div class="flex items-center gap-2 mt-2">
+                    @if($agen->status == 'aktif')
+                        <span class="inline-flex items-center gap-1.5 bg-green-400/20 text-green-200 border border-green-300/30 px-3 py-1 rounded-full text-xs font-semibold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-300 inline-block"></span> Aktif
+                        </span>
+                    @elseif($agen->status == 'pending')
+                        <span class="inline-flex items-center gap-1.5 bg-yellow-400/20 text-yellow-200 border border-yellow-300/30 px-3 py-1 rounded-full text-xs font-semibold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-300 inline-block"></span> Pending
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 bg-gray-400/20 text-gray-200 border border-gray-300/30 px-3 py-1 rounded-full text-xs font-semibold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block"></span> {{ ucfirst($agen->status) }}
+                        </span>
+                    @endif
+
+                    <span class="inline-flex items-center gap-1.5 bg-white/10 text-white/80 border border-white/20 px-3 py-1 rounded-full text-xs font-semibold">
+                        Kredit: {{ ucfirst($agen->status_kredit ?? '-') }}
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- PENGATURAN AKUN: EDIT PROFIL & GANTI PASSWORD -->
+<div class="grid md:grid-cols-2 gap-6 mb-6">
+
+    <!-- CARD: EDIT PROFIL -->
+    <button type="button" onclick="openModal()"
+        class="group bg-white rounded-2xl p-6 border border-purple-100 shadow-sm flex items-center justify-between gap-4 text-left hover:border-[#5628C7]/40 hover:shadow-md transition">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center flex-shrink-0 group-hover:bg-[#5628C7] transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#5628C7] group-hover:text-white transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-gray-800">Edit Profil</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Perbarui data diri &amp; kontak kamu</p>
             </div>
         </div>
-    </div>
+        <div class="flex-shrink-0 w-9 h-9 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+            </svg>
+        </div>
+    </button>
+
+    <!-- CARD: GANTI PASSWORD -->
+    <button type="button" onclick="openPasswordModal()"
+        class="group bg-white rounded-2xl p-6 border border-purple-100 shadow-sm flex items-center justify-between gap-4 text-left hover:border-blue-400/40 hover:shadow-md transition">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-600 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600 group-hover:text-white transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-gray-800">Ganti Password</h3>
+                <p class="text-xs text-gray-400 mt-0.5">Update kata sandi akun kamu</p>
+            </div>
+        </div>
+        <div class="flex-shrink-0 w-9 h-9 rounded-xl bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+            </svg>
+        </div>
+    </button>
+
 </div>
 
 <!-- INFO GRID -->
@@ -250,6 +281,306 @@
     <img id="previewImg" src="" class="max-w-[90%] max-h-[90%] rounded-2xl shadow-2xl">
 </div>
 
+<!-- MODAL EDIT PROFIL (logic & form tidak diubah) -->
+<div id="modalEdit" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+
+    <div class="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+
+        <!-- HEADER GRADIENT -->
+        <div class="relative px-8 py-6 text-white flex-shrink-0" style="background: linear-gradient(135deg, #6C5CE7 0%, #5628C7 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-10 bg-white"></div>
+            <div class="absolute -right-8 bottom-0 w-16 h-16 rounded-full opacity-10 bg-white"></div>
+            <div class="relative z-10 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black leading-tight">Edit Profil</h2>
+                        <p class="text-white/70 text-xs mt-0.5">Perbarui data usaha &amp; kontak kamu</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- BODY (scrollable) -->
+        <div class="overflow-y-auto px-8 py-7">
+            <form id="formEditProfil" action="/profil-agen/update" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <div class="space-y-4">
+
+                    <!-- Email -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Email
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="email"
+                                name="email"
+                                value="{{ $agen->user->email }}"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                    </div>
+
+                    <!-- No HP -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            No Handphone
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                name="no_hp"
+                                value="{{ $agen->no_hp }}"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Alamat -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Alamat
+                        </label>
+                        <div class="relative">
+                            <div class="absolute top-3.5 left-0 pl-4 flex items-start pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+                                </svg>
+                            </div>
+                            <textarea
+                                name="alamat"
+                                rows="3"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 leading-relaxed resize-none transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">{{ $agen->alamat }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Nama Usaha -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Nama Usaha
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                name="nama_usaha"
+                                value="{{ $agen->nama_usaha }}"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Foto Toko (custom dropzone) -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Foto Toko Fisik
+                        </label>
+                        <label for="fotoTokoInput"
+                            class="group flex items-center gap-4 w-full bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl px-4 py-4 cursor-pointer transition hover:border-[#5628C7]/40 hover:bg-purple-50/30">
+                            <div class="w-11 h-11 rounded-xl bg-purple-100 text-[#5628C7] flex items-center justify-center flex-shrink-0 group-hover:bg-[#5628C7] group-hover:text-white transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M7.5 7.5L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-700 truncate" id="fotoTokoLabel">Klik untuk unggah foto baru</p>
+                                <p class="text-xs text-gray-400 mt-0.5">PNG atau JPG, maks 2MB</p>
+                            </div>
+                            <input id="fotoTokoInput" type="file" name="foto_toko_fisik" accept="image/*" class="hidden" onchange="document.getElementById('fotoTokoLabel').textContent = this.files[0] ? this.files[0].name : 'Klik untuk unggah foto baru'">
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onclick="closeModal()"
+                        class="px-5 py-3 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition">
+                        Batal
+                    </button>
+                    <button
+                        type="submit"
+                        class="flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-semibold shadow-lg shadow-purple-200 transition hover:opacity-90"
+                        style="background: linear-gradient(135deg, #6C5CE7 0%, #5628C7 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                        </svg>
+                        Simpan Perubahan
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- MODAL GANTI PASSWORD (UI only, action masih placeholder, belum disambungkan ke controller) -->
+<div id="modalPassword" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+
+    <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
+
+        <!-- HEADER GRADIENT -->
+        <div class="relative px-8 py-6 text-white flex-shrink-0" style="background: linear-gradient(135deg, #6C5CE7 0%, #5628C7 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-10 bg-white"></div>
+            <div class="absolute -right-8 bottom-0 w-16 h-16 rounded-full opacity-10 bg-white"></div>
+            <div class="relative z-10 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black leading-tight">Ganti Password</h2>
+                        <p class="text-white/70 text-xs mt-0.5">Pastikan password baru kamu aman</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePasswordModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+     <!-- BODY -->
+        <div class="px-8 py-7">
+
+            @if(session('error'))
+                <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600 font-medium">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-100 text-sm text-green-600 font-medium">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <form id="formGantiPassword" action="/profil-agen/update-password" method="POST">   
+                @csrf
+
+                <div class="space-y-4">
+
+                    <!-- Password Lama -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Password Lama
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_lama"
+                                placeholder="Masukkan password lama"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white">
+                        </div>
+                          @error('password_lama')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>  
+
+                    <!-- Password Baru -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Password Baru
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_baru"
+                                placeholder="Minimal 8 karakter"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white">
+                        </div>
+                             @error('password_baru')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Konfirmasi Password Baru -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Konfirmasi Password Baru
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_baru_confirmation"
+                                placeholder="Ulangi password baru"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white">
+                        </div>
+                            @error('password_baru_confirmation')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onclick="closePasswordModal()"
+                        class="px-5 py-3 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition">
+                        Batal
+                    </button>
+                    <button
+                        type="submit"
+                        class="flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-semibold shadow-lg shadow-blue-200 transition hover:opacity-90"
+                        style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                        </svg>
+                        Simpan Password
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
 <script>
 function showImage(src) {
     document.getElementById('previewImg').src = src;
@@ -258,6 +589,30 @@ function showImage(src) {
 function closeImage() {
     document.getElementById('imagePreview').classList.add('hidden');
 }
+function openModal() {
+    document.getElementById('modalEdit').classList.remove('hidden');
+    document.getElementById('modalEdit').classList.add('flex');
+}
+function closeModal() {
+    document.getElementById('modalEdit').classList.remove('flex');
+    document.getElementById('modalEdit').classList.add('hidden');
+}
+function openPasswordModal() {
+    document.getElementById('modalPassword').classList.remove('hidden');
+    document.getElementById('modalPassword').classList.add('flex');
+}
+function closePasswordModal() {
+    document.getElementById('modalPassword').classList.remove('flex');
+    document.getElementById('modalPassword').classList.add('hidden');
+}
 </script>
+
+@if($errors->any() || session('error') || session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        openPasswordModal();
+    });
+</script>
+@endif
 
 @endsection

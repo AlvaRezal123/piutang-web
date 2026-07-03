@@ -6,6 +6,8 @@
 $persentase = $hutang->jumlah_hutang > 0
     ? (($hutang->jumlah_hutang - $hutang->sisa_hutang) / $hutang->jumlah_hutang) * 100
     : 0;
+
+$showPencairan = in_array($hutang->status, ['berjalan', 'terlambat', 'lunas']);
 @endphp
 
 <!-- HEADER -->
@@ -16,12 +18,13 @@ $persentase = $hutang->jumlah_hutang > 0
         <p class="text-gray-500 mt-1">Informasi lengkap pengajuan hutang dan riwayat pembayaran.</p>
     </div>
 
-    <span class="px-4 py-2 rounded-full text-sm font-semibold
+    <span class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold
         @if($hutang->status == 'lunas') bg-green-100 text-green-700
         @elseif($hutang->status == 'ditolak') bg-red-100 text-red-700
         @elseif($hutang->status == 'pending') bg-yellow-100 text-yellow-700
         @else bg-blue-100 text-blue-700
         @endif">
+        <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
         {{ ucfirst($hutang->status) }}
     </span>
 
@@ -60,181 +63,115 @@ $persentase = $hutang->jumlah_hutang > 0
 
 </div>
 
-<!-- INFORMASI HUTANG -->
-<div class="bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
+<!-- INFORMASI HUTANG + PENCAIRAN -->
+<div class="grid md:grid-cols-3 gap-6 mb-6">
 
-    <h2 class="flex items-center gap-2 text-lg font-bold text-gray-800 mb-8">
+    <!-- INFORMASI HUTANG -->
+    <div class="{{ $showPencairan ? 'md:col-span-2' : 'md:col-span-3' }} bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
 
-        <span class="w-2 h-2 bg-purple-600 rounded-full"></span>
+        <h2 class="flex items-center gap-2 text-lg font-bold text-gray-800 mb-6">
+            <span class="w-2 h-2 bg-purple-600 rounded-full"></span>
+            Informasi Hutang
+        </h2>
 
-        Informasi Hutang
+        <div class="border-t border-gray-100 mb-6"></div>
 
-    </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
 
-    <!-- BARIS ATAS -->
-    <div class="grid md:grid-cols-3 gap-8">
-
-        <!-- Jumlah Hutang -->
-        <div class="flex items-center gap-4">
-
-            <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center text-2xl">
-                💰
-            </div>
-
+            <!-- Jumlah Hutang -->
             <div>
-
-                <p class="text-sm text-gray-500">
-                    Jumlah Hutang
+                <p class="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                    <i class="ti ti-coin"></i> Jumlah Hutang
                 </p>
-
-                <p class="text-3xl font-bold text-[#5628C7]">
+                <p class="font-bold text-lg text-[#5628C7]">
                     Rp{{ number_format($hutang->jumlah_hutang,0,',','.') }}
                 </p>
-
             </div>
 
-        </div>
-
-        <!-- Sisa Hutang -->
-        <div class="flex items-center gap-4">
-
-            <div class="w-14 h-14 rounded-2xl bg-red-100 flex items-center justify-center text-2xl">
-                💸
-            </div>
-
+            <!-- Tanggal Pengajuan -->
             <div>
-
-                <p class="text-sm text-gray-500">
-                    Sisa Hutang
+                <p class="flex items-center gap-2 text-sm text-gray-500 mb-1">
+                    <i class="ti ti-calendar"></i> Tanggal Pengajuan
                 </p>
-
-                <p class="text-3xl font-bold text-gray-800">
-                    Rp{{ number_format($hutang->sisa_hutang,0,',','.') }}
-                </p>
-
-            </div>
-
-        </div>
-
-        <!-- Metode -->
-        <div class="flex items-center gap-4">
-
-            <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center text-2xl">
-                💳
-            </div>
-
-            <div>
-
-                <p class="text-sm text-gray-500">
-                    Metode Pembayaran
-                </p>
-
-                <p class="text-2xl font-bold text-gray-800">
-                    {{ ucfirst($hutang->metode) }}
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- GARIS -->
-    <div class="border-t border-gray-100 my-8"></div>
-
-    <!-- BARIS BAWAH -->
-    <div class="grid md:grid-cols-2 gap-8">
-
-        <!-- Tanggal Pengajuan -->
-        <div class="flex items-center gap-4">
-
-            <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center text-xl">
-                📅
-            </div>
-
-            <div>
-
-                <p class="text-sm text-gray-500">
-                    Tanggal Pengajuan
-                </p>
-
                 <p class="font-bold text-lg text-gray-800">
                     {{ \Carbon\Carbon::parse($hutang->tanggal_pengajuan)->translatedFormat('d F Y') }}
                 </p>
-
             </div>
+
+  <!-- Metode -->
+<div>
+    <p class="flex items-center gap-2 text-sm text-gray-500 mb-1">
+        <i class="ti ti-credit-card"></i> Metode
+    </p>
+
+    <p class="font-bold text-lg text-gray-800">
+
+        @if($hutang->metode == 'cash')
+
+            Pembayaran Penuh
+
+        @else
+
+            Cicilan {{ $hutang->lama_tempo }}
+
+        @endif
+
+    </p>
+</div>
 
         </div>
 
-        <!-- Jatuh Tempo -->
-        <div class="flex items-center gap-4">
+    </div>
 
-            <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center text-xl">
-                ⏰
+    <!-- INFORMASI PENCAIRAN -->
+    @if($showPencairan)
+    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+
+        <h2 class="flex items-center gap-2 text-lg font-bold text-gray-800 mb-6">
+            <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+            Pencairan
+        </h2>
+
+        <div class="border-t border-gray-100 mb-6"></div>
+
+        <div class="space-y-5">
+
+            <div>
+                <p class="text-sm text-gray-500 mb-1">Tanggal</p>
+                <p class="font-semibold text-gray-800">{{ $hutang->tanggal_pencairan ?? '-' }}</p>
             </div>
 
             <div>
-
-                <p class="text-sm text-gray-500">
-                    Tanggal Jatuh Tempo
-                </p>
-
-                <p class="font-bold text-lg text-red-500">
-                    {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}
-                </p>
-
+                <p class="text-sm text-gray-500 mb-1">Bukti Transfer</p>
+                @if($hutang->bukti_pencairan)
+                    <a href="{{ asset('uploads/' . $hutang->bukti_pencairan) }}"
+                       target="_blank"
+                       class="inline-flex items-center gap-1 text-[#5628C7] font-semibold hover:underline">
+                        <i class="ti ti-eye text-sm"></i> Lihat Bukti Transfer
+                    </a>
+                @else
+                    <p class="font-semibold text-gray-800">-</p>
+                @endif
             </div>
 
         </div>
 
     </div>
+    @endif
 
 </div>
-
-<!-- INFORMASI PENCAIRAN -->
-@if(in_array($hutang->status, ['berjalan', 'terlambat', 'lunas']))
-
-<div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm mb-6">
-
-    <h2 class="flex items-center gap-2 text-lg font-bold text-gray-800 mb-6">
-        <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-        Informasi Pencairan
-    </h2>
-
-    <div class="grid md:grid-cols-3 gap-6">
-
-        <div>
-            <p class="text-sm text-gray-500 mb-1">Tanggal Pencairan</p>
-            <p class="font-semibold text-gray-800">{{ $hutang->tanggal_pencairan ?? '-' }}</p>
-        </div>
-
-
-        <div>
-            <p class="text-sm text-gray-500 mb-1">Bukti Transfer</p>
-            @if($hutang->bukti_pencairan)
-                <a href="{{ asset('uploads/' . $hutang->bukti_pencairan) }}"
-                   target="_blank"
-                   class="inline-flex items-center gap-1 text-[#5628C7] font-semibold hover:underline">
-                    <i class="ti ti-external-link text-sm"></i> Lihat Bukti Transfer
-                </a>
-            @else
-                <p class="font-semibold text-gray-800">-</p>
-            @endif
-        </div>
-
-    </div>
-
-</div>
-
-@endif
-
 
 <!-- DETAIL CICILAN -->
 @if($hutang->metode == 'cicil')
 
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm mb-6">
 
-    <h2 class="text-xl font-bold text-gray-800 mb-6">Detail Cicilan</h2>
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-800">Detail Cicilan</h2>
+        <span class="text-sm font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+            {{ count($hutang->cicilan) }} Cicilan
+        </span>
+    </div>
 
     <div class="overflow-x-auto">
 
@@ -275,6 +212,34 @@ $persentase = $hutang->jumlah_hutang > 0
 </div>
 
 @endif
+
+<!-- STICKY ACTION BAR -->
+<div class="sticky bottom-4 z-20 mb-8">
+    <div class="flex justify-between items-center bg-white rounded-2xl border border-purple-100 shadow-lg px-6 py-4">
+
+        <div>
+            <p class="text-sm text-gray-500">Total Hutang Tersisa</p>
+            <p class="text-2xl font-bold text-[#5628C7]">Rp{{ number_format($hutang->sisa_hutang, 0, ',', '.') }}</p>
+        </div>
+
+        <div class="flex gap-4">
+
+            <a href="/hutang-saya"
+               class="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">
+                <i class="ti ti-arrow-left text-sm"></i> Kembali
+            </a>
+
+            @if(in_array($hutang->status, ['berjalan', 'terlambat']))
+            <a href="/pembayaran/create/{{ $hutang->id }}"
+               class="flex items-center gap-2 px-6 py-3 bg-[#5628C7] text-white rounded-xl font-semibold hover:bg-[#4b22b0] transition">
+                <i class="ti ti-credit-card text-sm"></i> Bayar Sekarang
+            </a>
+            @endif
+
+        </div>
+
+    </div>
+</div>
 
 <!-- RIWAYAT PEMBAYARAN -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm mb-8">
@@ -323,23 +288,6 @@ $persentase = $hutang->jumlah_hutang > 0
         </table>
 
     </div>
-
-</div>
-
-<!-- BUTTON -->
-<div class="flex gap-4">
-
-    <a href="/hutang-saya"
-       class="flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition">
-        <i class="ti ti-arrow-left text-sm"></i> Kembali
-    </a>
-
-    @if(in_array($hutang->status, ['berjalan', 'terlambat']))
-    <a href="/pembayaran/create/{{ $hutang->id }}"
-       class="flex items-center gap-2 px-6 py-3 bg-[#5628C7] text-white rounded-xl font-semibold hover:bg-[#4b22b0] transition">
-        <i class="ti ti-credit-card text-sm"></i> Bayar Sekarang
-    </a>
-    @endif
 
 </div>
 

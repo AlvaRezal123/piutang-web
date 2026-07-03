@@ -139,12 +139,31 @@
                     </td>
 
                     <!-- Metode -->
-                    <td class="px-6 py-4 text-gray-500">
-                        <span class="flex items-center gap-1.5">
-                            <i class="ti ti-{{ $h->metode == 'cicil' ? 'calendar-repeat' : 'cash' }} text-gray-300 text-sm"></i>
-                            {{ ucfirst($h->metode) }}
+                  <td class="px-6 py-4 text-gray-500">
+
+              <span class="flex items-center gap-2">
+
+                    @if($h->metode == 'cash')
+
+                        <i class="ti ti-cash text-green-500 text-sm"></i>
+
+                        <span class="text-gray-700 font-medium">
+                            Pembayaran Penuh
                         </span>
-                    </td>
+
+                    @else
+
+                        <i class="ti ti-calendar-repeat text-blue-500 text-sm"></i>
+
+                        <span class="text-gray-700 font-medium">
+                            Cicilan {{ ucfirst($h->lama_tempo) }}
+                        </span>
+
+                    @endif
+
+                </span>
+
+                </td>
 
                     <!-- Tanggal Pengajuan -->
                     <td class="px-6 py-4 text-gray-500">

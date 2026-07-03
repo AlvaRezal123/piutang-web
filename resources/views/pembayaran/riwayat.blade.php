@@ -184,9 +184,11 @@ $totalDitolak = $pembayaran
 
                     <th class="text-left py-3">Tanggal</th>
                     <th class="text-left py-3">Jumlah</th>
+                    <th class="text-left py-3">Cicilan</th>
                     <th class="text-left py-3">Metode</th>
                     <th class="text-left py-3">Status</th>
                     <th class="text-left py-3">Bukti</th>
+                    <th class="text-left py-3">Detail</th>
                     <th class="text-left py-3">Aksi</th>
 
                 </tr>
@@ -208,6 +210,24 @@ $totalDitolak = $pembayaran
 
                     <td>
                         Rp{{ number_format($p->jumlah_bayar,0,',','.') }}
+                    </td>
+
+                    <td>
+
+                        @if($p->hutang->metode == 'cash')
+
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                                Pembayaran Penuh
+                            </span>
+
+                        @else
+
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                                Cicilan {{ $p->cicilan->cicilan_ke ?? '-' }} dari {{ $p->hutang->lama_tempo }}
+                            </span>
+
+                        @endif
+
                     </td>
 
                     <td>
@@ -253,6 +273,19 @@ $totalDitolak = $pembayaran
 
                     <td>
 
+                        <button
+                            type="button"
+                            onclick="openDetailModal({{ $p->id }})"
+                            class="bg-purple-100 text-[#5628C7] px-3 py-1 rounded-lg text-sm font-semibold hover:bg-purple-200">
+
+                            Detail
+
+                        </button>
+
+                    </td>
+
+                    <td>
+
     @if($p->status == 'ditolak')
 
         <button
@@ -279,7 +312,7 @@ $totalDitolak = $pembayaran
 
                 <tr>
 
-                    <td colspan="5" class="text-center py-8 text-gray-500">
+                    <td colspan="8" class="text-center py-8 text-gray-500">
                         Belum ada data pembayaran
                     </td>
 
@@ -292,6 +325,66 @@ $totalDitolak = $pembayaran
         </table>
 
     </div>
+
+<!-- MODAL DETAIL CICILAN -->
+<div
+    id="detailModal"
+    class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-3xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+
+        <div class="flex items-start justify-between mb-5">
+
+            <h2 class="text-xl font-bold text-gray-800">
+                Detail Cicilan
+            </h2>
+
+            <button
+                type="button"
+                onclick="closeDetailModal()"
+                class="text-gray-400 hover:text-gray-600">
+
+                <i class="ti ti-x text-xl"></i>
+
+            </button>
+
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Tanggal Pengajuan</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailTanggalPengajuan">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Metode</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailMetode">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Total Hutang</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailTotalHutang">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Sisa Hutang</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailSisaHutang">-</p>
+            </div>
+
+        </div>
+
+        <h3 class="font-bold text-gray-800 mb-3">
+            Rincian Cicilan
+        </h3>
+
+        <div id="detailCicilanList" class="flex flex-col gap-3">
+        </div>
+
+    </div>
+
+</div>
+
 @foreach($pembayaran as $p)
 
 @if($p->status == 'ditolak')
@@ -387,6 +480,93 @@ function closeModal(id)
         .getElementById('modal' + id)
         .classList
         .add('hidden');
+}
+
+</script>
+
+<script>
+
+// Data seluruh pembayaran + cicilan dari hutang terkait, sudah
+// disiapkan di PembayaranController@riwayat lalu di-dump satu kali
+// di sini supaya modal detail bisa langsung dipopulate tanpa AJAX.
+const pembayaranData = @json($pembayaranData);
+
+function openDetailModal(id)
+{
+    const data = pembayaranData[id];
+
+    if (!data) {
+        return;
+    }
+
+    document.getElementById('detailTanggalPengajuan').textContent = data.tanggalPengajuan;
+
+    document.getElementById('detailMetode').textContent =
+        data.metode === 'cash'
+            ? 'Pembayaran Penuh'
+            : 'Cicilan ' + (data.lamaTempo ?? '-') + ' bulan';
+
+    document.getElementById('detailTotalHutang').textContent = 'Rp' + data.totalHutang;
+    document.getElementById('detailSisaHutang').textContent = 'Rp' + data.sisaHutang;
+
+    const listEl = document.getElementById('detailCicilanList');
+    listEl.innerHTML = '';
+
+    if (!data.cicilan.length) {
+
+        listEl.innerHTML =
+            '<p class="text-center text-gray-400 py-6">Tidak ada data cicilan</p>';
+
+    } else {
+
+        data.cicilan.forEach(function (c) {
+
+            const isTerpilih = c.id === data.idCicilanTerpilih;
+
+            const statusBadge = c.status === 'lunas'
+                ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Lunas</span>'
+                : '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Belum Lunas</span>';
+
+            const row = document.createElement('div');
+
+            row.className =
+                'flex items-center justify-between gap-4 p-4 rounded-2xl border ' +
+                (isTerpilih
+                    ? 'border-[#5628C7] bg-[#F5F3FE]'
+                    : 'border-gray-100 bg-gray-50');
+
+            row.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-[#5628C7]">
+                        ${c.cicilanKe}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Cicilan ke-${c.cicilanKe}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Jatuh Tempo: ${c.jatuhTempo}</p>
+                        ${c.tanggalLunas ? '<p class="text-xs text-gray-500">Tanggal Lunas: ' + c.tanggalLunas + '</p>' : ''}
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-semibold text-gray-800 mb-1">${c.jumlah}</p>
+                    ${statusBadge}
+                    ${isTerpilih ? '<p class="text-xs font-semibold text-[#5628C7] mt-1">Pembayaran Ini</p>' : ''}
+                </div>
+            `;
+
+            listEl.appendChild(row);
+
+        });
+
+    }
+
+    document.getElementById('detailModal').classList.remove('hidden');
+}
+
+function closeDetailModal()
+{
+    document
+        .getElementById('detailModal')
+        .classList.add('hidden');
 }
 
 </script>

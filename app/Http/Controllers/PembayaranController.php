@@ -65,6 +65,9 @@ class PembayaranController extends Controller
             'bank_pengirim' =>
             'required',
 
+            'bank_tujuan' =>
+            'required',
+
             'bukti_pembayaran' =>
             'required|image|mimes:jpg,jpeg,png'
 
@@ -81,6 +84,9 @@ class PembayaranController extends Controller
 
             'bank_pengirim.required' =>
             'Bank pengirim wajib dipilih',
+
+            'bank_tujuan.required' =>
+            'Rekening tujuan wajib dipilih',
 
             'bukti_pembayaran.required' =>
             'Bukti pembayaran wajib diupload'
@@ -176,6 +182,9 @@ if ($request->bank_pengirim == 'lainnya') {
           'bank_pengirim' =>
             $bankPengirim,
 
+            'bank_tujuan' =>
+            $request->bank_tujuan,
+
             'bukti_pembayaran' =>
             $bukti,
 
@@ -223,6 +232,7 @@ public function index(Request $request)
 {
     $query = Pembayaran::with(
         'hutang.agen',
+        'hutang.cicilan',
         'cicilan'
     );
 
@@ -259,9 +269,49 @@ if ($request->filled('status')) {
         ->latest()
         ->get();
 
+    // Data untuk modal detail cicilan, disiapkan di sini
+    // supaya di Blade cukup satu kali @json() tanpa perlu
+    // menyisipkan @foreach di dalam blok <script>.
+    $pembayaranData = $pembayaran->mapWithKeys(function ($p) {
+
+        return [
+            $p->id => [
+                'agen' => $p->hutang->agen->username,
+                'idAgen' => $p->hutang->agen->id_agen_pp ?? '-',
+                'tanggalPengajuan' => $p->hutang->tanggal_pengajuan
+                    ? \Carbon\Carbon::parse($p->hutang->tanggal_pengajuan)->format('d M Y')
+                    : '-',
+                'metode' => $p->hutang->metode,
+                'lamaTempo' => $p->hutang->lama_tempo,
+                'totalHutang' => number_format($p->hutang->jumlah_hutang, 0, ',', '.'),
+                'sisaHutang' => number_format($p->hutang->sisa_hutang, 0, ',', '.'),
+                'idCicilanTerpilih' => $p->id_cicilan,
+                'bankPengirim' => $p->bank_pengirim,
+                'bankTujuan' => $p->bank_tujuan,
+                'cicilan' => $p->hutang->cicilan->map(function ($c) {
+
+                    return [
+                        'id' => $c->id,
+                        'cicilanKe' => $c->cicilan_ke,
+                        'jumlah' => 'Rp' . number_format($c->jumlah_cicilan, 0, ',', '.'),
+                        'jatuhTempo' => $c->tanggal_jatuh_tempo
+                            ? \Carbon\Carbon::parse($c->tanggal_jatuh_tempo)->format('d M Y')
+                            : '-',
+                        'status' => $c->status,
+                        'tanggalLunas' => $c->tanggal_lunas
+                            ? \Carbon\Carbon::parse($c->tanggal_lunas)->format('d M Y')
+                            : null,
+                    ];
+
+                })->values(),
+            ],
+        ];
+
+    });
+
     return view(
         'pembayaran.index',
-        compact('pembayaran')
+        compact('pembayaran', 'pembayaranData')
     );
 }
     // ==========================
@@ -448,6 +498,50 @@ Terima kasih.'
 
     );
 
+    // NOTIFIKASI UNTUK AGEN
+    Notifikasi::create([
+
+        'id_user' => $user->id,
+
+        'judul' => 'Pembayaran Diverifikasi',
+
+        'pesan' =>
+            $hutang->status == 'lunas'
+            ?
+            'Pembayaran Anda sebesar Rp' .
+            number_format(
+                $pembayaran->jumlah_bayar,
+                0,
+                ',',
+                '.'
+            ) .
+            ' telah diverifikasi. Seluruh hutang Anda telah LUNAS.'
+            :
+            'Pembayaran Anda sebesar Rp' .
+            number_format(
+                $pembayaran->jumlah_bayar,
+                0,
+                ',',
+                '.'
+            ) .
+            ' telah diverifikasi. Sisa hutang Anda Rp' .
+            number_format(
+                $hutang->sisa_hutang,
+                0,
+                ',',
+                '.'
+            ) . '.',
+
+        'tipe' => 'pembayaran',
+
+        'media' => 'web',
+
+        'tanggal' => now(),
+
+        'status_baca' => 'belum'
+
+    ]);
+
 }
 
     return back()->with(
@@ -563,6 +657,33 @@ Terima kasih.'
 
     );
 
+    // NOTIFIKASI UNTUK AGEN
+    Notifikasi::create([
+
+        'id_user' => $user->id,
+
+        'judul' => 'Pembayaran Ditolak',
+
+        'pesan' =>
+            'Pembayaran Anda sebesar Rp' .
+            number_format(
+                $pembayaran->jumlah_bayar,
+                0,
+                ',',
+                '.'
+            ) .
+            ' ditolak. Alasan: ' . $request->alasan_penolakan,
+
+        'tipe' => 'pembayaran',
+
+        'media' => 'web',
+
+        'tanggal' => now(),
+
+        'status_baca' => 'belum'
+
+    ]);
+
 }
 
     return redirect('/admin/pembayaran')->with(
@@ -574,22 +695,62 @@ Terima kasih.'
     {
         $idAgen = session('id_agen');
 
-        $pembayaran = \App\Models\Pembayaran::whereHas(
-            'hutang',
-            function ($q) use ($idAgen) {
-
-                $q->where(
-                    'id_agen',
-                    $idAgen
-                );
-            }
+        $pembayaran = \App\Models\Pembayaran::with(
+            'hutang.cicilan',
+            'cicilan'
         )
+            ->whereHas(
+                'hutang',
+                function ($q) use ($idAgen) {
+
+                    $q->where(
+                        'id_agen',
+                        $idAgen
+                    );
+                }
+            )
             ->latest()
             ->get();
 
+        // Data untuk modal detail cicilan, disiapkan di sini
+        // supaya di Blade cukup satu kali @json() tanpa perlu
+        // menyisipkan @foreach di dalam blok <script>.
+        $pembayaranData = $pembayaran->mapWithKeys(function ($p) {
+
+            return [
+                $p->id => [
+                    'tanggalPengajuan' => $p->hutang->tanggal_pengajuan
+                        ? \Carbon\Carbon::parse($p->hutang->tanggal_pengajuan)->format('d M Y')
+                        : '-',
+                    'metode' => $p->hutang->metode,
+                    'lamaTempo' => $p->hutang->lama_tempo,
+                    'totalHutang' => number_format($p->hutang->jumlah_hutang, 0, ',', '.'),
+                    'sisaHutang' => number_format($p->hutang->sisa_hutang, 0, ',', '.'),
+                    'idCicilanTerpilih' => $p->id_cicilan,
+                    'cicilan' => $p->hutang->cicilan->map(function ($c) {
+
+                        return [
+                            'id' => $c->id,
+                            'cicilanKe' => $c->cicilan_ke,
+                            'jumlah' => 'Rp' . number_format($c->jumlah_cicilan, 0, ',', '.'),
+                            'jatuhTempo' => $c->tanggal_jatuh_tempo
+                                ? \Carbon\Carbon::parse($c->tanggal_jatuh_tempo)->format('d M Y')
+                                : '-',
+                            'status' => $c->status,
+                            'tanggalLunas' => $c->tanggal_lunas
+                                ? \Carbon\Carbon::parse($c->tanggal_lunas)->format('d M Y')
+                                : null,
+                        ];
+
+                    })->values(),
+                ],
+            ];
+
+        });
+
         return view(
             'pembayaran.riwayat',
-            compact('pembayaran')
+            compact('pembayaran', 'pembayaranData')
         );
     }
 }

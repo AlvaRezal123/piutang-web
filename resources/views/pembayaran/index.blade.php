@@ -103,6 +103,7 @@
             value="{{ request('tanggal') }}"
             class="border border-gray-300 rounded-xl px-4 py-2">
 
+
 <!-- Tahun -->
 <select
     name="tahun"
@@ -167,8 +168,6 @@
     </div>
 
 </form>
-        </form>
-
 
     </div>
 
@@ -178,8 +177,7 @@
     
 
     <div class="overflow-x-auto">
-
-        <table class="w-full">
+<table class="w-full table-auto">
 
             <thead>
 
@@ -189,7 +187,11 @@
                         Nama Agen
                     </th>
 
-                    <th class="text-left py-3">
+                     <th class="text-left py-3">
+                        Tanggal Pembayaran
+                    </th>
+
+                    <th class="text-left py-3" >
                        Cicilan
                     </th>
 
@@ -197,13 +199,7 @@
                         Jumlah Bayar
                     </th>
 
-                    <th class="text-left py-3">
-                         Metode
-                    </th>
-
-                    <th class="text-left py-3">
-                        Tanggal
-                    </th>
+                   
 
                     <th class="text-left py-3">
                         Status
@@ -211,6 +207,10 @@
 
                     <th class="text-left py-3">
                         Bukti
+                    </th>
+
+                    <th class="text-left py-3">
+                        Detail
                     </th>
 
                     <th class="text-left py-3">
@@ -234,28 +234,58 @@
                         {{ $p->hutang->agen->username }}
 
                     </td>
+
+                       <td>
+
+                        {{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('d M Y') }}
+
+                    </td>
+
                 <td>
-                @if($p->cicilan)
-                    Cicilan {{ $p->cicilan->cicilan_ke }}
-                @else
-                    Cash
-                @endif
+           @if($p->hutang->metode == 'cash')
+
+<div class="flex items-center gap-2">
+
+    <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+
+        <i class="ti ti-credit-card text-green-600 text-sm"></i>
+
+    </div>
+
+    <span class="font-medium">
+        Pembayaran Penuh
+    </span>
+
+</div>
+
+@else
+
+<div class="flex items-center gap-2">
+
+    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+
+        <i class="ti ti-calendar-time text-blue-600 text-sm"></i>
+
+    </div>
+
+    <span class="font-medium">
+
+        Cicilan {{ $p->cicilan->cicilan_ke }}
+        dari
+        {{ $p->hutang->lama_tempo }}
+
+    </span>
+
+</div>
+
+@endif
                 </td>
                     <td>
 
                         Rp{{ number_format($p->jumlah_bayar,0,',','.') }}
 
                     </td>
-                    <td>
-                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                            {{ $p->bank_pengirim }}
-                        </span>
-                    </td>
-                    <td>
-
-                        {{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('d M Y') }}
-
-                    </td>
+                 
 
                     <td>
 
@@ -291,6 +321,19 @@
                             Lihat
 
                         </a>
+
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            onclick="openDetailModal({{ $p->id }})"
+                            class="bg-purple-100 text-[#5628C7] px-4 py-2 rounded-xl font-semibold text-sm">
+
+                            Detail
+
+                        </button>
 
                     </td>
 
@@ -334,7 +377,7 @@
 
                 <tr>
 
-                    <td colspan="6" class="text-center py-8 text-gray-500">
+                    <td colspan="8" class="text-center py-8 text-gray-500">
 
                         Belum ada pembayaran
 
@@ -351,6 +394,88 @@
     </div>
 
 </div>
+
+<!-- MODAL DETAIL CICILAN -->
+<div
+    id="detailModal"
+    class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-3xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+
+        <div class="flex items-start justify-between mb-5">
+
+            <div>
+
+                <h2 class="text-xl font-bold text-gray-800" id="detailAgenNama">
+                    -
+                </h2>
+
+                <p class="text-sm text-gray-500 mt-1">
+                    ID Agen: <span id="detailAgenId">-</span>
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                onclick="closeDetailModal()"
+                class="text-gray-400 hover:text-gray-600">
+
+                <i class="ti ti-x text-xl"></i>
+
+            </button>
+
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Tanggal Pengajuan</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailTanggalPengajuan">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Metode</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailMetode">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Total Hutang</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailTotalHutang">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Sisa Hutang</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailSisaHutang">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Metode Pembayaran</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailBankPengirim">-</p>
+            </div>
+
+            <div class="bg-gray-50 rounded-2xl p-4">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Rekening Tujuan</p>
+                <p class="font-semibold text-gray-800 mt-1" id="detailBankTujuan">-</p>
+            </div>
+
+        </div>
+
+     <h3
+    id="detailJudulCicilan"
+    class="font-bold text-gray-800 mb-3">
+
+    Rincian Cicilan
+
+</h3>
+
+        <div id="detailCicilanList" class="flex flex-col gap-3">
+        </div>
+
+    </div>
+
+</div>
+
 <div
     id="tolakModal"
     class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -414,6 +539,119 @@ function openTolakModal(id)
     document
         .getElementById('tolakModal')
         .classList.remove('hidden');
+}
+
+function closeTolakModal()
+{
+    document
+        .getElementById('tolakModal')
+        .classList.add('hidden');
+}
+</script>
+
+<script>
+
+// Data seluruh pembayaran + cicilan dari hutang terkait, sudah
+// disiapkan di PembayaranController@index lalu di-dump satu kali
+// di sini supaya modal detail bisa langsung dipopulate tanpa AJAX.
+const pembayaranData = @json($pembayaranData);
+
+function openDetailModal(id)
+{
+    const data = pembayaranData[id];
+
+    if (!data) {
+        return;
+    }
+
+    document.getElementById('detailAgenNama').textContent = data.agen;
+    document.getElementById('detailAgenId').textContent = data.idAgen;
+    document.getElementById('detailTanggalPengajuan').textContent = data.tanggalPengajuan;
+
+    document.getElementById('detailMetode').textContent =
+        data.metode === 'cash'
+            ? 'Pembayaran Penuh'
+            : 'Cicilan ' + (data.lamaTempo ?? '-') + ' bulan';
+            const judul =
+            document.getElementById(
+                'detailJudulCicilan'
+            );
+
+        judul.textContent =
+            data.metode === 'cash'
+                ? 'Rincian Pembayaran'
+                : 'Rincian Cicilan';
+
+    document.getElementById('detailTotalHutang').textContent = 'Rp' + data.totalHutang;
+    document.getElementById('detailSisaHutang').textContent = 'Rp' + data.sisaHutang;
+    document.getElementById('detailBankPengirim').textContent = data.bankPengirim ?? '-';
+    document.getElementById('detailBankTujuan').textContent = data.bankTujuan ?? '-';
+
+    const listEl = document.getElementById('detailCicilanList');
+    listEl.innerHTML = '';
+
+    if (!data.cicilan.length) {
+
+        listEl.innerHTML =
+            '<p class="text-center text-gray-400 py-6">Tidak ada data cicilan</p>';
+
+    } else {
+
+        data.cicilan.forEach(function (c) {
+
+            const isTerpilih = c.id === data.idCicilanTerpilih;
+
+            const statusBadge = c.status === 'lunas'
+                ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Lunas</span>'
+                : '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Belum Lunas</span>';
+
+            const row = document.createElement('div');
+
+            row.className =
+                'flex items-center justify-between gap-4 p-4 rounded-2xl border ' +
+                (isTerpilih
+                    ? 'border-[#5628C7] bg-[#F5F3FE]'
+                    : 'border-gray-100 bg-gray-50');
+
+            row.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center font-bold text-[#5628C7]">
+                        ${c.cicilanKe}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">
+
+    ${
+        data.metode === 'cash'
+            ? 'Pembayaran Penuh'
+            : 'Cicilan ke-' + c.cicilanKe
+    }
+
+</p>                       <p class="text-xs text-gray-500 mt-0.5">Jatuh Tempo: ${c.jatuhTempo}</p>
+                        ${c.tanggalLunas ? '<p class="text-xs text-gray-500">Tanggal Lunas: ' + c.tanggalLunas + '</p>' : ''}
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-semibold text-gray-800 mb-1">${c.jumlah}</p>
+                    ${statusBadge}
+                    ${isTerpilih ? '<p class="text-xs font-semibold text-[#5628C7] mt-1">Sedang Divalidasi</p>' : ''}
+                </div>
+            `;
+
+            listEl.appendChild(row);
+
+        });
+
+    }
+
+    document.getElementById('detailModal').classList.remove('hidden');
+}
+
+function closeDetailModal()
+{
+    document
+        .getElementById('detailModal')
+        .classList.add('hidden');
 }
 
 </script>

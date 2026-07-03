@@ -24,12 +24,24 @@
 </div>
     </div>
 
-    @if($pending > 0)
-    <div class="bg-white/15 border border-white/25 rounded-2xl px-6 py-4 text-center flex-shrink-0">
-        <p class="text-3xl font-bold">{{ $pending }}</p>
-        <p class="text-xs text-white/70 mt-1">Perlu ditinjau</p>
+    <div class="flex items-center gap-4 flex-shrink-0">
+
+        <button
+            type="button"
+            onclick="openPasswordModalOwner()"
+            class="flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/25 px-4 py-2.5 rounded-xl text-sm font-semibold transition">
+            <i class="ti ti-lock text-base"></i>
+            Ganti Password
+        </button>
+
+        @if($pending > 0)
+        <div class="bg-white/15 border border-white/25 rounded-2xl px-6 py-4 text-center">
+            <p class="text-3xl font-bold">{{ $pending }}</p>
+            <p class="text-xs text-white/70 mt-1">Perlu ditinjau</p>
+        </div>
+        @endif
+
     </div>
-    @endif
 
 </div>
 
@@ -257,5 +269,153 @@ Mendesak
     </div>
 
 </div>
+
+<!-- MODAL GANTI PASSWORD OWNER -->
+<div id="modalPasswordOwner" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+
+    <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
+
+        <!-- HEADER GRADIENT -->
+        <div class="relative px-8 py-6 text-white flex-shrink-0" style="background: linear-gradient(135deg, #5628C7 0%, #7B52E0 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-10 bg-white"></div>
+            <div class="absolute -right-8 bottom-0 w-16 h-16 rounded-full opacity-10 bg-white"></div>
+            <div class="relative z-10 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+                        <i class="ti ti-lock text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black leading-tight">Ganti Password</h2>
+                        <p class="text-white/70 text-xs mt-0.5">Pastikan password baru kamu aman</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePasswordModalOwner()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition flex-shrink-0">
+                    <i class="ti ti-x text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="px-8 py-7">
+
+            @if(session('error'))
+                <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600 font-medium">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-100 text-sm text-green-600 font-medium">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <form id="formGantiPasswordOwner" action="/owner/update-password" method="POST">
+                @csrf
+
+                <div class="space-y-4">
+
+                    <!-- Password Lama -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Password Lama
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="ti ti-lock text-[#5628C7]"></i>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_lama"
+                                placeholder="Masukkan password lama"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                             @error('password_lama')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Password Baru -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Password Baru
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="ti ti-lock text-[#5628C7]"></i>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_baru"
+                                placeholder="Minimal 6 karakter"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                           @error('password_baru')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Konfirmasi Password Baru -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Konfirmasi Password Baru
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="ti ti-circle-check text-[#5628C7]"></i>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_baru_confirmation"
+                                placeholder="Ulangi password baru"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                         @error('password_baru_confirmation')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onclick="closePasswordModalOwner()"
+                        class="px-5 py-3 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition">
+                        Batal
+                    </button>
+                    <button
+                        type="submit"
+                        class="flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-semibold shadow-lg shadow-purple-200 transition hover:opacity-90"
+                        style="background: linear-gradient(135deg, #5628C7 0%, #7B52E0 100%);">
+                        <i class="ti ti-check"></i>
+                        Simpan Password
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function openPasswordModalOwner() {
+    document.getElementById('modalPasswordOwner').classList.remove('hidden');
+    document.getElementById('modalPasswordOwner').classList.add('flex');
+}
+function closePasswordModalOwner() {
+    document.getElementById('modalPasswordOwner').classList.remove('flex');
+    document.getElementById('modalPasswordOwner').classList.add('hidden');
+}
+</script>
+
+@if($errors->any() || session('error') || session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        openPasswordModalOwner();
+    });
+</script>
+@endif
 
 @endsection

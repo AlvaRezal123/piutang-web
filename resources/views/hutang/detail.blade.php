@@ -34,7 +34,11 @@
             <div class="flex items-center gap-4 mt-4">
                 <span class="flex items-center gap-1.5 text-sm text-white/80">
                     <i class="ti ti-{{ $hutang->metode == 'cicil' ? 'calendar-repeat' : 'cash' }}"></i>
-                    {{ ucfirst($hutang->metode) }}
+                    @if($hutang->metode == 'cash')
+                        Pembayaran Penuh
+                    @else
+                        Cicilan {{ ucfirst($hutang->lama_tempo) }}
+                    @endif
                 </span>
                 <span class="text-white/40">·</span>
                 <span class="flex items-center gap-1.5 text-sm text-white/80">
@@ -143,9 +147,112 @@
                     <i class="ti ti-file-description text-gray-300 text-lg"></i>
                     <p class="text-sm text-gray-500">Metode Pembayaran</p>
                 </div>
-                <p class="text-sm font-semibold text-gray-800">{{ ucfirst($hutang->metode) }}</p>
-            </div>
+                <p class="text-sm font-semibold text-gray-800">@if($hutang->metode == 'cash')
+                                                                    Pembayaran Penuh
+                                                                @else
+                                                                    Cicilan {{ ucfirst($hutang->lama_tempo) }}
+                                                                @endif</p>
+                                                                            </div>
+@php
 
+$statusPembayaran = '-';
+
+if ($hutang->metode == 'cash') {
+
+    switch ($hutang->status) {
+
+        case 'pending':
+            $statusPembayaran = 'Belum Diproses';
+            break;
+
+        case 'disetujui':
+            $statusPembayaran = 'Menunggu Pencairan Dana';
+            break;
+
+        case 'ditolak':
+            $statusPembayaran = 'Pengajuan Ditolak';
+            break;
+
+        case 'berjalan':
+            $statusPembayaran = 'Menunggu Pembayaran Penuh';
+            break;
+
+        case 'terlambat':
+            $statusPembayaran = 'Pembayaran Penuh Terlambat';
+            break;
+
+        case 'lunas':
+            $statusPembayaran = 'Pembayaran Selesai';
+            break;
+    }
+
+} else {
+
+    switch ($hutang->status) {
+
+        case 'pending':
+            $statusPembayaran = 'Belum Diproses';
+            break;
+
+        case 'disetujui':
+            $statusPembayaran = 'Menunggu Pencairan Dana';
+            break;
+
+        case 'ditolak':
+            $statusPembayaran = 'Pengajuan Ditolak';
+            break;
+
+        case 'berjalan':
+        case 'terlambat':
+
+            if ($cicilanAktif) {
+
+                if ($cicilanAktif->status == 'terlambat') {
+
+                    $statusPembayaran =
+                        'Cicilan ke-' .
+                        $cicilanAktif->cicilan_ke .
+                        ' Terlambat';
+
+                } else {
+
+                    $statusPembayaran =
+                        'Cicilan ke-' .
+                        $cicilanAktif->cicilan_ke;
+
+                }
+
+            }
+
+            break;
+
+        case 'lunas':
+            $statusPembayaran = 'Seluruh Cicilan Lunas';
+            break;
+    }
+
+}
+
+@endphp
+<div class="flex items-center justify-between py-3 border-b border-gray-50">
+
+    <div class="flex items-center gap-3">
+
+        <i class="ti ti-credit-card text-gray-300 text-lg"></i>
+
+        <p class="text-sm text-gray-500">
+            Status Pembayaran
+        </p>
+
+    </div>
+
+    <p class="text-sm font-semibold text-gray-800">
+
+        {{ $statusPembayaran }}
+
+    </p>
+
+</div>
             <div class="flex items-center justify-between py-3 border-b border-gray-50">
                 <div class="flex items-center gap-3">
                     <i class="ti ti-calendar text-gray-300 text-lg"></i>
@@ -153,16 +260,6 @@
                 </div>
                 <p class="text-sm font-semibold text-gray-800">
                     {{ \Carbon\Carbon::parse($hutang->tanggal_pengajuan)->format('d M Y') }}
-                </p>
-            </div>
-
-            <div class="flex items-center justify-between py-3 border-b border-gray-50">
-                <div class="flex items-center gap-3">
-                    <i class="ti ti-clock text-gray-300 text-lg"></i>
-                    <p class="text-sm text-gray-500">Jatuh Tempo</p>
-                </div>
-                <p class="text-sm font-semibold text-red-500">
-                    {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->format('d M Y') }}
                 </p>
             </div>
 
@@ -230,8 +327,14 @@
                     <td class="px-6 py-4 text-gray-500">
                         <span class="flex items-center gap-1.5">
                             <i class="ti ti-{{ $r->metode == 'cicil' ? 'calendar-repeat' : 'cash' }} text-gray-300 text-sm"></i>
-                            {{ ucfirst($r->metode) }}
-                        </span>
+                            @if($r->metode == 'cash')
+                                Pembayaran Penuh
+                            @elseif($r->lama_tempo == '2 bulan')
+                                Cicilan 2 Bulan
+                            @elseif($r->lama_tempo == '3 bulan')
+                                Cicilan 3 Bulan
+                            @endif
+                                                    </span>
                     </td>
 
                     <td class="px-6 py-4">

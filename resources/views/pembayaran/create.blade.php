@@ -56,88 +56,84 @@
     <h2 class="text-xl font-bold text-gray-800 mb-5">
         Informasi Hutang
     </h2>
-@if($hutang->metode == 'cash')
 
-<div class="bg-green-50 border border-green-200 rounded-2xl p-4 mb-6">
+    <div class="grid md:grid-cols-2 gap-6">
 
-    <p class="font-semibold text-green-700">
-        Pembayaran Penuh
-    </p>
+        <!-- DETAIL CASH / CICILAN AKTIF -->
+        @if($hutang->metode == 'cash')
 
-    <p class="mt-2">
-        Nominal:
-        Rp{{ number_format($hutang->sisa_hutang,0,',','.') }}
-    </p>
+        <div class="bg-green-50 border border-green-200 rounded-2xl p-5 flex items-start gap-4">
 
-    <p>
-        Jatuh Tempo:
-        {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}
-    </p>
+            <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-green-600 shadow-sm shrink-0">
+                <i class="ti ti-cash text-xl"></i>
+            </div>
 
-</div>
+            <div>
+                <p class="font-semibold text-green-700">
+                    Pembayaran Penuh
+                </p>
 
-@elseif($cicilanAktif)
+                <p class="mt-2 text-gray-700">
+                    Nominal:
+                    <span class="font-semibold">Rp{{ number_format($hutang->sisa_hutang,0,',','.') }}</span>
+                </p>
 
-<div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
-
-    <p class="font-semibold text-blue-800">
-        Cicilan Aktif
-    </p>
-
-    <p class="mt-2">
-        Cicilan ke-{{ $cicilanAktif->cicilan_ke }}
-    </p>
-
-    <p>
-        Nominal:
-        Rp{{ number_format($cicilanAktif->jumlah_cicilan,0,',','.') }}
-    </p>
-
-    <p>
-        Jatuh Tempo:
-        {{ \Carbon\Carbon::parse($cicilanAktif->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}
-    </p>
-
-</div>
-
-@endif
-    <div class="grid md:grid-cols-3 gap-6">
-
-        <div>
-
-            <p class="text-sm text-gray-500">
-                Sisa Hutang
-            </p>
-
-            <p class="text-3xl font-bold text-[#5628C7] mt-2">
-                Rp{{ number_format($hutang->sisa_hutang,0,',','.') }}
-            </p>
+                <p class="text-gray-700">
+                    Jatuh Tempo:
+                    <span class="font-semibold">{{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}</span>
+                </p>
+            </div>
 
         </div>
 
-        <div>
+        @elseif($cicilanAktif)
 
-            <p class="text-sm text-gray-500">
-                Status
-            </p>
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-5 flex items-center gap-4">
 
-            <span class="inline-flex mt-2 px-4 py-2 rounded-full bg-yellow-100 text-yellow-700 font-semibold">
+            <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-blue-700 shadow-sm shrink-0">
+                <i class="ti ti-credit-card-pay text-xl"></i>
+            </div>
 
-                {{ ucfirst($hutang->status) }}
+            <div>
+                <p class="font-semibold text-blue-800">
+                    Cicilan Aktif
+                </p>
 
-            </span>
+                <p class="mt-2 text-gray-700">
+                    Cicilan ke-{{ $cicilanAktif->cicilan_ke }}
+                </p>
+
+                <p class="text-gray-700">
+                    Nominal:
+                    <span class="font-semibold">Rp{{ number_format($cicilanAktif->jumlah_cicilan,0,',','.') }}</span>
+                </p>
+
+                <p class="text-gray-700">
+                    Jatuh Tempo:
+                    <span class="font-semibold">{{ \Carbon\Carbon::parse($cicilanAktif->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}</span>
+                </p>
+            </div>
 
         </div>
 
-        <div>
+        @endif
 
-            <p class="text-sm text-gray-500">
-                Metode Hutang
-            </p>
+        <!-- SISA HUTANG -->
+        <div class="bg-purple-50 border border-purple-200 rounded-2xl p-5 flex items-center gap-4">
 
-            <p class="font-semibold mt-2">
-                {{ ucfirst($hutang->metode) }}
-            </p>
+            <div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#5628C7] shadow-sm shrink-0">
+                <i class="ti ti-wallet text-xl"></i>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-500">
+                    Sisa Hutang
+                </p>
+
+                <p class="text-3xl font-bold text-[#5628C7] mt-1">
+                    Rp{{ number_format($hutang->sisa_hutang,0,',','.') }}
+                </p>
+            </div>
 
         </div>
 
@@ -209,8 +205,56 @@
 
             </div>
 
+            <!-- BANK TUJUAN -->
+            <div class="md:col-span-2">
+
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Transfer ke Rekening
+                </label>
+
+                <select
+                    id="bank_tujuan"
+                    name="bank_tujuan"
+                    required
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-[#5628C7] focus:border-[#5628C7]">
+
+                    <option value="">🏦 Pilih Rekening Tujuan</option>
+                    <option value="BCA" data-rekening="0961435187">BCA - 0961435187</option>
+                    <option value="Mandiri" data-rekening="1800014088662">Mandiri - 1800014088662</option>
+                    <option value="BNI" data-rekening="1886994256">BNI - 1886994256</option>
+                    <option value="BRI" data-rekening="010601003836301">BRI - 010601003836301</option>
+
+                </select>
+
+                <div
+                    id="rekening_tujuan_card"
+                    class="hidden mt-3 bg-purple-50 border border-purple-200 rounded-2xl p-4 flex items-center justify-between gap-4">
+
+                    <div>
+
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">
+                            No. Rekening
+                        </p>
+
+                        <p
+                            id="rekening_tujuan_nomor"
+                            class="text-lg font-bold text-[#5628C7] mt-1">
+                            -
+                        </p>
+
+                        <p class="text-sm text-gray-600 mt-1">
+                            a.n. PT PARTNER PULSA INDONESIA
+                        </p>
+
+                    </div>
+
+    
+                </div>
+
+            </div>
+
             <!-- METODE PEMBAYARAN -->
-            <div>
+            <div class="md:col-span-2">
 
                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Metode Pembayaran
@@ -259,64 +303,100 @@
             </div>
 
             <!-- BUKTI PEMBAYARAN -->
-            <div>
+            <div class="md:col-span-2">
 
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Bukti Pembayaran
-                </label>
+                <div class="grid md:grid-cols-2 gap-6">
 
-                <label
-                    id="upload_area"
-                    for="bukti_pembayaran"
-                    class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-gray-50 hover:bg-purple-50 hover:border-[#5628C7] transition">
+                    <!-- UPLOAD -->
+                    <div>
 
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="w-14 h-14 text-[#5628C7] mb-3"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Bukti Pembayaran
+                        </label>
 
-                        <path stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.8"
-                            d="M7 18a4.6 4.6 0 01-2-8.7A5 5 0 0110.2 4a5 5 0 014.7 3.2A4 4 0 0118 18H7zm5-8v6m0 0l-2-2m2 2l2-2" />
+                        <label
+                            id="upload_area"
+                            for="bukti_pembayaran"
+                            class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-gray-50 hover:bg-purple-50 hover:border-[#5628C7] transition">
 
-                    </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-14 h-14 text-[#5628C7] mb-3"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor">
 
-                    <p class="font-semibold text-gray-700">
-                        Klik di sini untuk memilih bukti pembayaran
-                    </p>
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.8"
+                                    d="M7 18a4.6 4.6 0 01-2-8.7A5 5 0 0110.2 4a5 5 0 014.7 3.2A4 4 0 0118 18H7zm5-8v6m0 0l-2-2m2 2l2-2" />
 
-                    <p class="text-sm text-gray-500 mt-1">
-                        Format JPG, JPEG, PNG
-                    </p>
+                            </svg>
 
-                    <p
-                        id="nama_file"
-                        class="mt-3 text-[#5628C7] font-semibold hidden">
-                    </p>
+                            <p class="font-semibold text-gray-700 text-center px-4">
+                                Klik di sini untuk memilih bukti pembayaran
+                            </p>
 
-                </label>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Format JPG, JPEG, PNG
+                            </p>
 
-                <input
-                    type="file"
-                    id="bukti_pembayaran"
-                    name="bukti_pembayaran"
-                    accept=".jpg,.jpeg,.png"
-                    class="hidden">
+                            <p
+                                id="nama_file"
+                                class="mt-3 text-[#5628C7] font-semibold hidden text-center px-4">
+                            </p>
 
-                <!-- Preview -->
-                <div
-                    id="preview_container"
-                    class="hidden mt-5">
+                        </label>
 
-                    <p class="font-semibold text-gray-700 mb-2">
-                        Preview Bukti Pembayaran
-                    </p>
+                        <input
+                            type="file"
+                            id="bukti_pembayaran"
+                            name="bukti_pembayaran"
+                            accept=".jpg,.jpeg,.png"
+                            class="hidden">
 
-                    <img
-                        id="preview_image"
-                        class="rounded-xl border border-gray-300 shadow-md max-h-72">
+                    </div>
+
+                    <!-- PREVIEW -->
+                    <div>
+
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Preview Bukti Pembayaran
+                        </label>
+
+                        <div
+                            id="preview_placeholder"
+                            class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 text-center px-4">
+
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="w-10 h-10 text-gray-300 mb-2"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor">
+
+                                <path stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="1.5"
+                                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 3h18v18H3V3z" />
+
+                            </svg>
+
+                            <p class="text-sm text-gray-400">
+                                Preview akan muncul di sini
+                            </p>
+
+                        </div>
+
+                        <div
+                            id="preview_container"
+                            class="hidden w-full h-64">
+
+                            <img
+                                id="preview_image"
+                                class="w-full h-64 object-contain rounded-2xl border border-gray-300 shadow-md bg-gray-50">
+
+                        </div>
+
+                    </div>
 
                 </div>
 
@@ -343,6 +423,43 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
+        // ==========================
+        // BANK TUJUAN (REKENING PERUSAHAAN)
+        // ==========================
+
+        const selectTujuan = document.getElementById('bank_tujuan');
+        const kartuTujuan = document.getElementById('rekening_tujuan_card');
+        const nomorTujuan = document.getElementById('rekening_tujuan_nomor');
+        const btnSalin = document.getElementById('btn_copy_rekening');
+
+        if (selectTujuan) {
+
+            selectTujuan.addEventListener('change', function() {
+
+                const opsiTerpilih = this.options[this.selectedIndex];
+                const rekening = opsiTerpilih.getAttribute('data-rekening');
+
+                if (rekening) {
+
+                    nomorTujuan.textContent = rekening;
+                    kartuTujuan.classList.remove('hidden');
+
+                } else {
+
+                    kartuTujuan.classList.add('hidden');
+                    nomorTujuan.textContent = '-';
+
+                }
+
+            });
+
+        }
+
+      
+            });
+
+    
 
         // ==========================
         // METODE PEMBAYARAN
@@ -379,6 +496,7 @@
 
         const inputFile = document.getElementById('bukti_pembayaran');
         const namaFile = document.getElementById('nama_file');
+        const previewPlaceholder = document.getElementById('preview_placeholder');
         const previewContainer = document.getElementById('preview_container');
         const previewImage = document.getElementById('preview_image');
 
@@ -397,6 +515,7 @@
 
                     reader.onload = function(e) {
 
+                        previewPlaceholder.classList.add('hidden');
                         previewContainer.classList.remove('hidden');
                         previewImage.src = e.target.result;
 
@@ -410,7 +529,7 @@
 
         }
 
-    });
+  
 </script>
 
 @endsection

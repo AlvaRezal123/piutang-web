@@ -225,6 +225,18 @@
 
                     <th class="text-left py-4">
                         Agen
+                    </th> 
+                    <th class="text-left py-4">
+                       Tanggal Pengajuan
+                    </th>
+
+                    
+                    <th class="text-left py-4">
+                        Tanggal Cair
+                    </th>
+
+                          <th class="text-left py-4">
+                        Metode
                     </th>
 
                     <th class="text-left py-4">
@@ -232,19 +244,7 @@
                     </th>
 
                     <th class="text-left py-4">
-                        Metode
-                    </th>
-
-                    <th class="text-left py-4">
-                        Pengajuan
-                    </th>
-
-                    <th class="text-left py-4">
                         Status
-                    </th>
-
-                    <th class="text-left py-4">
-                        Tgl Cair
                     </th>
 
                     <th class="text-left py-4">
@@ -259,13 +259,14 @@
 
                 @forelse($hutang as $h)
 
-        <tr
-    class="border-b pencairan-row"
-    data-status="{{ $h->status }}"
-    data-agen="{{ strtolower($h->agen->username) }}"
-    data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}"
-    data-tahun="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y') }}">
+                <tr
+                    class="border-b pencairan-row"
+                    data-status="{{ $h->status }}"
+                    data-agen="{{ strtolower($h->agen->username) }}"
+                    data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}"
+                    data-tahun="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y') }}">
 
+                    <!-- AGEN -->
                     <td class="py-5">
 
                         <div>
@@ -282,6 +283,64 @@
 
                     </td>
 
+                    <!-- TANGGAL PENGAJUAN -->
+                    <td>
+
+                        {{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('d M Y') }}
+
+                    </td>
+
+                    
+                    <!-- TGL CAIR -->
+                    <td>
+
+                        {{ $h->tanggal_pencairan
+                            ? \Carbon\Carbon::parse($h->tanggal_pencairan)->format('d M Y')
+                            : '-' }}
+
+                    </td>
+
+                      <!-- METODE -->
+                    <td>
+
+                        @if($h->metode == 'cash')
+
+                  <div class="flex items-center gap-2">
+
+    <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+
+        <i class="ti ti-credit-card text-green-600 text-sm"></i>
+
+    </div>
+
+    <span class="font-medium">
+        Pembayaran Penuh
+    </span>
+
+</div>
+
+                        @else
+
+              <div class="flex items-center gap-2">
+
+    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+
+        <i class="ti ti-calendar-time text-blue-600 text-sm"></i>
+
+    </div>
+
+    <span class="font-medium">
+        Cicilan {{ $h->lama_tempo }}
+    </span>
+
+</div>
+                        @endif
+
+                    </td>
+
+
+
+                    <!-- NOMINAL -->
                     <td>
 
                         <span class="font-semibold">
@@ -292,18 +351,8 @@
 
                     </td>
 
-                    <td>
-
-                        {{ ucfirst($h->metode) }}
-
-                    </td>
-
-                    <td>
-
-                        {{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('d M Y') }}
-
-                    </td>
-
+                  
+                    <!-- STATUS -->
                     <td>
 
                         @if($h->status == 'disetujui')
@@ -334,14 +383,7 @@
 
                     </td>
 
-                    <td>
-
-                        {{ $h->tanggal_pencairan
-                            ? \Carbon\Carbon::parse($h->tanggal_pencairan)->format('d M Y')
-                            : '-' }}
-
-                    </td>
-
+                    <!-- AKSI -->
                     <td>
 
                         @if($h->status == 'disetujui')

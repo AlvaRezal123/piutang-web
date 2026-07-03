@@ -60,7 +60,23 @@
 
                     <td class="py-4 px-2">
                         <p class="text-sm font-semibold text-gray-800">Rp{{ number_format($h->jumlah_hutang, 0, ',', '.') }}</p>
-                        <p class="text-xs text-gray-400">Sisa: Rp{{ number_format($h->sisa_hutang, 0, ',', '.') }}</p>
+                        <p class="text-xs text-gray-400">
+
+    @if($h->status == 'ditolak')
+
+        Sisa: -
+
+    @elseif($h->status == 'lunas')
+
+        Sisa: Rp0
+
+    @else
+
+        Sisa: Rp{{ number_format($h->sisa_hutang, 0, ',', '.') }}
+
+    @endif
+
+</p>
                     </td>
 
                     <td class="py-4 px-2">

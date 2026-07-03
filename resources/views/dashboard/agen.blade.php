@@ -203,41 +203,89 @@
                 </span>
 
                 <span class="font-semibold">
-                    @if($hutangAktif)
-                        {{ \Carbon\Carbon::parse($hutangAktif->tanggal_pengajuan)->translatedFormat('d F Y') }}
-                    @else
-                        -
-                    @endif
+                  @if($hutangAktif)
+
+    @if($hutangAktif->metode == 'cash')
+
+        Pembayaran Penuh
+
+    @else
+
+        Cicilan {{ $hutangAktif->lama_tempo }}
+
+    @endif
+
+@else
+
+    -
+
+@endif
                 </span>
             </div>
 
-            <div class="flex justify-between border-b border-dashed pb-4">
-                <span class="text-gray-500">
-                    Jatuh Tempo
+           <div class="flex justify-between border-b border-dashed pb-4">
+
+    <span class="text-gray-500">
+        Jatuh Tempo
+    </span>
+
+    <span class="font-semibold">
+
+        @if($hutangAktif)
+
+            @if(in_array($hutangAktif->status, ['pending','disetujui']))
+
+                <span class="text-yellow-600">
+                    Menunggu Pencairan Dana
                 </span>
 
-                <span class="font-semibold text-red-500">
-                    @if($hutangAktif)
-                        {{ \Carbon\Carbon::parse($hutangAktif->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}
-                    @else
-                        -
-                    @endif
-                </span>
-            </div>
+            @else
 
-            <div class="flex justify-between border-b border-dashed pb-4">
-                <span class="text-gray-500">
-                    Metode
+                <span class="text-red-600">
+                    {{ \Carbon\Carbon::parse($hutangAktif->tanggal_jatuh_tempo)->translatedFormat('d F Y') }}
                 </span>
 
-                <span class="font-semibold">
-                    @if($hutangAktif)
-                        {{ ucfirst($hutangAktif->metode) }}
-                    @else
-                        -
-                    @endif
-                </span>
-            </div>
+            @endif
+
+        @else
+
+            -
+
+        @endif
+
+    </span>
+
+</div>
+
+           <div class="flex justify-between border-b border-dashed pb-4">
+
+    <span class="text-gray-500">
+        Metode
+    </span>
+
+    <span class="font-semibold">
+
+        @if($hutangAktif)
+
+            @if($hutangAktif->metode == 'cash')
+
+                Pembayaran Penuh
+
+            @else
+
+                Cicilan {{ $hutangAktif->lama_tempo }}
+
+            @endif
+
+        @else
+
+            -
+
+        @endif
+
+    </span>
+
+</div>
 
             <div class="flex justify-between">
                 <span class="text-gray-500">

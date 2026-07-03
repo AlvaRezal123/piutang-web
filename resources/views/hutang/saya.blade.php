@@ -472,12 +472,28 @@ $hutangAktif = $hutang->whereIn('status', [
 </td>
                 <td>
 
+@if($h->status == 'ditolak')
+
+    <button
+        type="button"
+        onclick="openTolakModal({{ $h->id }})"
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm font-semibold hover:bg-red-200 transition">
+
+        Lihat Alasan
+
+    </button>
+
+@else
+
 <a
     href="/hutang/detail/{{ $h->id }}"
     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#5628C7] text-[#5628C7] text-sm font-semibold hover:bg-[#5628C7] hover:text-white transition">
 
     Detail →
 </a>
+
+@endif
+
                 </td>
 
             </tr>
@@ -491,6 +507,66 @@ $hutangAktif = $hutang->whereIn('status', [
     </div>
 
 </div>
+
+<!-- MODAL ALASAN PENOLAKAN, SATU MODAL PER PENGAJUAN YANG DITOLAK -->
+@foreach($hutang as $h)
+
+@if($h->status == 'ditolak')
+
+<div
+    id="tolakModal{{ $h->id }}"
+    class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-3xl p-6 w-full max-w-lg">
+
+        <h2 class="text-xl font-bold text-red-600 mb-4">
+            Alasan Penolakan
+        </h2>
+
+        <div class="bg-gray-50 rounded-2xl p-4 mb-4">
+
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">
+                Tanggal Pengajuan
+            </p>
+
+            <p class="font-semibold text-gray-800 mt-1">
+                {{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('d M Y') }}
+            </p>
+
+        </div>
+
+        <div class="bg-red-50 rounded-2xl p-4">
+
+            <p class="text-xs text-red-600 uppercase font-bold tracking-wide">
+                Alasan Penolakan
+            </p>
+
+            <p class="font-semibold text-gray-800 mt-1">
+                {{ $h->alasan_penolakan ?? 'Tidak ada keterangan dari admin.' }}
+            </p>
+
+        </div>
+
+        <div class="mt-6 text-right">
+
+            <button
+                type="button"
+                onclick="closeTolakModal({{ $h->id }})"
+                class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">
+
+                Tutup
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@endif
+
+@endforeach
 
 <script>
 
@@ -538,6 +614,22 @@ filterTanggal.addEventListener(
     'change',
     filterData
 );
+
+function openTolakModal(id)
+{
+    document
+        .getElementById('tolakModal' + id)
+        .classList
+        .remove('hidden');
+}
+
+function closeTolakModal(id)
+{
+    document
+        .getElementById('tolakModal' + id)
+        .classList
+        .add('hidden');
+}
 
 </script>
 

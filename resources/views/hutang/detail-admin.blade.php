@@ -28,8 +28,17 @@
             <h2 class="text-5xl font-bold">Rp{{ number_format($hutang->jumlah_hutang, 0, ',', '.') }}</h2>
             <div class="flex items-center gap-4 mt-4">
                 <span class="flex items-center gap-1.5 text-sm text-white/80">
-                    <i class="ti ti-{{ $hutang->metode == 'cicil' ? 'calendar-repeat' : 'cash' }}"></i>
-                    {{ ucfirst($hutang->metode) }}
+               <i class="ti ti-{{ $hutang->metode == 'cicil' ? 'calendar-repeat' : 'credit-card' }}"></i>
+
+@if($hutang->metode == 'cash')
+
+    Pembayaran Penuh
+
+@else
+
+    Cicilan {{ $hutang->lama_tempo }}
+
+@endif
                 </span>
                 <span class="text-white/40">·</span>
                 <span class="flex items-center gap-1.5 text-sm text-white/80">
@@ -132,9 +141,19 @@
                     <i class="ti ti-file-description text-gray-300 text-lg"></i>
                     <p class="text-sm text-gray-500">Metode Pembayaran</p>
                 </div>
-                <p class="text-sm font-semibold text-gray-800">{{ ucfirst($hutang->metode) }}
-                    @if($hutang->lama_tempo) · {{ $hutang->lama_tempo }} @endif
-                </p>
+             <p class="text-sm font-semibold text-gray-800">
+
+    @if($hutang->metode == 'cash')
+
+        Pembayaran Penuh
+
+    @else
+
+        Cicilan {{ $hutang->lama_tempo }}
+
+    @endif
+
+</p>
             </div>
             <div class="flex items-center justify-between py-3 border-b border-gray-50">
                 <div class="flex items-center gap-3">
@@ -284,8 +303,17 @@
                     <td class="px-6 py-4 font-semibold text-gray-800">Rp{{ number_format($r->jumlah_hutang, 0, ',', '.') }}</td>
                     <td class="px-6 py-4 text-gray-500">
                         <span class="flex items-center gap-1.5">
-                            <i class="ti ti-{{ $r->metode == 'cicil' ? 'calendar-repeat' : 'cash' }} text-gray-300 text-sm"></i>
-                            {{ ucfirst($r->metode) }}
+                     <i class="ti ti-{{ $r->metode == 'cicil' ? 'calendar-repeat' : 'credit-card' }}"></i>
+
+@if($r->metode == 'cash')
+
+    Pembayaran Penuh
+
+@else
+
+    Cicilan {{ $r->lama_tempo }}
+
+@endif
                         </span>
                     </td>
                     <td class="px-6 py-4">

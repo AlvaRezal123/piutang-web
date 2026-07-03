@@ -5,13 +5,29 @@
         <!-- HEADER -->
         <div class="bg-white rounded-3xl p-8 shadow-sm border border-purple-100">
 
-            <h1 class="text-3xl font-black text-gray-800">
-                Halo Admin 👋
-            </h1>
+            <div class="flex items-start justify-between gap-4">
 
-            <p class="text-gray-500 mt-2">
-                Kelola validasi agen, pencairan saldo, dan pembayaran agen Partner Pulsa.
-            </p>
+                <div>
+                    <h1 class="text-3xl font-black text-gray-800">
+                        Halo Admin 👋
+                    </h1>
+
+                    <p class="text-gray-500 mt-2">
+                        Kelola validasi agen, pencairan saldo, dan pembayaran agen Partner Pulsa.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="openPasswordModalAdmin()"
+                    class="flex-shrink-0 flex items-center gap-2 bg-purple-50 hover:bg-purple-100 text-[#5628C7] px-4 py-2.5 rounded-xl font-semibold text-sm transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                    </svg>
+                    Ganti Password
+                </button>
+
+            </div>
 
         </div>
 
@@ -250,5 +266,165 @@
     </div>
 
 </div>
+
+<!-- MODAL GANTI PASSWORD ADMIN -->
+<div id="modalPasswordAdmin" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+
+    <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
+
+        <!-- HEADER GRADIENT -->
+        <div class="relative px-8 py-6 text-white flex-shrink-0" style="background: linear-gradient(135deg, #6C5CE7 0%, #5628C7 100%);">
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full opacity-10 bg-white"></div>
+            <div class="absolute -right-8 bottom-0 w-16 h-16 rounded-full opacity-10 bg-white"></div>
+            <div class="relative z-10 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black leading-tight">Ganti Password</h2>
+                        <p class="text-white/70 text-xs mt-0.5">Pastikan password baru kamu aman</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closePasswordModalAdmin()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="px-8 py-7">
+
+            @if(session('error'))
+                <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600 font-medium">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-100 text-sm text-green-600 font-medium">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <form id="formGantiPasswordAdmin" action="/admin/update-password" method="POST">
+                @csrf
+
+                <div class="space-y-4">
+
+                    <!-- Password Lama -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Password Lama
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_lama"
+                                placeholder="Masukkan password lama"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                             @error('password_lama')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Password Baru -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Password Baru
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_baru"
+                                placeholder="Minimal 6 karakter"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                          @error('password_baru')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Konfirmasi Password Baru -->
+                    <div>
+                        <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                            Konfirmasi Password Baru
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <input
+                                type="password"
+                                name="password_baru_confirmation"
+                                placeholder="Ulangi password baru"
+                                class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-11 pr-4 py-3 text-sm font-medium text-gray-800 transition focus:outline-none focus:ring-2 focus:ring-[#5628C7]/30 focus:border-[#5628C7] focus:bg-white">
+                        </div>
+                         @error('password_baru_confirmation')
+                            <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                </div>
+
+                <div class="flex justify-end gap-3 mt-8 pt-5 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onclick="closePasswordModalAdmin()"
+                        class="px-5 py-3 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition">
+                        Batal
+                    </button>
+                    <button
+                        type="submit"
+                        class="flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-semibold shadow-lg shadow-purple-200 transition hover:opacity-90"
+                        style="background: linear-gradient(135deg, #6C5CE7 0%, #5628C7 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                        </svg>
+                        Simpan Password
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function openPasswordModalAdmin() {
+    document.getElementById('modalPasswordAdmin').classList.remove('hidden');
+    document.getElementById('modalPasswordAdmin').classList.add('flex');
+}
+function closePasswordModalAdmin() {
+    document.getElementById('modalPasswordAdmin').classList.remove('flex');
+    document.getElementById('modalPasswordAdmin').classList.add('hidden');
+}
+</script>
+
+@if($errors->any() || session('error') || session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        openPasswordModalAdmin();
+    });
+</script>
+@endif
 
 @endsection
