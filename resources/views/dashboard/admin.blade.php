@@ -9,7 +9,7 @@
 
                 <div>
                     <h1 class="text-3xl font-black text-gray-800">
-                        Halo Admin 👋
+                        Halo Admin
                     </h1>
 
                     <p class="text-gray-500 mt-2">

@@ -182,14 +182,15 @@ $totalDitolak = $pembayaran
 
                 <tr class="border-b">
 
-                    <th class="text-left py-3">Tanggal</th>
-                    <th class="text-left py-3">Jumlah</th>
-                    <th class="text-left py-3">Cicilan</th>
-                    <th class="text-left py-3">Metode</th>
-                    <th class="text-left py-3">Status</th>
-                    <th class="text-left py-3">Bukti</th>
-                    <th class="text-left py-3">Detail</th>
-                    <th class="text-left py-3">Aksi</th>
+                    <th class="text-center py-3">ID Pembayaran</th>
+                    <th class="text-center py-3">Tanggal</th>
+                    <th class="text-center py-3">Jumlah</th>
+                    <th class="text-center py-3">Metode</th>
+                    <th class="text-center py-3">Bank Pengirim</th>
+                    <th class="text-center py-3">Status</th>
+                    <th class="text-center py-3">Bukti</th>
+                    <th class="text-center py-3">Detail</th>
+                    <th class="text-center py-3">Aksi</th>
 
                 </tr>
 
@@ -203,6 +204,10 @@ $totalDitolak = $pembayaran
     class="border-b status-row"
     data-status="{{ $p->status }}"
     data-tanggal="{{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('Y-m-d') }}">
+
+                    <td class="py-4 font-semibold text-gray-600">
+                        #{{ $p->id }}
+                    </td>
 
                     <td class="py-4">
                         {{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('d M Y') }}
@@ -263,9 +268,13 @@ $totalDitolak = $pembayaran
                         <a
                             href="{{ asset('uploads/'.$p->bukti_pembayaran) }}"
                             target="_blank"
-                            class="text-[#5628C7] font-semibold">
+                            title="Lihat Bukti Pembayaran"
+                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-purple-100 text-[#5628C7] hover:bg-purple-200 transition">
 
-                            Lihat Bukti
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
 
                         </a>
 
@@ -312,7 +321,7 @@ $totalDitolak = $pembayaran
 
                 <tr>
 
-                    <td colspan="8" class="text-center py-8 text-gray-500">
+                    <td colspan="9" class="text-center py-8 text-gray-500">
                         Belum ada data pembayaran
                     </td>
 
@@ -333,10 +342,10 @@ $totalDitolak = $pembayaran
 
     <div class="bg-white rounded-3xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
 
-        <div class="flex items-start justify-between mb-5">
+        <div class="flex items-start justify-between mb-2">
 
             <h2 class="text-xl font-bold text-gray-800">
-                Detail Cicilan
+                Detail Pembayaran
             </h2>
 
             <button
@@ -347,6 +356,18 @@ $totalDitolak = $pembayaran
                 <i class="ti ti-x text-xl"></i>
 
             </button>
+
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-5">
+
+            <span class="bg-[#5628C7] text-white px-3 py-1 rounded-full text-xs font-bold">
+                ID Pembayaran: <span id="detailIdPembayaran">-</span>
+            </span>
+
+            <span class="bg-purple-100 text-[#5628C7] px-3 py-1 rounded-full text-xs font-bold">
+                ID Hutang: <span id="detailIdHutang">-</span>
+            </span>
 
         </div>
 
@@ -499,12 +520,17 @@ function openDetailModal(id)
         return;
     }
 
+    // ID Pembayaran diambil dari id yang diklik (parameter fungsi ini),
+    // ID Hutang diambil dari data.idHutang yang disiapkan controller.
+    document.getElementById('detailIdPembayaran').textContent = '#' + id;
+    document.getElementById('detailIdHutang').textContent = data.idHutang ? '#' + data.idHutang : '-';
+
     document.getElementById('detailTanggalPengajuan').textContent = data.tanggalPengajuan;
 
     document.getElementById('detailMetode').textContent =
         data.metode === 'cash'
             ? 'Pembayaran Penuh'
-            : 'Cicilan ' + (data.lamaTempo ?? '-') + ' bulan';
+            : 'Cicilan ' + (data.lamaTempo ?? '-') ;
 
     document.getElementById('detailTotalHutang').textContent = 'Rp' + data.totalHutang;
     document.getElementById('detailSisaHutang').textContent = 'Rp' + data.sisaHutang;
@@ -523,9 +549,33 @@ function openDetailModal(id)
 
             const isTerpilih = c.id === data.idCicilanTerpilih;
 
-            const statusBadge = c.status === 'lunas'
-                ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Lunas</span>'
-                : '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Belum Lunas</span>';
+            // FIX: kalau baris cicilan ini adalah cicilan yang terkait
+            // dengan pembayaran yang sedang dilihat (isTerpilih) DAN
+            // pembayaran itu berstatus ditolak/pending, tampilkan status
+            // pembayaran ini apa adanya. Jangan ikut status cicilan
+            // secara global, karena cicilan yang sama bisa saja sudah
+            // berstatus "lunas" akibat pengajuan pembayaran LAIN yang
+            // disetujui belakangan — itu sebabnya sebelumnya pembayaran
+            // yang ditolak tetap tampil "Lunas" di modal detail.
+            let statusBadge;
+
+            if (isTerpilih && data.statusPembayaranIni === 'ditolak') {
+
+                statusBadge =
+                    '<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">Ditolak</span>';
+
+            } else if (isTerpilih && data.statusPembayaranIni === 'pending') {
+
+                statusBadge =
+                    '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Menunggu Verifikasi</span>';
+
+            } else {
+
+                statusBadge = c.status === 'lunas'
+                    ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Lunas</span>'
+                    : '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Belum Lunas</span>';
+
+            }
 
             const row = document.createElement('div');
 

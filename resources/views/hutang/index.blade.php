@@ -3,103 +3,162 @@
 @section('content')
 
 <!-- HEADER -->
-<div class="mb-8 flex items-center justify-between">
+<div class="mb-8">
 
-    <div>
-        <h1 class="text-3xl font-bold text-gray-800">Approval Pengajuan Hutang</h1>
-        <p class="text-gray-400 mt-1 text-sm">Kelola dan validasi pengajuan hutang dari agen Partner Pulsa.</p>
-    </div>
+    <h1 class="text-3xl font-bold text-gray-800">
+        Approval Pengajuan Hutang
+    </h1>
 
-    <div class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 rounded-2xl px-4 py-3">
-        <i class="ti ti-clock text-yellow-500 text-lg"></i>
-        <div>
-            <p class="text-xs text-yellow-600">Menunggu review</p>
-            <p class="text-xl font-bold text-yellow-600">{{ $hutang->where('status','pending')->count() }}</p>
-        </div>
-    </div>
+    <p class="text-gray-500 mt-2">
+        Kelola dan validasi pengajuan hutang dari agen Partner Pulsa.
+    </p>
 
 </div>
 
-<!-- STATISTIK -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+@if(session('success'))
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center mb-3">
-            <i class="ti ti-clock text-yellow-600 text-base"></i>
+<div class="bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-2xl mb-6">
+
+    {{ session('success') }}
+
+</div>
+
+@endif
+
+<!-- STATISTIK -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+    <!-- Pending -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#EF9F27]"></div>
+        <div class="w-9 h-9 rounded-lg bg-[#FAEEDA] flex items-center justify-center mb-3">
+            <i class="ti ti-clock text-[#854F0B] text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Pending</p>
-        <p class="text-3xl font-bold text-yellow-500">{{ $hutang->where('status','pending')->count() }}</p>
+        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Pending</p>
+        <h2 class="text-3xl font-medium text-[#BA7517] mt-1">{{ $hutang->where('status','pending')->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-1.5">Menunggu review</p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mb-3">
+    <!-- Disetujui -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#5628C7]"></div>
+        <div class="w-9 h-9 rounded-lg bg-[#EEEDFE] flex items-center justify-center mb-3">
             <i class="ti ti-circle-check text-[#5628C7] text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Disetujui</p>
-        <p class="text-3xl font-bold text-[#5628C7]">{{ $hutang->where('status','disetujui')->count() }}</p>
+        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Disetujui</p>
+        <h2 class="text-3xl font-medium text-[#5628C7] mt-1">{{ $hutang->where('status','disetujui')->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-1.5">Pengajuan disetujui</p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center mb-3">
-            <i class="ti ti-circle-x text-red-500 text-base"></i>
+    <!-- Ditolak -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#E24B4A]"></div>
+        <div class="w-9 h-9 rounded-lg bg-[#FCEBEB] flex items-center justify-center mb-3">
+            <i class="ti ti-circle-x text-[#A32D2D] text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Ditolak</p>
-        <p class="text-3xl font-bold text-red-500">{{ $hutang->where('status','ditolak')->count() }}</p>
+        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Ditolak</p>
+        <h2 class="text-3xl font-medium text-[#A32D2D] mt-1">{{ $hutang->where('status','ditolak')->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-1.5">Perlu ditinjau ulang</p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mb-3">
-            <i class="ti ti-file-text text-green-600 text-base"></i>
+    <!-- Total Pengajuan -->
+    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#639922]"></div>
+        <div class="w-9 h-9 rounded-lg bg-[#EAF3DE] flex items-center justify-center mb-3">
+            <i class="ti ti-file-text text-[#3B6D11] text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Total Pengajuan</p>
-        <p class="text-3xl font-bold text-green-600">{{ $hutang->count() }}</p>
+        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Total Pengajuan</p>
+        <h2 class="text-3xl font-medium text-[#639922] mt-1">{{ $hutang->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-1.5">Semua status</p>
     </div>
 
 </div>
 
 <!-- TABEL -->
-<div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden">
+<div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
-    <!-- Toolbar -->
-    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+    <div class="flex flex-col md:flex-row justify-between gap-4 mb-6">
 
-        <h2 class="text-base font-semibold text-gray-800">Data Pengajuan Hutang</h2>
+        <h2 class="text-xl font-bold text-gray-800">
+            Data Pengajuan Hutang
+        </h2>
 
-        <select id="filterStatus" class="text-sm border border-gray-200 rounded-xl px-3 py-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-300">
-            <option value="all">Semua Status</option>
-            <option value="pending">Pending</option>
-            <option value="disetujui">Disetujui</option>
-            <option value="ditolak">Ditolak</option>
-            <option value="berjalan">Berjalan</option>
-            <option value="lunas">Lunas</option>
-        </select>
+        <div class="flex flex-wrap gap-3">
+
+            <!-- Cari Agen -->
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Cari Agen..."
+                class="border border-gray-300 rounded-xl px-4 py-2">
+
+            <!-- Status -->
+            <select id="filterStatus" class="border border-gray-300 rounded-xl px-4 py-2">
+                <option value="all">Semua Status</option>
+                <option value="pending">Pending</option>
+                <option value="disetujui">Disetujui</option>
+                <option value="ditolak">Ditolak</option>
+                <option value="berjalan">Berjalan</option>
+                <option value="lunas">Lunas</option>
+            </select>
+
+            <!-- Cari -->
+            <button
+                type="button"
+                id="btnCariFilter"
+                class="bg-purple-600 text-white px-4 py-2 rounded-xl">
+
+                Cari
+
+            </button>
+
+            <!-- Reset -->
+            <button
+                type="button"
+                id="resetFilter"
+                class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
+
+                Reset
+
+            </button>
+
+        </div>
 
     </div>
 
-    <!-- Table -->
     <div class="overflow-x-auto">
 
-        <table class="w-full text-sm">
+        <table class="w-full table-auto">
 
             <thead>
-                <tr class="bg-gray-50 border-b border-gray-100">
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Agen</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Jumlah</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Metode</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Tanggal</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Aksi</th>
+
+                <tr class="border-b">
+
+                    <th class="text-left py-3">Agen</th>
+                    <th class="text-left py-3">Jumlah</th>
+                    <th class="text-left py-3">Metode</th>
+                    <th class="text-left py-3">Tanggal</th>
+                    <th class="text-left py-3">Status</th>
+                    <th class="text-left py-3">Detail</th>
+                    <th class="text-left py-3">Aksi</th>
+
                 </tr>
+
             </thead>
 
             <tbody>
 
                 @forelse($hutang as $h)
 
-                <tr class="status-row border-b border-gray-50 hover:bg-gray-50 transition-colors" data-status="{{ $h->status }}">
+                <tr
+                    class="border-b status-row"
+                    data-status="{{ $h->status }}"
+                    data-agen="{{ strtolower($h->agen->username) }}"
+                    data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}"
+                    data-tahun="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y') }}">
 
                     <!-- Agen -->
-                    <td class="px-6 py-4">
+                    <td class="py-4">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-purple-100 text-[#5628C7] text-xs font-semibold flex items-center justify-center flex-shrink-0">
                                 {{ strtoupper(substr($h->agen->username, 0, 2)) }}
@@ -109,94 +168,137 @@
                     </td>
 
                     <!-- Jumlah -->
-                    <td class="px-6 py-4 font-semibold text-gray-800">
+                    <td class="font-semibold text-gray-800">
                         Rp{{ number_format($h->jumlah_hutang, 0, ',', '.') }}
                     </td>
 
                     <!-- Metode -->
-                <td class="px-6 py-4">
-                    <span class="inline-flex items-center gap-1 text-gray-500">
+                    <td>
 
                         @if($h->metode == 'cash')
 
-                            <i class="ti ti-cash text-green-500 text-sm"></i>
-                            Pembayaran Penuh
+                            <div class="flex items-center gap-2">
+
+                                <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                                    <i class="ti ti-credit-card text-green-600 text-sm"></i>
+                                </div>
+
+                                <span class="font-medium">
+                                    Pembayaran Penuh
+                                </span>
+
+                            </div>
 
                         @else
 
-                            <i class="ti ti-calendar-repeat text-blue-500 text-sm"></i>
-                            Cicilan
+                            <div class="flex items-center gap-2">
+
+                                <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                                    <i class="ti ti-calendar-time text-blue-600 text-sm"></i>
+                                </div>
+
+                                <span class="font-medium">
+                                    Cicilan {{ $h->lama_tempo }}
+                                </span>
+
+                            </div>
 
                         @endif
 
-                    </span>
-                </td>
+                    </td>
 
                     <!-- Tanggal -->
-                    <td class="px-6 py-4 text-gray-500">
+                    <td class="text-gray-500">
                         {{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('d M Y') }}
                     </td>
 
                     <!-- Status -->
-                    <td class="px-6 py-4">
+                    <td>
+
                         @if($h->status == 'pending')
-                            <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-clock text-xs"></i> Pending
+
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                                Pending
                             </span>
+
                         @elseif($h->status == 'disetujui')
-                            <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-check text-xs"></i> Disetujui
+
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
+                                Disetujui
                             </span>
+
                         @elseif($h->status == 'berjalan')
-                            <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-loader text-xs"></i> Berjalan
+
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                                Berjalan
                             </span>
+
                         @elseif($h->status == 'lunas')
-                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-circle-check text-xs"></i> Lunas
+
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                Lunas
                             </span>
-                        @elseif($h->status == 'ditolak')
-                            <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-x text-xs"></i> Ditolak
-                            </span>
+
                         @else
-                            <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                {{ ucfirst($h->status) }}
+
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                                Ditolak
                             </span>
+
                         @endif
+
+                    </td>
+
+                    <!-- Detail -->
+                    <td>
+
+                        <a
+                            href="/owner/hutang/detail/{{ $h->id }}"
+                            title="Lihat Detail"
+                            class="bg-purple-100 text-[#5628C7] w-10 h-10 rounded-xl inline-flex items-center justify-center">
+
+                            <i class="ti ti-eye text-lg"></i>
+
+                        </a>
+
                     </td>
 
                     <!-- Aksi -->
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
+                    <td>
 
-                            <a href="/owner/hutang/detail/{{ $h->id }}"
-                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition-colors">
-                                <i class="ti ti-eye text-xs"></i> Detail
-                            </a>
+                        @if($h->status == 'pending')
 
-                            @if($h->status == 'pending')
+                        <div class="flex gap-2">
 
-                          <a
+                            <a
                                 href="/owner/hutang/setujui/{{ $h->id }}"
                                 onclick="return confirmSetujui(event)"
-                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-green-50 text-green-700 hover:bg-green-100 text-xs font-semibold transition-colors">
+                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl text-sm">
 
-                                <i class="ti ti-check text-xs"></i>
                                 Setujui
 
                             </a>
 
-                                <button
-                                    data-id="{{ $h->id }}"
-                                    onclick="openModal(this.dataset.id)"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 text-xs font-semibold transition-colors">
-                                    <i class="ti ti-x text-xs"></i> Tolak
-                                </button>
+                            <button
+                                type="button"
+                                data-id="{{ $h->id }}"
+                                onclick="openModal(this.dataset.id)"
+                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm">
 
-                            @endif
+                                Tolak
+
+                            </button>
 
                         </div>
+
+                        @else
+
+                            <span class="text-gray-400">
+                                Selesai
+                            </span>
+
+                        @endif
+
                     </td>
 
                 </tr>
@@ -204,10 +306,11 @@
                 @empty
 
                 <tr>
-                    <td colspan="6" class="text-center py-16 text-gray-400">
-                        <i class="ti ti-inbox text-4xl block mb-3 text-gray-200"></i>
+
+                    <td colspan="7" class="text-center py-8 text-gray-500">
                         Belum ada data pengajuan hutang
                     </td>
+
                 </tr>
 
                 @endforelse
@@ -284,11 +387,45 @@
 @endforeach
 
 <script>
-document.getElementById('filterStatus').addEventListener('change', function () {
-    const status = this.value;
+
+const searchInput = document.getElementById('searchInput');
+const filterStatus = document.getElementById('filterStatus');
+const btnCariFilter = document.getElementById('btnCariFilter');
+const resetFilter = document.getElementById('resetFilter');
+
+function filterData() {
+
+    let keyword = searchInput.value.toLowerCase();
+    let status = filterStatus.value;
+
     document.querySelectorAll('.status-row').forEach(function (row) {
-        row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
+
+        let nama = row.dataset.agen;
+        let rowStatus = row.dataset.status;
+
+        let cocokNama = nama.includes(keyword);
+        let cocokStatus = status === 'all' || rowStatus === status;
+
+        row.style.display =
+            (cocokNama && cocokStatus)
+                ? ''
+                : 'none';
+
     });
+
+}
+
+searchInput.addEventListener('keyup', filterData);
+filterStatus.addEventListener('change', filterData);
+btnCariFilter.addEventListener('click', filterData);
+
+resetFilter.addEventListener('click', function () {
+
+    searchInput.value = '';
+    filterStatus.value = 'all';
+
+    filterData();
+
 });
 
 function openModal(id) {
@@ -298,9 +435,10 @@ function openModal(id) {
 function closeModal(id) {
     document.getElementById('modal' + id).classList.add('hidden');
 }
-function confirmSetujui(event){
 
-    if(!confirm('Apakah Anda yakin ingin menyetujui pengajuan hutang ini?')){
+function confirmSetujui(event) {
+
+    if (!confirm('Apakah Anda yakin ingin menyetujui pengajuan hutang ini?')) {
         event.preventDefault();
         return false;
     }
@@ -308,6 +446,7 @@ function confirmSetujui(event){
     return true;
 
 }
+
 </script>
 
 @endsection

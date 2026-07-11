@@ -190,7 +190,7 @@
     target="_blank"
     class="fixed bottom-6 right-6 z-50">
 
-    <div class="bg-green-500 hover:bg-green-600 text-white px-5 py-4 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 hover:scale-105">
+    <!-- <div class="bg-green-500 hover:bg-green-600 text-white px-5 py-4 rounded-full shadow-2xl flex items-center gap-3 transition-all duration-300 hover:scale-105">
 
         <span class="text-2xl">💬</span>
 
@@ -199,7 +199,7 @@
             <p class="font-semibold text-sm">Hubungi CS</p>
         </div>
 
-    </div>
+    </div> -->
 
 </a>
 

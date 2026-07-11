@@ -338,7 +338,7 @@ $hutangAktif = $hutang->whereIn('status', [
    <div class="flex justify-between items-center mb-6">
 
     <h2 class="text-xl font-bold text-gray-800">
-        Riwayat Pengajuan
+        Riwayat Pengajuan Hutang
     </h2>
 
     <div class="flex flex-col md:flex-row gap-3">
@@ -373,7 +373,11 @@ $hutangAktif = $hutang->whereIn('status', [
             <tr class="border-b">
 
                 <th class="text-left py-3">
-                    Tanggal
+                    ID Pengajuan
+                </th>
+
+                <th class="text-left py-3">
+                    Tanggal Pengajuan
                 </th>
 
                 <th class="text-left py-3">
@@ -381,7 +385,7 @@ $hutangAktif = $hutang->whereIn('status', [
                 </th>
 
                 <th class="text-left py-3">
-                    Sisa
+                    Sisa Hutang
                 </th>
 
                 <th class="text-left py-3">
@@ -408,6 +412,10 @@ $hutangAktif = $hutang->whereIn('status', [
     class="border-b status-row"
     data-status="{{ $h->status }}"
     data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}">
+
+                <td class="py-4 font-semibold text-gray-600">
+                    #{{ $h->id }}
+                </td>
 
                 <td class="py-4">
                     {{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('d M Y') }}

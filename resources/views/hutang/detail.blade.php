@@ -45,11 +45,8 @@
                     <i class="ti ti-calendar"></i>
                     {{ \Carbon\Carbon::parse($hutang->tanggal_pengajuan)->format('d M Y') }}
                 </span>
-                <span class="text-white/40">·</span>
-                <span class="flex items-center gap-1.5 text-sm text-white/80">
-                    <i class="ti ti-clock"></i>
-                    Jatuh tempo {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->format('d M Y') }}
-                </span>
+        
+        
             </div>
         </div>
 
@@ -287,44 +284,124 @@ if ($hutang->metode == 'cash') {
 </div>
 
 <!-- RIWAYAT HUTANG -->
-<div class="bg-white rounded-2xl border border-purple-100 shadow-sm overflow-hidden mb-8">
+<div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm mb-8">
 
-    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-        <h2 class="text-sm font-semibold text-gray-800 flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+    <div class="flex flex-col md:flex-row justify-between gap-4 mb-6">
+
+        <h2 class="text-xl font-bold text-gray-800">
             Riwayat Hutang Agen
         </h2>
-        <span class="text-xs text-gray-400">{{ count($riwayat) }} transaksi</span>
+
+        <div class="flex flex-wrap gap-3">
+
+            <!-- Bulan -->
+            <select id="filterBulan" class="border border-gray-300 rounded-xl px-4 py-2">
+
+                <option value="">Semua Bulan</option>
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+
+            </select>
+
+            <!-- Tahun -->
+            <select id="filterTahun" class="border border-gray-300 rounded-xl px-4 py-2">
+
+                <option value="">Semua Tahun</option>
+
+                @for($i = date('Y'); $i >= 2024; $i--)
+
+                    <option value="{{ $i }}">{{ $i }}</option>
+
+                @endfor
+
+            </select>
+
+            <!-- Status -->
+            <select id="filterStatusRiwayat" class="border border-gray-300 rounded-xl px-4 py-2">
+
+                <option value="all">Semua Status</option>
+                <option value="pending">Pending</option>
+                <option value="disetujui">Disetujui</option>
+                <option value="berjalan">Berjalan</option>
+                <option value="lunas">Lunas</option>
+                <option value="ditolak">Ditolak</option>
+
+            </select>
+
+            <!-- Cari -->
+            <button
+                type="button"
+                id="btnCariRiwayat"
+                class="bg-purple-600 text-white px-4 py-2 rounded-xl">
+
+                Cari
+
+            </button>
+
+            <!-- Reset -->
+            <button
+                type="button"
+                id="resetFilterRiwayat"
+                class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
+
+                Reset
+
+            </button>
+
+        </div>
+
     </div>
 
     <div class="overflow-x-auto">
 
-        <table class="w-full text-sm">
+        <table class="w-full table-auto">
 
             <thead>
-                <tr class="bg-gray-50 border-b border-gray-100">
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Tanggal</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Jumlah</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Metode</th>
-                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Status</th>
+
+                <tr class="border-b">
+                    <th class="text-left py-3">ID Pengajuan</th>
+                    <th class="text-left py-3">Tanggal</th>
+                    <th class="text-left py-3">Jumlah</th>
+                    <th class="text-left py-3">Metode</th>
+                    <th class="text-left py-3">Status</th>
+                    <th class="text-left py-3">Aksi</th>
                 </tr>
+
             </thead>
 
             <tbody>
 
                 @forelse($riwayat as $r)
 
-                <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                <tr
+                    class="border-b riwayat-row"
+                    data-status="{{ $r->status }}"
+                    data-tahun="{{ \Carbon\Carbon::parse($r->tanggal_pengajuan)->format('Y') }}"
+                    data-bulan="{{ \Carbon\Carbon::parse($r->tanggal_pengajuan)->format('m') }}">
 
-                    <td class="px-6 py-4 text-gray-500">
+                    <td class="py-4 text-gray-500 font-medium">
+                        #{{ $r->id }}
+                    </td>
+
+                    <td class="py-4 text-gray-500">
                         {{ \Carbon\Carbon::parse($r->tanggal_pengajuan)->format('d M Y') }}
                     </td>
 
-                    <td class="px-6 py-4 font-semibold text-gray-800">
+                    <td class="font-semibold text-gray-800">
                         Rp{{ number_format($r->jumlah_hutang, 0, ',', '.') }}
                     </td>
 
-                    <td class="px-6 py-4 text-gray-500">
+                    <td class="text-gray-500">
                         <span class="flex items-center gap-1.5">
                             <i class="ti ti-{{ $r->metode == 'cicil' ? 'calendar-repeat' : 'cash' }} text-gray-300 text-sm"></i>
                             @if($r->metode == 'cash')
@@ -334,34 +411,62 @@ if ($hutang->metode == 'cash') {
                             @elseif($r->lama_tempo == '3 bulan')
                                 Cicilan 3 Bulan
                             @endif
-                                                    </span>
+                        </span>
                     </td>
 
-                    <td class="px-6 py-4">
+                    <td>
+
                         @if($r->status == 'pending')
-                            <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-clock text-xs"></i> Pending
+
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                                Pending
                             </span>
+
                         @elseif($r->status == 'disetujui')
-                            <span class="inline-flex items-center gap-1 bg-purple-100 text-purple-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-check text-xs"></i> Disetujui
+
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm">
+                                Disetujui
                             </span>
+
                         @elseif($r->status == 'berjalan')
-                            <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-loader text-xs"></i> Berjalan
+
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                                Berjalan
                             </span>
+
                         @elseif($r->status == 'lunas')
-                            <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-circle-check text-xs"></i> Lunas
+
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                Lunas
                             </span>
+
                         @elseif($r->status == 'ditolak')
-                            <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                                <i class="ti ti-x text-xs"></i> Ditolak
+
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                                Ditolak
                             </span>
+
                         @else
-                            <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-full">
+
+                            <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">
                                 {{ ucfirst($r->status) }}
                             </span>
+
+                        @endif
+
+                    </td>
+
+                    <td>
+                        @if($r->status == 'ditolak')
+                            <button
+                                type="button"
+                                class="btn-lihat-alasan text-red-600 text-sm font-semibold hover:underline flex items-center gap-1"
+                                data-alasan="{{ $r->alasan_penolakan ?? 'Tidak ada alasan yang tercatat.' }}"
+                                data-tanggal="{{ \Carbon\Carbon::parse($r->tanggal_pengajuan)->format('d M Y') }}">
+                                <i class="ti ti-info-circle text-sm"></i> Lihat Alasan
+                            </button>
+                        @else
+                            <span class="text-gray-300 text-sm">-</span>
                         @endif
                     </td>
 
@@ -370,8 +475,7 @@ if ($hutang->metode == 'cash') {
                 @empty
 
                 <tr>
-                    <td colspan="4" class="text-center py-12 text-gray-400">
-                        <i class="ti ti-inbox text-4xl block mb-2 text-gray-200"></i>
+                    <td colspan="6" class="text-center py-8 text-gray-500">
                         Belum ada riwayat hutang
                     </td>
                 </tr>
@@ -413,5 +517,104 @@ if ($hutang->metode == 'cash') {
     @endif
 
 </div>
+
+<!-- MODAL ALASAN PENOLAKAN -->
+<div id="modalAlasanPenolakan" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl">
+
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <i class="ti ti-alert-triangle text-red-500"></i>
+                Alasan Penolakan
+            </h3>
+            <button type="button" id="closeModalAlasan" class="text-gray-400 hover:text-gray-600">
+                <i class="ti ti-x text-lg"></i>
+            </button>
+        </div>
+
+        <p class="text-xs text-gray-400 mb-1">Tanggal Pengajuan</p>
+        <p id="modalAlasanTanggal" class="text-sm font-semibold text-gray-800 mb-4"></p>
+
+        <p class="text-xs text-gray-400 mb-1">Alasan</p>
+        <div class="bg-red-50 rounded-xl p-4 text-sm text-gray-700 leading-relaxed" id="modalAlasanTeks"></div>
+
+        <button type="button" id="closeModalAlasanBtn"
+            class="w-full mt-5 bg-gray-100 text-gray-600 py-2.5 rounded-xl text-sm font-semibold hover:bg-gray-200">
+            Tutup
+        </button>
+
+    </div>
+</div>
+
+<script>
+
+const filterBulan = document.getElementById('filterBulan');
+const filterTahun = document.getElementById('filterTahun');
+const filterStatusRiwayat = document.getElementById('filterStatusRiwayat');
+const btnCariRiwayat = document.getElementById('btnCariRiwayat');
+const resetFilterRiwayat = document.getElementById('resetFilterRiwayat');
+
+function filterRiwayat() {
+
+    let bulan = filterBulan.value;
+    let tahun = filterTahun.value;
+    let status = filterStatusRiwayat.value;
+
+    document.querySelectorAll('.riwayat-row').forEach(function (row) {
+
+        let rowBulan = row.dataset.bulan;
+        let rowTahun = row.dataset.tahun;
+        let rowStatus = row.dataset.status;
+
+        let cocokBulan = bulan === '' || rowBulan === bulan;
+        let cocokTahun = tahun === '' || rowTahun === tahun;
+        let cocokStatus = status === 'all' || rowStatus === status;
+
+        row.style.display =
+            (cocokBulan && cocokTahun && cocokStatus)
+                ? ''
+                : 'none';
+
+    });
+
+}
+
+filterBulan.addEventListener('change', filterRiwayat);
+filterTahun.addEventListener('change', filterRiwayat);
+filterStatusRiwayat.addEventListener('change', filterRiwayat);
+btnCariRiwayat.addEventListener('click', filterRiwayat);
+
+resetFilterRiwayat.addEventListener('click', function () {
+
+    filterBulan.value = '';
+    filterTahun.value = '';
+    filterStatusRiwayat.value = 'all';
+
+    filterRiwayat();
+
+});
+
+const modalAlasan = document.getElementById('modalAlasanPenolakan');
+const modalAlasanTeks = document.getElementById('modalAlasanTeks');
+const modalAlasanTanggal = document.getElementById('modalAlasanTanggal');
+
+document.querySelectorAll('.btn-lihat-alasan').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        modalAlasanTeks.textContent = btn.dataset.alasan;
+        modalAlasanTanggal.textContent = btn.dataset.tanggal;
+        modalAlasan.classList.remove('hidden');
+        modalAlasan.classList.add('flex');
+    });
+});
+
+function tutupModalAlasan() {
+    modalAlasan.classList.add('hidden');
+    modalAlasan.classList.remove('flex');
+}
+
+document.getElementById('closeModalAlasan').addEventListener('click', tutupModalAlasan);
+document.getElementById('closeModalAlasanBtn').addEventListener('click', tutupModalAlasan);
+
+</script>
 
 @endsection

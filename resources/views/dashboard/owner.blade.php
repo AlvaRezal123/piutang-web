@@ -6,7 +6,7 @@
 <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#5628C7] to-[#7B52E0] p-8 text-white mb-8 flex items-center justify-between">
 
     <div>
-        <h1 class="text-2xl font-bold">Halo, Owner 👋</h1>
+        <h1 class="text-2xl font-bold">Halo, Owner </h1>
       <div class="mt-4 flex flex-wrap gap-3">
 
     <span class="bg-white/15 px-4 py-2 rounded-xl text-sm">

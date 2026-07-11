@@ -9,6 +9,26 @@ use App\Http\Controllers\PembayaranController;
 Route::get('/', function () {
     return redirect('/login');
 });
+
+// ======================================
+// FITUR REFERENSI AGEN PP (BARU)
+// ======================================
+
+// Cek ID Agen PP via AJAX (dipanggil dari form register)
+Route::post('/agen/cek-id-agen-pp', [AgenController::class, 'cekIdAgenPP'])
+    ->name('cek.id.agen.pp');
+
+// Import Excel data Agen PP (admin)
+Route::post('/agen/import-referensi', [AgenController::class, 'importReferensiAgenPP'])
+    ->name('import.referensi.agen.pp');
+
+// Halaman lihat data referensi (admin)
+Route::get('/agen/referensi', [AgenController::class, 'referensiIndex'])
+    ->name('referensi.index');
+
+// Hapus data referensi (admin)
+Route::delete('/agen/referensi/{id}', [AgenController::class, 'referensiDestroy'])
+    ->name('referensi.destroy');
 Route::get('/profil-agen', [AgenController::class, 'profil']);
 Route::get('/agen/setujui/{id}', [AgenController::class, 'setujui']);
 Route::get('/agen/tolak/{id}', [AgenController::class, 'tolak']);

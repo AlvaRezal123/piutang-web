@@ -8,6 +8,24 @@
         <h1 class="text-3xl font-bold text-gray-800">Validasi Agen</h1>
         <p class="text-gray-500 mt-2">Kelola pendaftaran dan status agen Partner Pulsa.</p>
     </div>
+
+    <div class="flex gap-3">
+        <a href="{{ route('referensi.index') }}"
+            class="inline-flex items-center gap-2 bg-white border border-purple-200 hover:bg-purple-50 text-[#5628C7] px-4 py-2.5 rounded-xl text-sm font-semibold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Data Referensi
+        </a>
+
+        <button type="button" onclick="openImportModal()"
+            class="inline-flex items-center gap-2 bg-[#5628C7] hover:bg-[#4b22b0] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+            </svg>
+            Import Excel
+        </button>
+    </div>
 </div>
 
 
@@ -373,6 +391,55 @@
     </div>
 </div>
 
+<!-- MODAL IMPORT EXCEL REFERENSI AGEN PP -->
+<div id="importModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 w-full max-w-lg">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#5628C7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-lg font-bold text-gray-800">Import Data Referensi Agen PP</h2>
+                <p class="text-sm text-gray-500">Upload file Excel berisi daftar ID Agen PP yang valid.</p>
+            </div>
+        </div>
+
+        @if(session('errorImport'))
+            <div class="bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl p-3 mb-4">
+                {{ session('errorImport') }}
+            </div>
+        @endif
+
+        <form action="{{ route('import.referensi.agen.pp') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <label for="fileReferensi"
+                class="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-purple-200 rounded-2xl p-6 cursor-pointer hover:bg-purple-50 hover:border-purple-400 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                </svg>
+                <span class="text-sm font-semibold text-purple-600">Pilih File Excel</span>
+                <span id="namaFileImport" class="text-xs text-gray-400 text-center">Format .xlsx atau .csv</span>
+            </label>
+            <input type="file" id="fileReferensi" name="file" accept=".xlsx,.xls,.csv" class="hidden" required
+                onchange="document.getElementById('namaFileImport').innerHTML='✅ '+this.files[0].name">
+
+            <div class="flex justify-end gap-3 mt-5">
+                <button type="button" onclick="closeImportModal()"
+                    class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="bg-[#5628C7] hover:bg-[#4b22b0] text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition">
+                    Import Sekarang
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -386,6 +453,8 @@ function showImage(src) {
     document.getElementById('imagePreview').classList.remove('hidden');
 }
 function closeImage() { document.getElementById('imagePreview').classList.add('hidden'); }
+function openImportModal() { document.getElementById('importModal').classList.remove('hidden'); }
+function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
 
 const searchInput = document.getElementById('searchUsername');
 const statusFilter = document.getElementById('filterStatus');

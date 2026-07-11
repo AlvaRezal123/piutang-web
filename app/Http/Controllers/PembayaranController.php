@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Pembayaran;
 use App\Models\Hutang;
@@ -10,14 +8,9 @@ use App\Models\Cicilan;
 use App\Models\User;
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;
-
-
 class PembayaranController extends Controller
 {
-    // ==========================
-    // FORM PEMBAYARAN
-    // ==========================
-
+    // menampilkan formulir pembayaran hutang kepada agen
     public function create($id)
 {
     $hutang = Hutang::findOrFail($id);
@@ -43,10 +36,7 @@ class PembayaranController extends Controller
         )
     );
 }
-    // ==========================
-    // SIMPAN PEMBAYARAN
-    // ==========================
-
+// saat agen klik "Simpan", sistm memvalidasi data pembayaran, memastikan tidak terdapat pembayaran lain yang masih menunggu verifikasi serta nominal pembayaran tidak melebihi sisa hutang.
     public function store(Request $request)
     {
         $request->validate([
@@ -92,16 +82,14 @@ class PembayaranController extends Controller
             'Bukti pembayaran wajib diupload'
 
         ]);
-// Jika memilih "Lainnya", gunakan nama bank yang diketik
-$bankPengirim = $request->bank_pengirim;
+        // Jika memilih "Lainnya", gunakan nama bank yang diketik
+        $bankPengirim = $request->bank_pengirim;
 
-if ($request->bank_pengirim == 'lainnya') {
-    $bankPengirim = $request->bank_lain;
-}
+        if ($request->bank_pengirim == 'lainnya') {
+            $bankPengirim = $request->bank_lain;
+        }
         // upload bukti
-
         $bukti = null;
-
         if ($request->hasFile('bukti_pembayaran')) {
 
             $bukti =
@@ -117,10 +105,8 @@ if ($request->bank_pengirim == 'lainnya') {
        $hutang = Hutang::with('agen')->findOrFail(
             $request->id_hutang
         );
-        // ==========================
-// CEK PEMBAYARAN PENDING
-// ==========================
 
+        // CEK PEMBAYARAN PENDING
         $pembayaranPending = Pembayaran::where(
             'id_hutang',
             $request->id_hutang
@@ -138,19 +124,15 @@ if ($request->bank_pengirim == 'lainnya') {
                     'error',
                     'Masih ada pembayaran yang sedang menunggu verifikasi admin.'
                 );
-
         }
-
         $admin = User::where(
             'role',
             'admin'
         )->first();
-
         if (
             $request->jumlah_bayar >
             $hutang->sisa_hutang
         ) {
-
             return back()
                 ->withInput()
                 ->with(
@@ -158,12 +140,8 @@ if ($request->bank_pengirim == 'lainnya') {
                     'Jumlah pembayaran tidak boleh melebihi sisa hutang'
                 );
         }
-
         // simpan pembayaran
-
         Pembayaran::create([
-
-
             'id_hutang' =>
             $request->id_hutang,
 
@@ -192,8 +170,7 @@ if ($request->bank_pengirim == 'lainnya') {
             'pending'
         ]);
 
-
-// NOTIFIKASI UNTUK ADMIN
+    // NOTIFIKASI UNTUK ADMIN
     Notifikasi::create([
     'id_user' => $admin->id, 
     'judul' => 'Pembayaran Baru',
@@ -211,8 +188,7 @@ if ($request->bank_pengirim == 'lainnya') {
     'tipe' => 'pembayaran',
     'media' => 'web',
     'tanggal' => now(),
-    'status_baca' => 'belum'
-]);
+    'status_baca' => 'belum']);
         return redirect('/hutang-saya')
             ->with(
                 'success',
@@ -220,22 +196,26 @@ if ($request->bank_pengirim == 'lainnya') {
             );
     }
 
-    // ==========================
-    // ADMIN LIHAT PEMBAYARAN
-    // ==========================
+    // sistem menampilkan seluruh data pembayaran hutang beserta informasi agen, hutang, dan cicilan pada admin
+    public function index(Request $request)
+    {
+        $query = Pembayaran::with(
+            'hutang.agen',
+            'hutang.cicilan',
+            'cicilan'
+        );
+    // Filter berdasarkan nama agen
+    if ($request->filled('cari_agen')) {
 
-   // ==========================
-// ADMIN LIHAT PEMBAYARAN
-// ==========================
+        $query->whereHas('hutang.agen', function ($q) use ($request) {
+            $q->where(
+                'username',
+                'like',
+                '%' . $request->cari_agen . '%'
+            );
 
-public function index(Request $request)
-{
-    $query = Pembayaran::with(
-        'hutang.agen',
-        'hutang.cicilan',
-        'cicilan'
-    );
-
+        });
+}
     // Filter berdasarkan tanggal
     if ($request->filled('tanggal')) {
 
@@ -243,41 +223,32 @@ public function index(Request $request)
             'tanggal_pembayaran',
             $request->tanggal
         );
-
     }
     // Filter Tahun
-if ($request->filled('tahun')) {
+    if ($request->filled('tahun')) {
 
-    $query->whereYear(
-        'tanggal_pembayaran',
-        $request->tahun
-    );
+        $query->whereYear(
+            'tanggal_pembayaran',
+            $request->tahun
+        );
+    }
+    // Filter Status
+    if ($request->filled('status')) {
 
-}
-
-// Filter Status
-if ($request->filled('status')) {
-
-    $query->where(
-        'status',
-        $request->status
-    );
-
-}
-
+        $query->where(
+            'status',
+            $request->status
+        );
+    }
     $pembayaran = $query
         ->latest()
         ->get();
-
-    // Data untuk modal detail cicilan, disiapkan di sini
-    // supaya di Blade cukup satu kali @json() tanpa perlu
-    // menyisipkan @foreach di dalam blok <script>.
     $pembayaranData = $pembayaran->mapWithKeys(function ($p) {
-
         return [
             $p->id => [
                 'agen' => $p->hutang->agen->username,
                 'idAgen' => $p->hutang->agen->id_agen_pp ?? '-',
+                'idHutang' => $p->hutang->id,
                 'tanggalPengajuan' => $p->hutang->tanggal_pengajuan
                     ? \Carbon\Carbon::parse($p->hutang->tanggal_pengajuan)->format('d M Y')
                     : '-',
@@ -286,6 +257,7 @@ if ($request->filled('status')) {
                 'totalHutang' => number_format($p->hutang->jumlah_hutang, 0, ',', '.'),
                 'sisaHutang' => number_format($p->hutang->sisa_hutang, 0, ',', '.'),
                 'idCicilanTerpilih' => $p->id_cicilan,
+                'statusPembayaranIni' => $p->status,
                 'bankPengirim' => $p->bank_pengirim,
                 'bankTujuan' => $p->bank_tujuan,
                 'cicilan' => $p->hutang->cicilan->map(function ($c) {
@@ -301,50 +273,41 @@ if ($request->filled('status')) {
                         'tanggalLunas' => $c->tanggal_lunas
                             ? \Carbon\Carbon::parse($c->tanggal_lunas)->format('d M Y')
                             : null,
+                                ];
+
+                            })->values(),
+                        ],
                     ];
 
-                })->values(),
-            ],
-        ];
+                });
 
-    });
+                return view(
+                    'pembayaran.index',
+                    compact('pembayaran', 'pembayaranData')
+                );
+            }
 
-    return view(
-        'pembayaran.index',
-        compact('pembayaran', 'pembayaranData')
-    );
-}
-    // ==========================
-    // ADMIN SETUJUI PEMBAYARAN
-    // ==========================
-
+ //memverifikasi dan menyetujui pembayaran yang diajukan oleh agen.
+ // Setelah pembayaran disetujui, sistem akan memperbarui status pembayaran, status cicilan, sisa hutang, status hutang,
+ // serta melakukan penilaian status kredit agen apabila seluruh hutang telah lunas
    public function setujui($id)
 {
     $pembayaran = Pembayaran::findOrFail($id);
-
     $pembayaran->status = 'disetujui';
-
     $pembayaran->save();
-
     $cicilan = Cicilan::find(
         $pembayaran->id_cicilan
     );
-
     if ($cicilan) {
-
         $cicilan->status =
             'lunas';
-
         $cicilan->tanggal_lunas =
             now();
-
         $cicilan->save();
     }
-
   $hutang = Hutang::with('agen')->findOrFail(
     $pembayaran->id_hutang
 );
-   
     $admin = User::where(
         'role',
         'admin'
@@ -353,113 +316,85 @@ if ($request->filled('status')) {
     // simpan status sebelum berubah
     $statusSebelumnya =
         $hutang->status;
-
     $hutang->sisa_hutang =
         $hutang->sisa_hutang -
         $pembayaran->jumlah_bayar;
-
     if ($hutang->sisa_hutang <= 0) {
-
         $hutang->sisa_hutang = 0;
-
         $hutang->status = 'lunas';
-
-        // =====================
+        
         // PENILAIAN KREDIT
-        // =====================
-
         $agen = $hutang->agen;
-
         if (
             $agen &&
             $statusSebelumnya != 'terlambat'
         ) {
-
             $agen->riwayat_tepat_waktu += 1;
-
             if (
                 $agen->riwayat_tepat_waktu >= 5
             ) {
-
                 $agen->status_kredit =
                     'terpercaya';
-
                 $agen->limit_pinjaman =
                     500000;
             }
-
             $agen->save();
         }
     }
 
-    $hutang->save();
-$owner = User::where('role', 'owner')->first();
+        $hutang->save();
+    $owner = User::where('role', 'owner')->first();
 
-if ($owner && $hutang->status == 'lunas') {
+    if ($owner && $hutang->status == 'lunas') {
 
-    Mail::to($owner->email)->send(
+        Mail::to($owner->email)->send(
 
-        new NotificationMail(
+            new NotificationMail(
 
-            $owner->username,
+                $owner->username,
 
-            'Hutang Agen Telah Lunas',
+                'Hutang Agen Telah Lunas',
 
-            'Halo ' . $owner->username . ',
+                'Halo ' . $owner->username . ',
+    Hutang milik agen ' .
+    $hutang->agen->username .
+    ' telah dinyatakan LUNAS.
+    Silakan login ke Sistem Informasi Piutang apabila ingin melihat riwayat pembayaran.'
+            )
+        );
+    }
 
-Hutang milik agen ' .
-$hutang->agen->username .
-' telah dinyatakan LUNAS.
+    // NOTIFIKASI UNTUK ADMIN
+    Notifikasi::create([
+        'id_user' => $admin->id,
+        'judul' => 'Pembayaran Disetujui',
+        'pesan' =>
+            'Pembayaran milik agen ' .
+            $hutang->agen->username .
+            ' sebesar Rp' .
+            number_format(
+                $pembayaran->jumlah_bayar,
+                0,
+                ',',
+                '.'
+            ) .
+            ' berhasil diverifikasi.',
+        'tipe' => 'pembayaran',
+        'media' => 'web',
+        'tanggal' => now(),
+        'status_baca' => 'belum'
+    ]);
 
-Silakan login ke Sistem Informasi Piutang apabila ingin melihat riwayat pembayaran.'
-
-        )
-
-    );
-
-
-}
-
-// NOTIFIKASI UNTUK ADMIN
-Notifikasi::create([
-    'id_user' => $admin->id,
-    'judul' => 'Pembayaran Disetujui',
-    'pesan' =>
-        'Pembayaran milik agen ' .
-        $hutang->agen->username .
-        ' sebesar Rp' .
-        number_format(
-            $pembayaran->jumlah_bayar,
-            0,
-            ',',
-            '.'
-        ) .
-        ' berhasil diverifikasi.',
-    'tipe' => 'pembayaran',
-    'media' => 'web',
-    'tanggal' => now(),
-    'status_baca' => 'belum'
-]);
-
-$user = \App\Models\User::find($hutang->agen->user_id);
-
-if ($user) {
-
+    $user = \App\Models\User::find($hutang->agen->user_id);
+    if ($user) {
     Mail::to($user->email)->send(
-
         new NotificationMail(
-
             $user->username,
-
             'Pembayaran Berhasil Diverifikasi',
-
             $hutang->status == 'lunas'
-
             ?
-
             'Selamat!
-
-Pembayaran Anda sebesar Rp' .
+    Pembayaran Anda sebesar Rp' .
             number_format(
                 $pembayaran->jumlah_bayar,
                 0,
@@ -467,13 +402,9 @@ Pembayaran Anda sebesar Rp' .
                 '.'
             ) .
             ' telah berhasil diverifikasi oleh Admin.
-
-Seluruh hutang Anda telah LUNAS.
-
-Terima kasih telah melakukan pembayaran tepat waktu.'
-
+    Seluruh hutang Anda telah LUNAS.
+    Terima kasih telah melakukan pembayaran tepat waktu.'
             :
-
             'Pembayaran Anda sebesar Rp' .
             number_format(
                 $pembayaran->jumlah_bayar,
@@ -482,29 +413,20 @@ Terima kasih telah melakukan pembayaran tepat waktu.'
                 '.'
             ) .
             ' telah berhasil diverifikasi oleh Admin.
-
-Sisa hutang Anda sekarang sebesar Rp' .
+    Sisa hutang Anda sekarang sebesar Rp' .
             number_format(
                 $hutang->sisa_hutang,
                 0,
                 ',',
                 '.'
             ) .
-            '.
-
-Terima kasih.'
-
+            '. Terima kasih.'
         )
-
     );
-
     // NOTIFIKASI UNTUK AGEN
     Notifikasi::create([
-
         'id_user' => $user->id,
-
         'judul' => 'Pembayaran Diverifikasi',
-
         'pesan' =>
             $hutang->status == 'lunas'
             ?
@@ -533,16 +455,11 @@ Terima kasih.'
             ) . '.',
 
         'tipe' => 'pembayaran',
-
         'media' => 'web',
-
         'tanggal' => now(),
-
         'status_baca' => 'belum'
-
     ]);
-
-}
+        }
 
     return back()->with(
         'success',
@@ -551,13 +468,8 @@ Terima kasih.'
 }
 
 
-    // ==========================
-    // ADMIN TOLAK PEMBAYARAN
-    // ==========================
-    // ==========================
-    // FORM TOLAK PEMBAYARAN
-    // ==========================
-
+     //menampilkan formulir penolakan pembayaran yang akan digunakan admin
+    // dalam memberikan alasan penolakan terhadap pembayaran yang diajukan agen
     public function formTolak($id)
     {
         $pembayaran = Pembayaran::findOrFail($id);
@@ -568,25 +480,17 @@ Terima kasih.'
         );
     }
 
-    // ==========================
-    // SIMPAN PENOLAKAN
-    // ==========================
-
+    //Menolak pembayaran, menyimpan alasan penolakan, serta mengirim email dan notifikasi kepada agen.
    public function simpanTolak(
     Request $request,
     $id
 ) {
     $request->validate([
-
         'alasan_penolakan' => 'required'
-
     ], [
-
         'alasan_penolakan.required' =>
             'Alasan penolakan wajib diisi'
-
     ]);
-
     // Ambil data pembayaran
     $pembayaran = Pembayaran::findOrFail($id);
 
@@ -594,7 +498,6 @@ Terima kasih.'
     $hutang = Hutang::with('agen')->findOrFail(
         $pembayaran->id_hutang
     );
-    
     $admin = User::where(
         'role',
         'admin'
@@ -602,10 +505,8 @@ Terima kasih.'
 
     // Update status pembayaran
     $pembayaran->status = 'ditolak';
-
     $pembayaran->alasan_penolakan =
         $request->alasan_penolakan;
-
     $pembayaran->save();
 
     // NOTIFIKASI UNTUK ADMIN
@@ -621,49 +522,31 @@ Terima kasih.'
         'tanggal' => now(),
         'status_baca' => 'belum'
     ]);
-
     $user = User::find($hutang->agen->user_id);
 
-if ($user) {
-
+    if ($user) {
     Mail::to($user->email)->send(
-
         new NotificationMail(
-
             $user->username,
-
             'Pembayaran Ditolak',
-
             'Halo ' . $user->username . ',
-
-Mohon maaf, pembayaran Anda sebesar Rp' .
-number_format(
-    $pembayaran->jumlah_bayar,
-    0,
-    ',',
-    '.'
-) .
-' belum dapat diverifikasi oleh Admin Partner Pulsa.
-
-Alasan penolakan:
-
-' . $request->alasan_penolakan . '
-
-Silakan lakukan upload bukti pembayaran kembali sesuai petunjuk Admin.
-
-Terima kasih.'
-
+    Mohon maaf, pembayaran Anda sebesar Rp' .
+    number_format(
+        $pembayaran->jumlah_bayar,
+        0,
+        ',',
+        '.'
+    ) .
+    ' belum dapat diverifikasi oleh Admin Partner Pulsa. Alasan penolakan:
+    ' . $request->alasan_penolakan . '
+    Silakan lakukan upload bukti pembayaran kembali sesuai petunjuk Admin.
+    Terima kasih.'
         )
-
     );
-
     // NOTIFIKASI UNTUK AGEN
     Notifikasi::create([
-
         'id_user' => $user->id,
-
         'judul' => 'Pembayaran Ditolak',
-
         'pesan' =>
             'Pembayaran Anda sebesar Rp' .
             number_format(
@@ -673,24 +556,18 @@ Terima kasih.'
                 '.'
             ) .
             ' ditolak. Alasan: ' . $request->alasan_penolakan,
-
         'tipe' => 'pembayaran',
-
         'media' => 'web',
-
         'tanggal' => now(),
-
         'status_baca' => 'belum'
-
     ]);
-
 }
-
     return redirect('/admin/pembayaran')->with(
         'success',
         'Pembayaran berhasil ditolak'
     );
 }
+// menampilkan seluruh riwayat pembayaran yang telah dilakukan oleh agen
     public function riwayat()
     {
         $idAgen = session('id_agen');
@@ -719,6 +596,7 @@ Terima kasih.'
 
             return [
                 $p->id => [
+                    'idHutang' => $p->hutang->id,
                     'tanggalPengajuan' => $p->hutang->tanggal_pengajuan
                         ? \Carbon\Carbon::parse($p->hutang->tanggal_pengajuan)->format('d M Y')
                         : '-',
@@ -727,6 +605,14 @@ Terima kasih.'
                     'totalHutang' => number_format($p->hutang->jumlah_hutang, 0, ',', '.'),
                     'sisaHutang' => number_format($p->hutang->sisa_hutang, 0, ',', '.'),
                     'idCicilanTerpilih' => $p->id_cicilan,
+
+                    // FIX: status pembayaran ini sendiri (pending | disetujui | ditolak).
+                    // Dipakai di modal detail supaya baris cicilan yang terkait
+                    // pembayaran yang ditolak/pending tidak ikut menampilkan
+                    // status "Lunas" milik cicilan secara global (yang bisa saja
+                    // sudah lunas lewat pengajuan lain yang disetujui belakangan).
+                    'statusPembayaranIni' => $p->status,
+
                     'cicilan' => $p->hutang->cicilan->map(function ($c) {
 
                         return [

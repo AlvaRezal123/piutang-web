@@ -201,11 +201,21 @@
 
     </select>
 
+    <!-- Cari -->
+    <button
+        type="button"
+        id="btnCariFilter"
+        class="bg-purple-600 text-white px-4 py-2 rounded-xl">
+
+        Cari
+
+    </button>
+
     <!-- Reset -->
     <button
         type="button"
         id="resetFilter"
-        class="bg-gray-100 hover:bg-gray-200 px-4 rounded-xl">
+        class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
 
         Reset
 
@@ -462,6 +472,9 @@ document.getElementById('searchInput');
 const filterStatus =
 document.getElementById('filterStatus');
 
+const btnCariFilter =
+document.getElementById('btnCariFilter');
+
 function filterData(){
 
     let keyword = searchInput.value.toLowerCase();
@@ -522,6 +535,11 @@ filterTanggal.addEventListener(
 
 filterTahun.addEventListener(
     'change',
+    filterData
+);
+
+btnCariFilter.addEventListener(
+    'click',
     filterData
 );
 

@@ -15,83 +15,66 @@
 
 </div>
 
-<!-- INFO AGEN -->
-<div class="grid md:grid-cols-4 gap-6 mb-8">
-
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <p class="text-sm text-gray-500">
-            Nama Agen
-        </p>
-
-        <h2 class="text-xl font-bold text-gray-800 mt-2">
-            {{ $hutang->agen->username }}
-        </h2>
-
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <p class="text-sm text-gray-500">
-            ID Agen
-        </p>
-
-        <h2 class="text-xl font-bold text-[#5628C7] mt-2">
-            {{ $hutang->agen->id_agen_pp }}
-        </h2>
-
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <p class="text-sm text-gray-500">
-            Jumlah Pencairan
-        </p>
-
-        <h2 class="text-xl font-bold text-green-600 mt-2">
-            Rp{{ number_format($hutang->jumlah_hutang,0,',','.') }}
-        </h2>
-
-    </div>
-
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
-
-        <p class="text-sm text-gray-500">
-            Metode
-        </p>
-
-        <h2 class="text-xl font-bold text-blue-600 mt-2">
-            {{ ucfirst($hutang->metode) }}
-        </h2>
-
-    </div>
-
-</div>
-
-<!-- DETAIL -->
+<!-- RINGKASAN PENCAIRAN -->
 <div class="grid md:grid-cols-2 gap-6 mb-8">
 
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- CARD 1: INFO AGEN & JUMLAH -->
+    <div class="bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
 
         <p class="text-sm text-gray-500">
-            Tanggal Pengajuan
+            Agen
+        </p>
+        <h2 class="text-2xl font-bold text-gray-800 mt-1">
+            {{ $hutang->agen->username }}
+        </h2>
+        <p class="text-sm text-[#5628C7] font-semibold mt-1">
+            ID Agen: {{ $hutang->agen->id_agen_pp }}
         </p>
 
-        <h2 class="text-lg font-bold mt-2">
-            {{ \Carbon\Carbon::parse($hutang->tanggal_pengajuan)->format('d M Y') }}
-        </h2>
+        <div class="border-t border-gray-100 mt-6 pt-6">
+
+            <p class="text-sm text-gray-500">
+                Jumlah Pencairan
+            </p>
+            <h2 class="text-3xl font-bold text-green-600 mt-1">
+                Rp{{ number_format($hutang->jumlah_hutang,0,',','.') }}
+            </h2>
+
+        </div>
 
     </div>
 
-    <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <!-- CARD 2: DETAIL PENGAJUAN -->
+    <div class="bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
 
-        <p class="text-sm text-gray-500">
-            Jatuh Tempo
+        <p class="text-sm text-gray-500 mb-1">
+            Metode
         </p>
-
-        <h2 class="text-lg font-bold text-red-500 mt-2">
-            {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->format('d M Y') }}
+        <h2 class="text-2xl font-bold text-blue-600 mt-1">
+            {{ $hutang->metode == 'cash' ? 'Pembayaran Penuh' : 'Cicilan ' . $hutang->lama_tempo . ' Bulan' }}
         </h2>
+
+        <div class="border-t border-gray-100 mt-6 pt-6 grid grid-cols-2 gap-6">
+
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">
+                    Tanggal Pengajuan
+                </p>
+                <p class="font-semibold text-gray-800 mt-1">
+                    {{ \Carbon\Carbon::parse($hutang->tanggal_pengajuan)->format('d M Y') }}
+                </p>
+            </div>
+
+            <div>
+                <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">
+                    Jatuh Tempo
+                </p>
+                <p class="font-semibold text-red-500 mt-1">
+                    {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->format('d M Y') }}
+                </p>
+            </div>
+
+        </div>
 
     </div>
 

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Registrasi Agen - SIMPAN</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -120,6 +121,7 @@
 
             <!-- Form -->
             <form
+                id="formRegister"
                 action="{{ route('agen.store') }}"
                 method="POST"
                 enctype="multipart/form-data"
@@ -172,36 +174,61 @@
 
 <div class="space-y-4">
 
-    <!-- ID Agen -->
+    <!-- ID Agen PP + Tombol Cek -->
     <div class="bg-white border-2 border-purple-200 rounded-2xl p-3 shadow-sm">
 
         <span class="text-xs font-semibold text-purple-500">
             ID Agen PP
         </span>
 
-        <input
-            type="text"
-            name="id_agen_pp"
-            value="{{ old('id_agen_pp') }}"
-            placeholder="Masukkan ID Agen PP"
-            class="w-full mt-1 outline-none bg-transparent">
+        <div class="flex gap-2 mt-1">
+
+            <input
+                type="text"
+                id="id_agen_pp_input"
+                name="id_agen_pp"
+                value="{{ old('id_agen_pp') }}"
+                placeholder="Masukkan ID Agen PP"
+                class="w-full outline-none bg-transparent">
+
+            <button
+                type="button"
+                id="btnCekId"
+                onclick="cekIdAgenPP()"
+                class="shrink-0 bg-[#5628C7] hover:bg-[#4c20bb] text-white text-sm font-semibold px-4 py-2 rounded-xl">
+
+                Cek ID
+
+            </button>
+
+        </div>
 
     </div>
 
-    <!-- Username -->
-    <div class="bg-white border-2 border-purple-200 rounded-2xl p-3 shadow-sm">
+    <!-- Pesan hasil cek -->
+    <div id="cekIdMessage" class="hidden text-sm rounded-2xl p-3"></div>
 
-        <span class="text-xs font-semibold text-purple-500">
-            Username
-        </span>
+    <!-- Preview data dari referensi (muncul setelah ID valid) -->
+    <div id="previewAgenPP" class="hidden bg-purple-50 border border-purple-200 rounded-2xl p-4 space-y-2">
 
-        <input
-            type="text"
-            name="username"
-            value="{{ old('username') }}"
-            placeholder="Masukkan username"
-            autocomplete="off"
-            class="w-full mt-1 outline-none bg-transparent">
+        <p class="text-xs font-semibold text-purple-600 uppercase tracking-wide">
+            Data Ditemukan
+        </p>
+
+        <div class="text-sm text-gray-700">
+            <span class="text-gray-400">Username:</span>
+            <span id="previewUsername" class="font-semibold"></span>
+        </div>
+
+        <div class="text-sm text-gray-700">
+            <span class="text-gray-400">No HP:</span>
+            <span id="previewNoHp" class="font-semibold"></span>
+        </div>
+
+        <div class="text-sm text-gray-700">
+            <span class="text-gray-400">Alamat:</span>
+            <span id="previewAlamat" class="font-semibold"></span>
+        </div>
 
     </div>
 
@@ -238,21 +265,6 @@
 
     </div>
 
-    <!-- No HP -->
-    <div class="bg-white border-2 border-purple-200 rounded-2xl p-3 shadow-sm">
-
-        <span class="text-xs font-semibold text-purple-500">
-            Nomor HP
-        </span>
-
-        <input
-            type="text"
-            name="no_hp"
-            value="{{ old('no_hp') }}"
-            placeholder="08xxxxxxxxxx"
-            class="w-full mt-1 outline-none bg-transparent">
-
-    </div>
            <div class="flex justify-between items-center mt-6">
 
     <a
@@ -265,8 +277,10 @@
 
     <button
         type="button"
+        id="btnNextStep1"
         onclick="nextStep(2)"
-        class="bg-[#5628C7] hover:bg-[#4c20bb] text-white px-6 py-3 rounded-xl font-semibold">
+        disabled
+        class="bg-gray-300 text-gray-500 cursor-not-allowed px-6 py-3 rounded-xl font-semibold">
 
         Selanjutnya →
 
@@ -479,18 +493,16 @@
 
     </div>
 
-    <!-- Alamat -->
-    <div class="bg-white border-2 border-purple-200 rounded-2xl p-3 shadow-sm">
+    <!-- Alamat (read-only, otomatis dari data referensi Partner Pulsa) -->
+    <div class="bg-gray-50 border-2 border-gray-200 rounded-2xl p-3 shadow-sm">
 
-        <span class="text-xs font-semibold text-purple-500">
-            Alamat Usaha
+        <span class="text-xs font-semibold text-gray-500">
+            Alamat Usaha (otomatis dari data Partner Pulsa)
         </span>
 
-        <textarea
-            name="alamat"
-            rows="4"
-            placeholder="Masukkan alamat lengkap usaha"
-            class="w-full mt-1 outline-none bg-transparent resize-none">{{ old('alamat') }}</textarea>
+        <p id="step3AlamatPreview" class="w-full mt-1 text-gray-700">
+            -
+        </p>
 
     </div>
 
@@ -558,8 +570,98 @@
 
 <script>
 
+let idAgenPPVerified = false;
+
+function cekIdAgenPP()
+{
+    const idAgenPP = document.getElementById('id_agen_pp_input').value.trim();
+    const messageBox = document.getElementById('cekIdMessage');
+    const previewBox = document.getElementById('previewAgenPP');
+    const btnCek = document.getElementById('btnCekId');
+    const btnNext = document.getElementById('btnNextStep1');
+
+    if (idAgenPP === '') {
+        showCekMessage('ID Agen PP tidak boleh kosong.', false);
+        return;
+    }
+
+    btnCek.disabled = true;
+    btnCek.innerText = 'Mengecek...';
+
+    fetch('{{ route("cek.id.agen.pp") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ id_agen_pp: idAgenPP })
+    })
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+
+        btnCek.disabled = false;
+        btnCek.innerText = 'Cek ID';
+
+        if (ok && data.status === 'ok') {
+
+            showCekMessage('ID Agen PP ditemukan.', true);
+
+            document.getElementById('previewUsername').innerText = data.username;
+            document.getElementById('previewNoHp').innerText = data.no_hp;
+            document.getElementById('previewAlamat').innerText = data.alamat;
+            document.getElementById('step3AlamatPreview').innerText = data.alamat;
+
+            previewBox.classList.remove('hidden');
+
+            idAgenPPVerified = true;
+
+            btnNext.disabled = false;
+            btnNext.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            btnNext.classList.add('bg-[#5628C7]', 'hover:bg-[#4c20bb]', 'text-white');
+
+        } else {
+
+            showCekMessage(data.message ?? 'ID Agen PP tidak ditemukan.', false);
+
+            previewBox.classList.add('hidden');
+
+            idAgenPPVerified = false;
+
+            btnNext.disabled = true;
+            btnNext.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+            btnNext.classList.remove('bg-[#5628C7]', 'hover:bg-[#4c20bb]', 'text-white');
+        }
+    })
+    .catch(() => {
+
+        btnCek.disabled = false;
+        btnCek.innerText = 'Cek ID';
+
+        showCekMessage('Terjadi kesalahan, coba lagi.', false);
+    });
+}
+
+function showCekMessage(text, success)
+{
+    const messageBox = document.getElementById('cekIdMessage');
+
+    messageBox.innerText = text;
+    messageBox.classList.remove('hidden', 'bg-red-50', 'text-red-600', 'bg-green-50', 'text-green-600');
+
+    if (success) {
+        messageBox.classList.add('bg-green-50', 'text-green-600');
+    } else {
+        messageBox.classList.add('bg-red-50', 'text-red-600');
+    }
+}
+
 function nextStep(step)
 {
+    if (step === 2 && !idAgenPPVerified) {
+        showCekMessage('Silakan cek ID Agen PP terlebih dahulu.', false);
+        return;
+    }
+
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('step2').classList.add('hidden');
     document.getElementById('step3').classList.add('hidden');
