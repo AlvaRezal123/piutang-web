@@ -45,8 +45,6 @@
                     <i class="ti ti-calendar"></i>
                     {{ \Carbon\Carbon::parse($hutang->tanggal_pengajuan)->format('d M Y') }}
                 </span>
-        
-        
             </div>
         </div>
 
@@ -144,112 +142,110 @@
                     <i class="ti ti-file-description text-gray-300 text-lg"></i>
                     <p class="text-sm text-gray-500">Metode Pembayaran</p>
                 </div>
-                <p class="text-sm font-semibold text-gray-800">@if($hutang->metode == 'cash')
-                                                                    Pembayaran Penuh
-                                                                @else
-                                                                    Cicilan {{ ucfirst($hutang->lama_tempo) }}
-                                                                @endif</p>
-                                                                            </div>
-@php
+                <p class="text-sm font-semibold text-gray-800">
+                    @if($hutang->metode == 'cash')
+                        Pembayaran Penuh
+                    @else
+                        Cicilan {{ ucfirst($hutang->lama_tempo) }}
+                    @endif
+                </p>
+            </div>
 
-$statusPembayaran = '-';
+            @php
 
-if ($hutang->metode == 'cash') {
+                $statusPembayaran = '-';
 
-    switch ($hutang->status) {
+                if ($hutang->metode == 'cash') {
 
-        case 'pending':
-            $statusPembayaran = 'Belum Diproses';
-            break;
+                    switch ($hutang->status) {
 
-        case 'disetujui':
-            $statusPembayaran = 'Menunggu Pencairan Dana';
-            break;
+                        case 'pending':
+                            $statusPembayaran = 'Belum Diproses';
+                            break;
 
-        case 'ditolak':
-            $statusPembayaran = 'Pengajuan Ditolak';
-            break;
+                        case 'disetujui':
+                            $statusPembayaran = 'Menunggu Pencairan Dana';
+                            break;
 
-        case 'berjalan':
-            $statusPembayaran = 'Menunggu Pembayaran Penuh';
-            break;
+                        case 'ditolak':
+                            $statusPembayaran = 'Pengajuan Ditolak';
+                            break;
 
-        case 'terlambat':
-            $statusPembayaran = 'Pembayaran Penuh Terlambat';
-            break;
+                        case 'berjalan':
+                            $statusPembayaran = 'Menunggu Pembayaran Penuh';
+                            break;
 
-        case 'lunas':
-            $statusPembayaran = 'Pembayaran Selesai';
-            break;
-    }
+                        case 'terlambat':
+                            $statusPembayaran = 'Pembayaran Penuh Terlambat';
+                            break;
 
-} else {
-
-    switch ($hutang->status) {
-
-        case 'pending':
-            $statusPembayaran = 'Belum Diproses';
-            break;
-
-        case 'disetujui':
-            $statusPembayaran = 'Menunggu Pencairan Dana';
-            break;
-
-        case 'ditolak':
-            $statusPembayaran = 'Pengajuan Ditolak';
-            break;
-
-        case 'berjalan':
-        case 'terlambat':
-
-            if ($cicilanAktif) {
-
-                if ($cicilanAktif->status == 'terlambat') {
-
-                    $statusPembayaran =
-                        'Cicilan ke-' .
-                        $cicilanAktif->cicilan_ke .
-                        ' Terlambat';
+                        case 'lunas':
+                            $statusPembayaran = 'Pembayaran Selesai';
+                            break;
+                    }
 
                 } else {
 
-                    $statusPembayaran =
-                        'Cicilan ke-' .
-                        $cicilanAktif->cicilan_ke;
+                    switch ($hutang->status) {
+
+                        case 'pending':
+                            $statusPembayaran = 'Belum Diproses';
+                            break;
+
+                        case 'disetujui':
+                            $statusPembayaran = 'Menunggu Pencairan Dana';
+                            break;
+
+                        case 'ditolak':
+                            $statusPembayaran = 'Pengajuan Ditolak';
+                            break;
+
+                        case 'berjalan':
+                        case 'terlambat':
+
+                            if ($cicilanAktif) {
+
+                                if ($cicilanAktif->status == 'terlambat') {
+
+                                    $statusPembayaran =
+                                        'Cicilan ke-' .
+                                        $cicilanAktif->cicilan_ke .
+                                        ' Terlambat';
+
+                                } else {
+
+                                    $statusPembayaran =
+                                        'Cicilan ke-' .
+                                        $cicilanAktif->cicilan_ke;
+
+                                }
+
+                            }
+
+                            break;
+
+                        case 'lunas':
+                            $statusPembayaran = 'Seluruh Cicilan Lunas';
+                            break;
+                    }
 
                 }
 
-            }
+            @endphp
 
-            break;
+            <div class="flex items-center justify-between py-3 border-b border-gray-50">
 
-        case 'lunas':
-            $statusPembayaran = 'Seluruh Cicilan Lunas';
-            break;
-    }
+                <div class="flex items-center gap-3">
+                    <i class="ti ti-credit-card text-gray-300 text-lg"></i>
+                    <p class="text-sm text-gray-500">Status Pembayaran</p>
+                </div>
 
-}
+                <p class="text-sm font-semibold text-gray-800">
+                    {{ $statusPembayaran }}
+                </p>
 
-@endphp
-<div class="flex items-center justify-between py-3 border-b border-gray-50">
+            </div>
 
-    <div class="flex items-center gap-3">
-
-        <i class="ti ti-credit-card text-gray-300 text-lg"></i>
-
-        <p class="text-sm text-gray-500">
-            Status Pembayaran
-        </p>
-
-    </div>
-
-    <p class="text-sm font-semibold text-gray-800">
-
-        {{ $statusPembayaran }}
-
-    </p>
-
-</div>
             <div class="flex items-center justify-between py-3 border-b border-gray-50">
                 <div class="flex items-center gap-3">
                     <i class="ti ti-calendar text-gray-300 text-lg"></i>
@@ -292,55 +288,57 @@ if ($hutang->metode == 'cash') {
             Riwayat Hutang Agen
         </h2>
 
-        <div class="flex flex-wrap gap-3">
+        <form method="GET" class="flex flex-wrap gap-3">
 
             <!-- Bulan -->
-            <select id="filterBulan" class="border border-gray-300 rounded-xl px-4 py-2">
+            <select
+                name="bulan"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
                 <option value="">Semua Bulan</option>
-                <option value="01">Januari</option>
-                <option value="02">Februari</option>
-                <option value="03">Maret</option>
-                <option value="04">April</option>
-                <option value="05">Mei</option>
-                <option value="06">Juni</option>
-                <option value="07">Juli</option>
-                <option value="08">Agustus</option>
-                <option value="09">September</option>
-                <option value="10">Oktober</option>
-                <option value="11">November</option>
-                <option value="12">Desember</option>
 
+                <option value="01" {{ request('bulan') == '01' ? 'selected' : '' }}>Januari</option>
+                <option value="02" {{ request('bulan') == '02' ? 'selected' : '' }}>Februari</option>
+                <option value="03" {{ request('bulan') == '03' ? 'selected' : '' }}>Maret</option>
+                <option value="04" {{ request('bulan') == '04' ? 'selected' : '' }}>April</option>
+                <option value="05" {{ request('bulan') == '05' ? 'selected' : '' }}>Mei</option>
+                <option value="06" {{ request('bulan') == '06' ? 'selected' : '' }}>Juni</option>
+                <option value="07" {{ request('bulan') == '07' ? 'selected' : '' }}>Juli</option>
+                <option value="08" {{ request('bulan') == '08' ? 'selected' : '' }}>Agustus</option>
+                <option value="09" {{ request('bulan') == '09' ? 'selected' : '' }}>September</option>
+                <option value="10" {{ request('bulan') == '10' ? 'selected' : '' }}>Oktober</option>
+                <option value="11" {{ request('bulan') == '11' ? 'selected' : '' }}>November</option>
+                <option value="12" {{ request('bulan') == '12' ? 'selected' : '' }}>Desember</option>
             </select>
 
             <!-- Tahun -->
-            <select id="filterTahun" class="border border-gray-300 rounded-xl px-4 py-2">
+            <select
+                name="tahun"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
                 <option value="">Semua Tahun</option>
 
                 @for($i = date('Y'); $i >= 2024; $i--)
-
-                    <option value="{{ $i }}">{{ $i }}</option>
-
+                    <option value="{{ $i }}" {{ request('tahun') == $i ? 'selected' : '' }}>{{ $i }}</option>
                 @endfor
-
             </select>
 
             <!-- Status -->
-            <select id="filterStatusRiwayat" class="border border-gray-300 rounded-xl px-4 py-2">
+            <select
+                name="status"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-                <option value="all">Semua Status</option>
-                <option value="pending">Pending</option>
-                <option value="disetujui">Disetujui</option>
-                <option value="berjalan">Berjalan</option>
-                <option value="lunas">Lunas</option>
-                <option value="ditolak">Ditolak</option>
-
+                <option value="all" {{ request('status')=='all' ? 'selected' : '' }}>Semua Status</option>
+                <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>Pending</option>
+                <option value="disetujui" {{ request('status')=='disetujui' ? 'selected' : '' }}>Disetujui</option>
+                <option value="berjalan" {{ request('status')=='berjalan' ? 'selected' : '' }}>Berjalan</option>
+                <option value="lunas" {{ request('status')=='lunas' ? 'selected' : '' }}>Lunas</option>
+                <option value="ditolak" {{ request('status')=='ditolak' ? 'selected' : '' }}>Ditolak</option>
             </select>
 
             <!-- Cari -->
             <button
-                type="button"
+                type="submit"
                 id="btnCariRiwayat"
                 class="bg-purple-600 text-white px-4 py-2 rounded-xl">
 
@@ -349,16 +347,15 @@ if ($hutang->metode == 'cash') {
             </button>
 
             <!-- Reset -->
-            <button
-                type="button"
-                id="resetFilterRiwayat"
+            <a
+                href="{{ url()->current() }}"
                 class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
 
                 Reset
 
-            </button>
+            </a>
 
-        </div>
+        </form>
 
     </div>
 
@@ -488,6 +485,22 @@ if ($hutang->metode == 'cash') {
 
     </div>
 
+    <div class="flex justify-between items-center mt-6">
+
+        <div class="text-sm text-gray-500">
+            Menampilkan
+            {{ $riwayat->firstItem() }}
+            -
+            {{ $riwayat->lastItem() }}
+            dari
+            {{ $riwayat->total() }}
+            data
+        </div>
+
+        {{ $riwayat->links() }}
+
+    </div>
+
 </div>
 
 <!-- ACTION BUTTONS -->
@@ -547,53 +560,6 @@ if ($hutang->metode == 'cash') {
 </div>
 
 <script>
-
-const filterBulan = document.getElementById('filterBulan');
-const filterTahun = document.getElementById('filterTahun');
-const filterStatusRiwayat = document.getElementById('filterStatusRiwayat');
-const btnCariRiwayat = document.getElementById('btnCariRiwayat');
-const resetFilterRiwayat = document.getElementById('resetFilterRiwayat');
-
-function filterRiwayat() {
-
-    let bulan = filterBulan.value;
-    let tahun = filterTahun.value;
-    let status = filterStatusRiwayat.value;
-
-    document.querySelectorAll('.riwayat-row').forEach(function (row) {
-
-        let rowBulan = row.dataset.bulan;
-        let rowTahun = row.dataset.tahun;
-        let rowStatus = row.dataset.status;
-
-        let cocokBulan = bulan === '' || rowBulan === bulan;
-        let cocokTahun = tahun === '' || rowTahun === tahun;
-        let cocokStatus = status === 'all' || rowStatus === status;
-
-        row.style.display =
-            (cocokBulan && cocokTahun && cocokStatus)
-                ? ''
-                : 'none';
-
-    });
-
-}
-
-filterBulan.addEventListener('change', filterRiwayat);
-filterTahun.addEventListener('change', filterRiwayat);
-filterStatusRiwayat.addEventListener('change', filterRiwayat);
-btnCariRiwayat.addEventListener('click', filterRiwayat);
-
-resetFilterRiwayat.addEventListener('click', function () {
-
-    filterBulan.value = '';
-    filterTahun.value = '';
-    filterStatusRiwayat.value = 'all';
-
-    filterRiwayat();
-
-});
-
 const modalAlasan = document.getElementById('modalAlasanPenolakan');
 const modalAlasanTeks = document.getElementById('modalAlasanTeks');
 const modalAlasanTanggal = document.getElementById('modalAlasanTanggal');

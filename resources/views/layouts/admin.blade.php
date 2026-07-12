@@ -133,19 +133,40 @@
 
 <div class="flex min-h-screen">
 
-    <!-- SIDEBAR -->
-    <aside class="w-64 sidebar-bg sticky top-0 h-screen flex flex-col shadow-2xl">
+    <!-- OVERLAY (khusus mobile, muncul di belakang sidebar saat dibuka) -->
+    <div
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+        class="hidden fixed inset-0 bg-black/50 z-40 md:hidden">
+    </div>
 
-        <!-- Logo -->
-        <div class="logo-box flex items-center gap-3">
-            <img
-                src="{{ asset('images/logo-partnerpulsa.png') }}"
-                alt="Partner Pulsa"
-                class="w-11 h-11 rounded-xl shadow-lg ring-2 ring-white/20">
-            <div>
-                <h1 class="logo-title">SIMPAN</h1>
-                <p class="logo-sub">Admin Panel</p>
+    <!-- SIDEBAR -->
+    <aside
+        id="sidebar"
+        class="w-64 sidebar-bg fixed md:sticky top-0 left-0 h-screen flex flex-col shadow-2xl z-50
+               -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+
+        <!-- Logo + tombol tutup (mobile) -->
+        <div class="logo-box flex items-center justify-between gap-3">
+
+            <div class="flex items-center gap-3">
+                <img
+                    src="{{ asset('images/logo-partnerpulsa.png') }}"
+                    alt="Partner Pulsa"
+                    class="w-11 h-11 rounded-xl shadow-lg ring-2 ring-white/20">
+                <div>
+                    <h1 class="logo-title">SIMPAN</h1>
+                    <p class="logo-sub">Admin Panel</p>
+                </div>
             </div>
+
+            <button
+                type="button"
+                onclick="closeSidebar()"
+                class="md:hidden text-white/70 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition">
+                <i class="ti ti-x text-xl"></i>
+            </button>
+
         </div>
 
         <!-- Navigation -->
@@ -177,7 +198,11 @@
                 <span class="icon-wrap">💰</span>
                 Pencairan Saldo
             </a>
-
+                <a href="/admin/monitoring-hutang"
+        class="nav-link {{ request()->is('admin/monitoring-hutang') ? 'active' : '' }}">
+            <span class="icon-wrap">📊</span>
+            Monitoring Hutang
+        </a>
             <a href="/admin/pembayaran"
                class="nav-link {{ request()->is('admin/pembayaran*') ? 'active' : '' }}">
                 <span class="icon-wrap">💳</span>
@@ -215,13 +240,43 @@
     </aside>
 
     <!-- CONTENT -->
-    <main class="flex-1 p-8">
-        @yield('content')
-    </main>
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <!-- TOPBAR (khusus mobile, buat tombol buka sidebar) -->
+        <header class="md:hidden sticky top-0 z-30 bg-white border-b border-purple-100 px-4 py-3 flex items-center gap-3 shadow-sm">
+
+            <button
+                type="button"
+                onclick="openSidebar()"
+                class="w-9 h-9 flex items-center justify-center rounded-lg bg-purple-50 text-[#5628C7]">
+                <i class="ti ti-menu-2 text-xl"></i>
+            </button>
+
+            <span class="font-bold text-gray-800">SIMPAN Admin</span>
+
+        </header>
+
+        <main class="flex-1 p-4 md:p-8">
+            @yield('content')
+        </main>
+
+    </div>
 
 </div>
 
 <script>
+function openSidebar()
+{
+    document.getElementById('sidebar').classList.remove('-translate-x-full');
+    document.getElementById('sidebarOverlay').classList.remove('hidden');
+}
+
+function closeSidebar()
+{
+    document.getElementById('sidebar').classList.add('-translate-x-full');
+    document.getElementById('sidebarOverlay').classList.add('hidden');
+}
+
 let notifLama = {{ $notifBelum }};
 setInterval(() => {
     fetch('/jumlah-notifikasi')

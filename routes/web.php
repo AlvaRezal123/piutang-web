@@ -114,3 +114,7 @@ Route::post('/lupa-password', [LoginController::class, 'kirimPasswordBaru']);
 Route::post('/profil-agen/update-password',[AgenController::class, 'updatePassword']);
 Route::post('/admin/update-password', [AgenController::class, 'updatePasswordAdmin']);
 Route::post('/owner/update-password', [AgenController::class, 'updatePasswordAdmin']);
+
+//monitooring admin
+
+Route::get('/admin/monitoring-hutang', [HutangController::class, 'monitoringAdmin']);

@@ -29,8 +29,7 @@
             Total Nominal Hutang
         </p>
 
-        <h2
-         class="text-5xl font-bold mt-4 break-words">
+        <h2 class="text-5xl font-bold mt-4 break-words">
             Rp{{ number_format($hutang->sum('jumlah_hutang'),0,',','.') }}
         </h2>
 
@@ -149,6 +148,7 @@
     </div>
 
 </div>
+
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
 
@@ -159,69 +159,89 @@
             Data Pencairan
         </h2>
 
-       <div class="flex flex-wrap gap-3">
+        <form method="GET" action="{{ url('/admin/pencairan') }}" class="flex flex-wrap gap-3">
 
-    <!-- Cari -->
-    <input
-        type="text"
-        id="searchInput"
-        placeholder="Cari Agen..."
-        class="border border-gray-300 rounded-xl px-4 py-2">
+            <!-- Cari -->
+            <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari Agen..."
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-    <!-- Status -->
-    <select
-        id="filterStatus"
-        class="border border-gray-300 rounded-xl px-4 py-2">
+            <!-- Status -->
+            <select
+                name="status"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-        <option value="all">Semua Status</option>
-        <option value="disetujui">Menunggu</option>
-        <option value="berjalan">Dicairkan</option>
-        <option value="lunas">Lunas</option>
+                <option value="all">Semua Status</option>
 
-    </select>
+                <option value="disetujui"
+                    {{ request('status')=='disetujui'?'selected':'' }}>
+                    Menunggu
+                </option>
 
-    <!-- Tanggal -->
-    <input
-        type="date"
-        id="filterTanggal"
-        class="border border-gray-300 rounded-xl px-4 py-2">
+                <option value="berjalan"
+                    {{ request('status')=='berjalan'?'selected':'' }}>
+                    Dicairkan
+                </option>
 
-    <!-- Tahun -->
-    <select
-        id="filterTahun"
-        class="border border-gray-300 rounded-xl px-4 py-2">
+                <option value="lunas"
+                    {{ request('status')=='lunas'?'selected':'' }}>
+                    Lunas
+                </option>
 
-        <option value="">Semua Tahun</option>
+            </select>
 
-        @for($i = date('Y'); $i >= 2024; $i--)
+            <!-- Tanggal -->
+            <input
+                type="date"
+                name="tanggal"
+                value="{{ request('tanggal') }}"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-            <option value="{{ $i }}">{{ $i }}</option>
+            <!-- Tahun -->
+            <select
+                name="tahun"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-        @endfor
+                <option value="">Semua Tahun</option>
 
-    </select>
+                @for($i=date('Y');$i>=2024;$i--)
 
-    <!-- Cari -->
-    <button
-        type="button"
-        id="btnCariFilter"
-        class="bg-purple-600 text-white px-4 py-2 rounded-xl">
+                <option
+                    value="{{ $i }}"
+                    {{ request('tahun')==$i?'selected':'' }}>
 
-        Cari
+                    {{ $i }}
 
-    </button>
+                </option>
 
-    <!-- Reset -->
-    <button
-        type="button"
-        id="resetFilter"
-        class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
+                @endfor
 
-        Reset
+            </select>
 
-    </button>
+            <!-- Cari -->
+            <button
+                type="submit"
+                id="btnCariFilter"
+                class="bg-purple-600 text-white px-4 py-2 rounded-xl">
 
-</div>
+                Cari
+
+            </button>
+
+            <!-- Reset -->
+            <a
+                href="{{ url('/admin/pencairan') }}"
+                id="resetFilter"
+                class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
+
+                Reset
+
+            </a>
+
+        </form>
 
     </div>
 
@@ -234,18 +254,22 @@
                 <tr class="border-b text-sm text-gray-500">
 
                     <th class="text-left py-4">
-                        Agen
-                    </th> 
-                    <th class="text-left py-4">
-                       Tanggal Pengajuan
+                        ID Pengajuan 
                     </th>
 
-                    
+                    <th class="text-left py-4">
+                        Nama Agen
+                    </th>
+
+                    <th class="text-left py-4">
+                        Tanggal Pengajuan
+                    </th>
+
                     <th class="text-left py-4">
                         Tanggal Cair
                     </th>
 
-                          <th class="text-left py-4">
+                    <th class="text-left py-4">
                         Metode
                     </th>
 
@@ -276,6 +300,11 @@
                     data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}"
                     data-tahun="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y') }}">
 
+                    <!-- ID HUTANG -->
+                    <td class="py-5 text-sm text-gray-500">
+                        #{{ $h->id }}
+                    </td>
+
                     <!-- AGEN -->
                     <td class="py-5">
 
@@ -300,7 +329,6 @@
 
                     </td>
 
-                    
                     <!-- TGL CAIR -->
                     <td>
 
@@ -310,45 +338,44 @@
 
                     </td>
 
-                      <!-- METODE -->
+                    <!-- METODE -->
                     <td>
 
                         @if($h->metode == 'cash')
 
-                  <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2">
 
-    <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
 
-        <i class="ti ti-credit-card text-green-600 text-sm"></i>
+                                <i class="ti ti-credit-card text-green-600 text-sm"></i>
 
-    </div>
+                            </div>
 
-    <span class="font-medium">
-        Pembayaran Penuh
-    </span>
+                            <span class="font-medium">
+                                Pembayaran Penuh
+                            </span>
 
-</div>
+                        </div>
 
                         @else
 
-              <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2">
 
-    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
 
-        <i class="ti ti-calendar-time text-blue-600 text-sm"></i>
+                                <i class="ti ti-calendar-time text-blue-600 text-sm"></i>
 
-    </div>
+                            </div>
 
-    <span class="font-medium">
-        Cicilan {{ $h->lama_tempo }}
-    </span>
+                            <span class="font-medium">
+                                Cicilan {{ $h->lama_tempo }}
+                            </span>
 
-</div>
+                        </div>
+
                         @endif
 
                     </td>
-
-
 
                     <!-- NOMINAL -->
                     <td>
@@ -361,33 +388,26 @@
 
                     </td>
 
-                  
                     <!-- STATUS -->
                     <td>
 
                         @if($h->status == 'disetujui')
 
-                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
-
-                                Menunggu
-
-                            </span>
+                        <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                            Menunggu
+                        </span>
 
                         @elseif($h->status == 'berjalan')
 
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-
-                                Dicairkan
-
-                            </span>
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                            Dicairkan
+                        </span>
 
                         @else
 
-                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-
-                                Lunas
-
-                            </span>
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                            Lunas
+                        </span>
 
                         @endif
 
@@ -398,32 +418,28 @@
 
                         @if($h->status == 'disetujui')
 
-                            <a
-                                href="/admin/form-pencairan/{{ $h->id }}"
-                                class="bg-[#5628C7] text-white px-4 py-2 rounded-xl text-sm font-semibold">
-
-                                Proses
-
-                            </a>
+                        <a
+                            href="/admin/form-pencairan/{{ $h->id }}"
+                            class="bg-[#5628C7] text-white px-4 py-2 rounded-xl text-sm font-semibold">
+                            Proses
+                        </a>
 
                         @else
 
-                            @if($h->bukti_pencairan)
+                        @if($h->bukti_pencairan)
 
-                                <a
-                                    href="{{ asset('uploads/'.$h->bukti_pencairan) }}"
-                                    target="_blank"
-                                    class="text-[#5628C7] font-semibold">
+                        <a
+                            href="{{ asset('uploads/'.$h->bukti_pencairan) }}"
+                            target="_blank"
+                            class="text-[#5628C7] font-semibold">
+                            Lihat Bukti
+                        </a>
 
-                                    Lihat Bukti
+                        @else
 
-                                </a>
+                        -
 
-                            @else
-
-                                -
-
-                            @endif
+                        @endif
 
                         @endif
 
@@ -436,7 +452,7 @@
                 <tr>
 
                     <td
-                        colspan="7"
+                        colspan="8"
                         class="text-center py-10 text-gray-500">
 
                         Belum ada data pencairan
@@ -451,109 +467,24 @@
 
         </table>
 
+        <div class="flex justify-between items-center mt-6">
+
+            <div class="text-sm text-gray-500">
+                Menampilkan
+                {{ $hutang->firstItem() }}
+                -
+                {{ $hutang->lastItem() }}
+                dari
+                {{ $hutang->total() }}
+                data
+            </div>
+
+            {{ $hutang->links() }}
+
+        </div>
+
     </div>
 
 </div>
-
-<script>
-
-const filterTanggal =
-document.getElementById('filterTanggal');
-
-const filterTahun =
-document.getElementById('filterTahun');
-
-const resetFilter =
-document.getElementById('resetFilter');
-
-const searchInput =
-document.getElementById('searchInput');
-
-const filterStatus =
-document.getElementById('filterStatus');
-
-const btnCariFilter =
-document.getElementById('btnCariFilter');
-
-function filterData(){
-
-    let keyword = searchInput.value.toLowerCase();
-    let status = filterStatus.value;
-    let tanggal = filterTanggal.value;
-    let tahun = filterTahun.value;
-
-    document
-    .querySelectorAll('.pencairan-row')
-    .forEach(function(row){
-
-        let nama = row.dataset.agen;
-        let rowStatus = row.dataset.status;
-        let rowTanggal = row.dataset.tanggal;
-        let rowTahun = row.dataset.tahun;
-
-        let cocokNama =
-            nama.includes(keyword);
-
-        let cocokStatus =
-            status === 'all'
-            || rowStatus === status;
-
-        let cocokTanggal =
-            tanggal === ''
-            || rowTanggal === tanggal;
-
-        let cocokTahun =
-            tahun === ''
-            || rowTahun === tahun;
-
-        row.style.display =
-            (cocokNama &&
-             cocokStatus &&
-             cocokTanggal &&
-             cocokTahun)
-             ? ''
-             : 'none';
-
-    });
-
-}
-
-
-searchInput.addEventListener(
-    'keyup',
-    filterData
-);
-
-filterStatus.addEventListener(
-    'change',
-    filterData
-);
-filterTanggal.addEventListener(
-    'change',
-    filterData
-);
-
-filterTahun.addEventListener(
-    'change',
-    filterData
-);
-
-btnCariFilter.addEventListener(
-    'click',
-    filterData
-);
-
-resetFilter.addEventListener('click', function(){
-
-    searchInput.value = '';
-    filterStatus.value = 'all';
-    filterTanggal.value = '';
-    filterTahun.value = '';
-
-    filterData();
-
-});
-
-</script>
 
 @endsection

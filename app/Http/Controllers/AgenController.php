@@ -319,12 +319,27 @@ if ($admin) {
     );
 }
 // menampikan seluruh data agen yang terdaftar
-    public function index()
-    {
-        $agen = Agen::all();
-        $agen = Agen::latest()->get();
-        return view('agen.index', compact('agen'));
+  public function index(Request $request)
+{
+    $query = Agen::query();
+
+    // Search Username
+    if ($request->filled('search')) {
+        $query->where('username', 'like', '%' . $request->search . '%');
     }
+
+    // Filter Status
+    if ($request->filled('status') && $request->status != 'all') {
+        $query->where('status', $request->status);
+    }
+
+    $agen = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('agen.index', compact('agen'));
+}
 
     // fungsi untuk menyetujui agen sehingga nanti statusnya aktif serta pengiriman email kepada agen berupa username dan passwordnya
    public function setujui($id)
@@ -430,9 +445,14 @@ private function cekKeterlambatan()
     ->get();
     foreach ($cicilanTerlambat as $cicilan) {
 
-        // UPDATE STATUS CICILAN
+        
+       // UPDATE STATUS CICILAN
         $cicilan->status = 'terlambat';
-        $cicilan->save();    
+
+        $cicilan->hari_keterlambatan = Carbon::parse($cicilan->tanggal_jatuh_tempo)
+    ->diffInDays(now());
+
+        $cicilan->save(); 
 
         // CARI DATA HUTANG
         $hutang = Hutang::find(

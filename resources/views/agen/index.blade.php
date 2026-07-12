@@ -91,21 +91,72 @@
 
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-gray-800">Data Agen</h2>
-        <div class="flex gap-3">
+
+        <form method="GET" action="{{ url('/agen') }}" class="flex gap-3">
+
             <div class="flex items-center gap-2 border border-gray-300 rounded-xl px-4 py-2 w-64 bg-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="w-4 h-4 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+
                 </svg>
-                <input type="text" id="searchUsername" placeholder="Cari username..." class="outline-none text-sm w-full">
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Cari username..."
+                    class="outline-none text-sm w-full">
+
             </div>
-            <select id="filterStatus" class="border border-gray-300 rounded-xl px-4 py-2 text-sm">
+
+            <select
+                name="status"
+                class="border border-gray-300 rounded-xl px-4 py-2 text-sm">
+
                 <option value="all">Semua Status</option>
-                <option value="pending">Pending</option>
-                <option value="aktif">Aktif</option>
-                <option value="ditolak">Ditolak</option>
-                <option value="diblokir">Diblokir</option>
+
+                <option value="pending"
+                    {{ request('status')=='pending'?'selected':'' }}>
+                    Pending
+                </option>
+
+                <option value="aktif"
+                    {{ request('status')=='aktif'?'selected':'' }}>
+                    Aktif
+                </option>
+
+                <option value="ditolak"
+                    {{ request('status')=='ditolak'?'selected':'' }}>
+                    Ditolak
+                </option>
+
+                <option value="diblokir"
+                    {{ request('status')=='diblokir'?'selected':'' }}>
+                    Diblokir
+                </option>
+
             </select>
-        </div>
+
+            <button
+                class="bg-[#5628C7] text-white px-4 rounded-xl">
+                Cari
+            </button>
+
+            <a
+                href="{{ url('/agen') }}"
+                class="bg-red-600 text-white px-4 rounded-xl flex items-center">
+                Reset
+            </a>
+
+        </form>
     </div>
 
     <div class="overflow-x-auto">
@@ -210,138 +261,6 @@
                         </div>
                     </td>
                 </tr>
-
-                <!-- MODAL DETAIL -->
-                <div id="modal{{ $a->id }}" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
-                    <div class="bg-white rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-purple-100">
-
-                        <form action="/agen/update/{{ $a->id }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-
-                            <!-- Modal Header -->
-                            <div class="flex justify-between items-center mb-6 pb-4 border-b">
-                                <div>
-                                    <h2 class="text-2xl font-bold text-gray-800">Detail Agen</h2>
-                                    <p class="text-sm text-gray-500 mt-0.5">Informasi dan dokumen agen</p>
-                                </div>
-                                <button type="button" onclick="closeModal('modal{{ $a->id }}')"
-                                    class="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <!-- Info Banner -->
-                            <div class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-6 flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-[#5628C7] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                    {{ strtoupper(substr($a->username, 0, 2)) }}
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-purple-800">{{ $a->username }}</h3>
-                                    <p class="text-sm text-gray-500">ID: {{ $a->id_agen_pp }} &nbsp;·&nbsp;
-                                        Terdaftar:
-                                        @if($a->approved_at)
-                                            {{ \Carbon\Carbon::parse($a->approved_at)->format('d M Y') }}
-                                        @else
-                                            Belum disetujui
-                                        @endif
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Form Fields -->
-                            <div class="grid md:grid-cols-2 gap-5">
-                                <div>
-                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Username</label>
-                                    <input type="text" name="username" value="{{ $a->username }}"
-                                        class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Nama Usaha</label>
-                                    <input type="text" name="nama_usaha" value="{{ $a->nama_usaha }}"
-                                        class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">NIK</label>
-                                    <input type="text" value="{{ $a->nik }}" readonly
-                                        class="w-full border border-gray-200 rounded-xl p-3 text-sm bg-gray-50 text-gray-400 cursor-not-allowed">
-                                </div>
-                                <div>
-                                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">No Handphone</label>
-                                    <input type="text" name="no_hp" value="{{ $a->no_hp }}"
-                                        class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
-                                </div>
-                            </div>
-
-                            <div class="mt-5">
-                                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Alamat</label>
-                                <textarea name="alamat" rows="3"
-                                    class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition resize-none">{{ $a->alamat }}</textarea>
-                            </div>
-
-                            <!-- Dokumen -->
-                            <div class="mt-7">
-                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Dokumen & Foto</p>
-                                <div class="grid md:grid-cols-3 gap-4">
-
-                                    <!-- Foto KTP -->
-                                    <div class="flex flex-col gap-2">
-                                        <p class="text-sm font-semibold text-gray-700">Foto KTP</p>
-                                        <img src="{{ asset('uploads/'.$a->foto_ktp) }}"
-                                            onclick="showImage(this.src)"
-                                            class="w-full h-44 object-cover rounded-2xl border border-gray-200 shadow-sm cursor-pointer hover:opacity-90 transition">
-                                    </div>
-
-                                    <!-- Selfie KTP -->
-                                    <div class="flex flex-col gap-2">
-                                        <p class="text-sm font-semibold text-gray-700">Selfie KTP</p>
-                                        <img src="{{ asset('uploads/'.$a->foto_selfie_ktp) }}"
-                                            onclick="showImage(this.src)"
-                                            class="w-full h-44 object-cover rounded-2xl border border-gray-200 shadow-sm cursor-pointer hover:opacity-90 transition">
-                                    </div>
-
-                                    <!-- Foto Toko -->
-                                    <div class="flex flex-col gap-2">
-                                        <p class="text-sm font-semibold text-gray-700">Foto Toko</p>
-
-                                        @if($a->foto_toko_fisik)
-                                            <img src="{{ asset('uploads/'.$a->foto_toko_fisik) }}"
-                                                onclick="showImage(this.src)"
-                                                class="w-full h-44 object-cover rounded-2xl border border-gray-200 shadow-sm cursor-pointer hover:opacity-90 transition mb-2">
-                                        @endif
-
-                                        <label for="foto_toko_{{ $a->id }}"
-                                            class="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-purple-200 rounded-2xl p-4 cursor-pointer hover:bg-purple-50 hover:border-purple-400 transition">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-                                            </svg>
-                                            <span class="text-xs font-semibold text-purple-600">Pilih Foto Baru</span>
-                                            <span id="namaFile{{ $a->id }}" class="text-xs text-gray-400 text-center">Belum ada file dipilih</span>
-                                        </label>
-                                        <input type="file" id="foto_toko_{{ $a->id }}" name="foto_toko_fisik" class="hidden"
-                                            onchange="document.getElementById('namaFile{{ $a->id }}').innerHTML='✅ '+this.files[0].name">
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Footer Buttons -->
-                            <div class="flex justify-end gap-3 mt-8 pt-6 border-t">
-                                <button type="button" onclick="closeModal('modal{{ $a->id }}')"
-                                    class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">
-                                    Batal
-                                </button>
-                                <button type="submit"
-                                    class="bg-[#5628C7] hover:bg-[#4b22b0] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition">
-                                    Simpan Perubahan
-                                </button>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
-
                 @empty
                 <tr>
                     <td colspan="7" class="text-center py-10 text-gray-500">Belum ada data agen</td>
@@ -349,8 +268,159 @@
                 @endforelse
             </tbody>
         </table>
+
+        <!-- PAGINATION -->
+        <div class="flex justify-between items-center mt-6">
+
+            <div class="text-sm text-gray-500">
+                Menampilkan
+                {{ $agen->firstItem() }}
+                -
+                {{ $agen->lastItem() }}
+                dari
+                {{ $agen->total() }}
+                data
+            </div>
+
+            {{ $agen->links() }}
+
+        </div>
+
     </div>
 </div>
+
+<!-- MODAL DETAIL PER AGEN (dipindah ke luar <table> supaya HTML valid) -->
+@foreach($agen as $a)
+<div id="modal{{ $a->id }}" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
+    <div class="bg-white rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-purple-100">
+
+        <form action="/agen/update/{{ $a->id }}" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Detail Agen</h2>
+                    <p class="text-sm text-gray-500 mt-0.5">Informasi dan dokumen agen</p>
+                </div>
+                <button type="button" onclick="closeModal('modal{{ $a->id }}')"
+                    class="w-9 h-9 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Info Banner -->
+            <div class="bg-purple-50 border border-purple-100 rounded-2xl p-4 mb-6 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-[#5628C7] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                    {{ strtoupper(substr($a->username, 0, 2)) }}
+                </div>
+                <div>
+                    <h3 class="font-bold text-purple-800">{{ $a->username }}</h3>
+                    <p class="text-sm text-gray-500">ID: {{ $a->id_agen_pp }} &nbsp;·&nbsp;
+                        Terdaftar:
+                        @if($a->approved_at)
+                            {{ \Carbon\Carbon::parse($a->approved_at)->format('d M Y') }}
+                        @else
+                            Belum disetujui
+                        @endif
+                    </p>
+                </div>
+            </div>
+
+            <!-- Form Fields -->
+            <div class="grid md:grid-cols-2 gap-5">
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Username</label>
+                    <input type="text" name="username" value="{{ $a->username }}"
+                        class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Nama Usaha</label>
+                    <input type="text" name="nama_usaha" value="{{ $a->nama_usaha }}"
+                        class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">NIK</label>
+                    <input type="text" value="{{ $a->nik }}" readonly
+                        class="w-full border border-gray-200 rounded-xl p-3 text-sm bg-gray-50 text-gray-400 cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">No Handphone</label>
+                    <input type="text" name="no_hp" value="{{ $a->no_hp }}"
+                        class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition">
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <label class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5 block">Alamat</label>
+                <textarea name="alamat" rows="3"
+                    class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-400 transition resize-none">{{ $a->alamat }}</textarea>
+            </div>
+
+            <!-- Dokumen -->
+            <div class="mt-7">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-4">Dokumen & Foto</p>
+                <div class="grid md:grid-cols-3 gap-4">
+
+                    <!-- Foto KTP -->
+                    <div class="flex flex-col gap-2">
+                        <p class="text-sm font-semibold text-gray-700">Foto KTP</p>
+                        <img src="{{ asset('uploads/'.$a->foto_ktp) }}"
+                            onclick="showImage(this.src)"
+                            class="w-full h-44 object-cover rounded-2xl border border-gray-200 shadow-sm cursor-pointer hover:opacity-90 transition">
+                    </div>
+
+                    <!-- Selfie KTP -->
+                    <div class="flex flex-col gap-2">
+                        <p class="text-sm font-semibold text-gray-700">Selfie KTP</p>
+                        <img src="{{ asset('uploads/'.$a->foto_selfie_ktp) }}"
+                            onclick="showImage(this.src)"
+                            class="w-full h-44 object-cover rounded-2xl border border-gray-200 shadow-sm cursor-pointer hover:opacity-90 transition">
+                    </div>
+
+                    <!-- Foto Toko -->
+                    <div class="flex flex-col gap-2">
+                        <p class="text-sm font-semibold text-gray-700">Foto Toko</p>
+
+                        @if($a->foto_toko_fisik)
+                            <img src="{{ asset('uploads/'.$a->foto_toko_fisik) }}"
+                                onclick="showImage(this.src)"
+                                class="w-full h-44 object-cover rounded-2xl border border-gray-200 shadow-sm cursor-pointer hover:opacity-90 transition mb-2">
+                        @endif
+
+                        <label for="foto_toko_{{ $a->id }}"
+                            class="flex flex-col items-center justify-center gap-2 w-full border-2 border-dashed border-purple-200 rounded-2xl p-4 cursor-pointer hover:bg-purple-50 hover:border-purple-400 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                            </svg>
+                            <span class="text-xs font-semibold text-purple-600">Pilih Foto Baru</span>
+                            <span id="namaFile{{ $a->id }}" class="text-xs text-gray-400 text-center">Belum ada file dipilih</span>
+                        </label>
+                        <input type="file" id="foto_toko_{{ $a->id }}" name="foto_toko_fisik" class="hidden"
+                            onchange="document.getElementById('namaFile{{ $a->id }}').innerHTML='✅ '+this.files[0].name">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="flex justify-end gap-3 mt-8 pt-6 border-t">
+                <button type="button" onclick="closeModal('modal{{ $a->id }}')"
+                    class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50 transition">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="bg-[#5628C7] hover:bg-[#4b22b0] text-white px-6 py-2.5 rounded-xl text-sm font-semibold transition">
+                    Simpan Perubahan
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+@endforeach
 
 <!-- IMAGE PREVIEW -->
 <div id="imagePreview" class="hidden fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center p-5">
@@ -455,21 +525,6 @@ function showImage(src) {
 function closeImage() { document.getElementById('imagePreview').classList.add('hidden'); }
 function openImportModal() { document.getElementById('importModal').classList.remove('hidden'); }
 function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); }
-
-const searchInput = document.getElementById('searchUsername');
-const statusFilter = document.getElementById('filterStatus');
-
-function filterAgen() {
-    const keyword = searchInput.value.toLowerCase();
-    const status = statusFilter.value;
-    document.querySelectorAll('.agen-row').forEach(function(row) {
-        const cocokNama = row.dataset.username.includes(keyword);
-        const cocokStatus = status === 'all' || row.dataset.status === status;
-        row.style.display = cocokNama && cocokStatus ? '' : 'none';
-    });
-}
-searchInput.addEventListener('keyup', filterAgen);
-statusFilter.addEventListener('change', filterAgen);
 </script>
 
 @endsection

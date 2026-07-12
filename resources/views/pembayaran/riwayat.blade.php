@@ -140,39 +140,59 @@ $totalDitolak = $pembayaran
     </div>
 
 </div>
+
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
-  <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
 
-    <h2 class="text-xl font-bold text-gray-800">
-        Data Pembayaran
-    </h2>
+        <h2 class="text-xl font-bold text-gray-800">
+            Data Pembayaran
+        </h2>
 
- <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
+        <form method="GET" class="flex flex-wrap gap-3">
 
-<div class="flex flex-wrap gap-3">
+            <input
+                type="date"
+                name="tanggal"
+                value="{{ request('tanggal') }}"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-    <input
-        type="date"
-        id="filterTanggal"
-        class="border border-gray-300 rounded-xl px-4 py-2">
+            <select
+                name="status"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-    <select
-        id="filterStatus"
-        class="border border-gray-300 rounded-xl px-4 py-2">
+                <option value="all">Semua Status</option>
 
-        <option value="all">Semua Status</option>
-        <option value="pending">Pending</option>
-        <option value="disetujui">Disetujui</option>
-        <option value="ditolak">Ditolak</option>
+                <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>
+                    Pending
+                </option>
 
-    </select>
+                <option value="disetujui" {{ request('status')=='disetujui' ? 'selected' : '' }}>
+                    Disetujui
+                </option>
 
-</div>
-</div>
+                <option value="ditolak" {{ request('status')=='ditolak' ? 'selected' : '' }}>
+                    Ditolak
+                </option>
 
-</div>
+            </select>
+
+            <button
+                type="submit"
+                class="bg-[#5628C7] text-white px-4 py-2 rounded-xl">
+                Cari
+            </button>
+
+            <a
+                href="{{ url()->current() }}"
+                class="bg-red-600 text-white px-4 py-2 rounded-xl">
+                Reset
+            </a>
+
+        </form>
+
+    </div>
 
     <div class="overflow-x-auto">
 
@@ -182,15 +202,15 @@ $totalDitolak = $pembayaran
 
                 <tr class="border-b">
 
-                    <th class="text-center py-3">ID Pembayaran</th>
-                    <th class="text-center py-3">Tanggal</th>
-                    <th class="text-center py-3">Jumlah</th>
-                    <th class="text-center py-3">Metode</th>
-                    <th class="text-center py-3">Bank Pengirim</th>
-                    <th class="text-center py-3">Status</th>
-                    <th class="text-center py-3">Bukti</th>
-                    <th class="text-center py-3">Detail</th>
-                    <th class="text-center py-3">Aksi</th>
+                    <th class="text-left py-3">ID Pembayaran</th>
+                    <th class="text-left py-3">Tanggal</th>
+                    <th class="text-left py-3">Jumlah</th>
+                    <th class="text-left py-3">Metode</th>
+                    <th class="text-left py-3">Bank Pengirim</th>
+                    <th class="text-left py-3">Status</th>
+                    <th class="text-left py-3">Bukti</th>
+                    <th class="text-left py-3">Detail</th>
+                    <th class="text-left py-3">Aksi</th>
 
                 </tr>
 
@@ -200,10 +220,10 @@ $totalDitolak = $pembayaran
 
                 @forelse($pembayaran as $p)
 
-              <tr
-    class="border-b status-row"
-    data-status="{{ $p->status }}"
-    data-tanggal="{{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('Y-m-d') }}">
+                <tr
+                    class="border-b status-row"
+                    data-status="{{ $p->status }}"
+                    data-tanggal="{{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('Y-m-d') }}">
 
                     <td class="py-4 font-semibold text-gray-600">
                         #{{ $p->id }}
@@ -295,25 +315,25 @@ $totalDitolak = $pembayaran
 
                     <td>
 
-    @if($p->status == 'ditolak')
+                        @if($p->status == 'ditolak')
 
-        <button
-            onclick="openModal({{ $p->id }})"
-            class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200">
+                            <button
+                                onclick="openModal({{ $p->id }})"
+                                class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200">
 
-            Lihat Alasan
+                                Lihat Alasan
 
-        </button>
+                            </button>
 
-    @else
+                        @else
 
-        <span class="text-gray-400">
-            -
-        </span>
+                            <span class="text-gray-400">
+                                -
+                            </span>
 
-    @endif
+                        @endif
 
-</td>
+                    </td>
 
                 </tr>
 
@@ -333,7 +353,27 @@ $totalDitolak = $pembayaran
 
         </table>
 
+        @if($pembayaran->hasPages())
+        <div class="flex justify-between items-center mt-6">
+
+            <div class="text-sm text-gray-500">
+                Menampilkan
+                {{ $pembayaran->firstItem() }}
+                -
+                {{ $pembayaran->lastItem() }}
+                dari
+                {{ $pembayaran->total() }}
+                data
+            </div>
+
+            {{ $pembayaran->links() }}
+
+        </div>
+        @endif
+
     </div>
+
+</div>
 
 <!-- MODAL DETAIL CICILAN -->
 <div
@@ -406,6 +446,7 @@ $totalDitolak = $pembayaran
 
 </div>
 
+<!-- MODAL ALASAN PENOLAKAN, SATU MODAL PER PEMBAYARAN YANG DITOLAK -->
 @foreach($pembayaran as $p)
 
 @if($p->status == 'ditolak')
@@ -443,49 +484,8 @@ $totalDitolak = $pembayaran
 @endif
 
 @endforeach
-</div>
 
 <script>
-
-const filterStatus =
-document.getElementById('filterStatus');
-
-const filterTanggal =
-document.getElementById('filterTanggal');
-
-function filterData() {
-
-    let status = filterStatus.value;
-    let tanggal = filterTanggal.value;
-
-    document.querySelectorAll('.status-row')
-    .forEach(function(row){
-
-        let cocokStatus =
-            status === 'all' ||
-            row.dataset.status === status;
-
-        let cocokTanggal =
-            tanggal === '' ||
-            row.dataset.tanggal === tanggal;
-
-        row.style.display =
-            cocokStatus && cocokTanggal
-            ? ''
-            : 'none';
-
-    });
-}
-
-filterStatus.addEventListener(
-    'change',
-    filterData
-);
-
-filterTanggal.addEventListener(
-    'change',
-    filterData
-);
 
 function openModal(id)
 {

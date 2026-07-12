@@ -19,10 +19,8 @@ class PembayaranController extends Controller
         'id_hutang',
         $hutang->id
     )
-    ->where(
-        'status',
-        'belum'
-    )
+     ->whereIn('status', ['belum', 'terlambat'])
+
     ->orderBy(
         'cicilan_ke'
     )
@@ -241,8 +239,9 @@ class PembayaranController extends Controller
         );
     }
     $pembayaran = $query
-        ->latest()
-        ->get();
+    ->latest()
+    ->paginate(10)
+    ->withQueryString();
     $pembayaranData = $pembayaran->mapWithKeys(function ($p) {
         return [
             $p->id => [
@@ -270,6 +269,7 @@ class PembayaranController extends Controller
                             ? \Carbon\Carbon::parse($c->tanggal_jatuh_tempo)->format('d M Y')
                             : '-',
                         'status' => $c->status,
+                        'hariKeterlambatan' => $c->hari_keterlambatan,
                         'tanggalLunas' => $c->tanggal_lunas
                             ? \Carbon\Carbon::parse($c->tanggal_lunas)->format('d M Y')
                             : null,
@@ -568,31 +568,36 @@ class PembayaranController extends Controller
     );
 }
 // menampilkan seluruh riwayat pembayaran yang telah dilakukan oleh agen
-    public function riwayat()
+    public function riwayat(request $request)
     {
-        $idAgen = session('id_agen');
+            $idAgen = session('id_agen');
+ $query = Pembayaran::with(
+    'hutang.cicilan',
+    'cicilan'
+)
+->whereHas('hutang', function ($q) use ($idAgen) {
+    $q->where('id_agen', $idAgen);
+});
 
-        $pembayaran = \App\Models\Pembayaran::with(
-            'hutang.cicilan',
-            'cicilan'
-        )
-            ->whereHas(
-                'hutang',
-                function ($q) use ($idAgen) {
+if ($request->filled('tanggal')) {
+    $query->whereDate('tanggal_pembayaran', $request->tanggal);
+}
 
-                    $q->where(
-                        'id_agen',
-                        $idAgen
-                    );
-                }
-            )
-            ->latest()
-            ->get();
+if ($request->filled('status') && $request->status != 'all') {
+    $query->where('status', $request->status);
+}
+
+$pembayaran = $query
+    ->latest()
+    ->paginate(10)
+    ->withQueryString();
 
         // Data untuk modal detail cicilan, disiapkan di sini
         // supaya di Blade cukup satu kali @json() tanpa perlu
         // menyisipkan @foreach di dalam blok <script>.
-        $pembayaranData = $pembayaran->mapWithKeys(function ($p) {
+        $pembayaranData = $pembayaran
+        ->getCollection()
+        ->mapWithKeys(function ($p) {
 
             return [
                 $p->id => [
@@ -623,6 +628,7 @@ class PembayaranController extends Controller
                                 ? \Carbon\Carbon::parse($c->tanggal_jatuh_tempo)->format('d M Y')
                                 : '-',
                             'status' => $c->status,
+                            'hariKeterlambatan' => $c->hari_keterlambatan,
                             'tanggalLunas' => $c->tanggal_lunas
                                 ? \Carbon\Carbon::parse($c->tanggal_lunas)->format('d M Y')
                                 : null,

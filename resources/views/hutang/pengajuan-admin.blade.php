@@ -22,12 +22,44 @@
 
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-lg font-bold text-gray-800">Data Pengajuan</h2>
-        <div class="flex items-center gap-2 border border-gray-300 rounded-xl px-4 py-2 bg-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-            </svg>
-            <input type="text" id="searchInput" placeholder="Cari agen..." class="outline-none text-sm w-40">
-        </div>
+
+        <form method="GET" class="flex items-center">
+
+            <div class="flex items-center gap-2 border border-gray-300 rounded-xl px-4 py-2 bg-white">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="w-4 h-4 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor">
+
+                    <path stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+
+                </svg>
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Cari Agen..."
+                    class="outline-none text-sm w-40">
+
+            </div>
+
+            <button
+                class="bg-purple-600 text-white px-4 py-2 rounded-xl ml-2">
+                Cari
+            </button>
+
+            <a
+                href="{{ url()->current() }}"
+                class="bg-red-600 text-white px-4 py-2 rounded-xl ml-2">
+                Reset
+            </a>
+
+        </form>
     </div>
 
     <div class="overflow-x-auto">
@@ -39,7 +71,7 @@
                     <th class="text-left py-3 px-2 text-xs uppercase tracking-wide text-gray-400 font-semibold">Metode</th>
                     <th class="text-left py-3 px-2 text-xs uppercase tracking-wide text-gray-400 font-semibold">Tanggal Pengajuan</th>
                     <th class="text-left py-3 px-2 text-xs uppercase tracking-wide text-gray-400 font-semibold">Status</th>
-<th class="text-left py-3 px-2 text-xs uppercase tracking-wide text-gray-400 font-semibold">Aksi</th>
+                    <th class="text-left py-3 px-2 text-xs uppercase tracking-wide text-gray-400 font-semibold">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,21 +94,15 @@
                         <p class="text-sm font-semibold text-gray-800">Rp{{ number_format($h->jumlah_hutang, 0, ',', '.') }}</p>
                         <p class="text-xs text-gray-400">
 
-    @if($h->status == 'ditolak')
+                            @if($h->status == 'ditolak')
+                                Sisa: -
+                            @elseif($h->status == 'lunas')
+                                Sisa: Rp0
+                            @else
+                                Sisa: Rp{{ number_format($h->sisa_hutang, 0, ',', '.') }}
+                            @endif
 
-        Sisa: -
-
-    @elseif($h->status == 'lunas')
-
-        Sisa: Rp0
-
-    @else
-
-        Sisa: Rp{{ number_format($h->sisa_hutang, 0, ',', '.') }}
-
-    @endif
-
-</p>
+                        </p>
                     </td>
 
                     <td class="py-4 px-2">
@@ -122,7 +148,7 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span> Ditolak
                             </span>
                         @endif
-        
+
                     </td>
 
                     <td class="py-4 px-2">
@@ -137,27 +163,37 @@
                     </td>
 
                 </tr>
-                    </td>
-
-                </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-10 text-gray-400 text-sm">Belum ada pengajuan hutang</td>
+                    <td colspan="6" class="text-center py-10 text-gray-400 text-sm">Belum ada pengajuan hutang</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
+
+        <!-- PAGINATION -->
+        @if($hutang->hasPages())
+
+        <div class="flex justify-between items-center mt-6">
+
+            <div class="text-sm text-gray-500">
+                Menampilkan
+                {{ $hutang->firstItem() }}
+                -
+                {{ $hutang->lastItem() }}
+                dari
+                {{ $hutang->total() }}
+                data
+            </div>
+
+            {{ $hutang->links() }}
+
+        </div>
+
+        @endif
+
     </div>
 
 </div>
-
-<script>
-document.getElementById('searchInput').addEventListener('keyup', function() {
-    const keyword = this.value.toLowerCase();
-    document.querySelectorAll('.hutang-row').forEach(function(row) {
-        row.style.display = row.dataset.agen.includes(keyword) ? '' : 'none';
-    });
-});
-</script>
 
 @endsection

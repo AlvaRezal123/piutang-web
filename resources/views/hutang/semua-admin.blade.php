@@ -1,4 +1,4 @@
-@extends('layouts.owner')
+@extends('layouts.admin')
 
 @section('content')
 
@@ -156,7 +156,6 @@
                     <th class="text-left py-3">Pengajuan</th>
                     <th class="text-left py-3">Jatuh Tempo</th>
                     <th class="text-left py-3">Status</th>
-                    <th class="text-left py-3">Aksi</th>
                 </tr>
             </thead>
 
@@ -265,20 +264,12 @@
                             @endif
                         </td>
 
-                        <!-- Aksi -->
-                        <td>
-                            <a href="/owner/hutang/detail/{{ $h->id }}"
-                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-semibold transition-colors">
-                                <i class="ti ti-eye text-xs"></i> Detail
-                            </a>
-                        </td>
-
                     </tr>
 
                 @empty
 
                     <tr>
-                        <td colspan="8" class="text-center py-16 text-gray-400">
+                        <td colspan="7" class="text-center py-16 text-gray-400">
                             <i class="ti ti-inbox text-4xl block mb-3 text-gray-200"></i>
                             Belum ada data hutang
                         </td>

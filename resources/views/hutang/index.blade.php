@@ -83,28 +83,50 @@
             Data Pengajuan Hutang
         </h2>
 
-        <div class="flex flex-wrap gap-3">
+        <form method="GET" class="flex flex-wrap gap-3">
 
             <!-- Cari Agen -->
             <input
                 type="text"
-                id="searchInput"
+                name="search"
+                value="{{ request('search') }}"
                 placeholder="Cari Agen..."
                 class="border border-gray-300 rounded-xl px-4 py-2">
 
             <!-- Status -->
-            <select id="filterStatus" class="border border-gray-300 rounded-xl px-4 py-2">
-                <option value="all">Semua Status</option>
-                <option value="pending">Pending</option>
-                <option value="disetujui">Disetujui</option>
-                <option value="ditolak">Ditolak</option>
-                <option value="berjalan">Berjalan</option>
-                <option value="lunas">Lunas</option>
+            <select
+                name="status"
+                class="border border-gray-300 rounded-xl px-4 py-2">
+
+                <option value="all" {{ request('status')=='all' ? 'selected' : '' }}>
+                    Semua Status
+                </option>
+
+                <option value="pending" {{ request('status')=='pending' ? 'selected' : '' }}>
+                    Pending
+                </option>
+
+                <option value="disetujui" {{ request('status')=='disetujui' ? 'selected' : '' }}>
+                    Disetujui
+                </option>
+
+                <option value="ditolak" {{ request('status')=='ditolak' ? 'selected' : '' }}>
+                    Ditolak
+                </option>
+
+                <option value="berjalan" {{ request('status')=='berjalan' ? 'selected' : '' }}>
+                    Berjalan
+                </option>
+
+                <option value="lunas" {{ request('status')=='lunas' ? 'selected' : '' }}>
+                    Lunas
+                </option>
+
             </select>
 
             <!-- Cari -->
             <button
-                type="button"
+                type="submit"
                 id="btnCariFilter"
                 class="bg-purple-600 text-white px-4 py-2 rounded-xl">
 
@@ -113,17 +135,15 @@
             </button>
 
             <!-- Reset -->
-            <button
-                type="button"
-                id="resetFilter"
+            <a
+                href="{{ url()->current() }}"
                 class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
 
                 Reset
 
-            </button>
+            </a>
 
-        </div>
-
+        </form>
     </div>
 
     <div class="overflow-x-auto">
@@ -163,7 +183,10 @@
                             <div class="w-8 h-8 rounded-full bg-purple-100 text-[#5628C7] text-xs font-semibold flex items-center justify-center flex-shrink-0">
                                 {{ strtoupper(substr($h->agen->username, 0, 2)) }}
                             </div>
-                            <span class="font-medium text-gray-800">{{ $h->agen->username }}</span>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ $h->agen->username }}</p>
+                                <p class="text-sm text-gray-500">{{ $h->agen->id_agen_pp }}</p>
+                            </div>
                         </div>
                     </td>
 
@@ -319,6 +342,24 @@
 
         </table>
 
+        @if($hutang->hasPages())
+        <div class="flex justify-between items-center mt-6">
+
+            <div class="text-sm text-gray-500">
+                Menampilkan
+                {{ $hutang->firstItem() }}
+                -
+                {{ $hutang->lastItem() }}
+                dari
+                {{ $hutang->total() }}
+                data
+            </div>
+
+            {{ $hutang->links() }}
+
+        </div>
+        @endif
+
     </div>
 
 </div>
@@ -387,46 +428,6 @@
 @endforeach
 
 <script>
-
-const searchInput = document.getElementById('searchInput');
-const filterStatus = document.getElementById('filterStatus');
-const btnCariFilter = document.getElementById('btnCariFilter');
-const resetFilter = document.getElementById('resetFilter');
-
-function filterData() {
-
-    let keyword = searchInput.value.toLowerCase();
-    let status = filterStatus.value;
-
-    document.querySelectorAll('.status-row').forEach(function (row) {
-
-        let nama = row.dataset.agen;
-        let rowStatus = row.dataset.status;
-
-        let cocokNama = nama.includes(keyword);
-        let cocokStatus = status === 'all' || rowStatus === status;
-
-        row.style.display =
-            (cocokNama && cocokStatus)
-                ? ''
-                : 'none';
-
-    });
-
-}
-
-searchInput.addEventListener('keyup', filterData);
-filterStatus.addEventListener('change', filterData);
-btnCariFilter.addEventListener('click', filterData);
-
-resetFilter.addEventListener('click', function () {
-
-    searchInput.value = '';
-    filterStatus.value = 'all';
-
-    filterData();
-
-});
 
 function openModal(id) {
     document.getElementById('modal' + id).classList.remove('hidden');

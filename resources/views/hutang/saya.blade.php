@@ -73,7 +73,7 @@
         </div>
 
         <h2 class="text-4xl font-bold text-[#5628C7]">
-            {{ $hutang->count() }}
+            {{ $hutang->total() }}
         </h2>
 
         <p class="text-sm text-gray-500 mt-4">
@@ -335,34 +335,62 @@ $hutangAktif = $hutang->whereIn('status', [
 <!-- RIWAYAT -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
-   <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-6">
 
-    <h2 class="text-xl font-bold text-gray-800">
-        Riwayat Pengajuan Hutang
-    </h2>
+        <h2 class="text-xl font-bold text-gray-800">
+            Riwayat Pengajuan Hutang
+        </h2>
 
-    <div class="flex flex-col md:flex-row gap-3">
+        <form method="GET" class="flex flex-col md:flex-row gap-3">
 
-        <input
-            type="date"
-            id="filterTanggal"
-            class="border border-gray-300 rounded-xl px-4 py-2">
+            <input
+                type="date"
+                name="tanggal"
+                value="{{ request('tanggal') }}"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-        <select
-            id="filterStatus"
-            class="border border-gray-300 rounded-xl px-4 py-2">
+            <select
+                name="status"
+                class="border border-gray-300 rounded-xl px-4 py-2">
 
-            <option value="all">Semua Status</option>
-            <option value="pending">Pending</option>
-            <option value="disetujui">Disetujui</option>
-            <option value="berjalan">Berjalan</option>
-            <option value="lunas">Lunas</option>
-            <option value="ditolak">Ditolak</option>
+                <option value="all">Semua Status</option>
 
-        </select>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
+                    Pending
+                </option>
 
+                <option value="disetujui" {{ request('status') == 'disetujui' ? 'selected' : '' }}>
+                    Disetujui
+                </option>
+
+                <option value="berjalan" {{ request('status') == 'berjalan' ? 'selected' : '' }}>
+                    Berjalan
+                </option>
+
+                <option value="lunas" {{ request('status') == 'lunas' ? 'selected' : '' }}>
+                    Lunas
+                </option>
+
+                <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>
+                    Ditolak
+                </option>
+
+            </select>
+
+            <button
+                type="submit"
+                class="bg-[#5628C7] text-white px-4 py-2 rounded-xl">
+                Cari
+            </button>
+
+            <a
+                href="{{ url()->current() }}"
+                class="bg-red-600 text-white px-4 py-2 rounded-xl">
+                Reset
+            </a>
+
+        </form>
     </div>
-</div>
 
     <div class="overflow-x-auto">
 
@@ -406,12 +434,12 @@ $hutangAktif = $hutang->whereIn('status', [
 
             <tbody>
 
-            @foreach($hutang as $h)
+            @forelse($hutang as $h)
 
-           <tr
-    class="border-b status-row"
-    data-status="{{ $h->status }}"
-    data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}">
+            <tr
+                class="border-b status-row"
+                data-status="{{ $h->status }}"
+                data-tanggal="{{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('Y-m-d') }}">
 
                 <td class="py-4 font-semibold text-gray-600">
                     #{{ $h->id }}
@@ -425,92 +453,109 @@ $hutangAktif = $hutang->whereIn('status', [
                     Rp{{ number_format($h->jumlah_hutang,0,',','.') }}
                 </td>
 
-               <td>
-
-                @if(in_array($h->status,['berjalan','terlambat','lunas']))
-
-                    Rp{{ number_format($h->sisa_hutang,0,',','.') }}
-
-                @else
-
-                    -
-
-                @endif
-
-                </td>
                 <td>
 
-                   <span class="
-    px-3 py-1 rounded-full text-sm font-semibold
+                    @if(in_array($h->status,['berjalan','terlambat','lunas']))
 
-    @if($h->status == 'lunas')
-        bg-green-100 text-green-700
-    @elseif($h->status == 'terlambat')
-        bg-red-100 text-red-700
-    @elseif($h->status == 'berjalan')
-        bg-blue-100 text-blue-700
-    @elseif($h->status == 'pending')
-        bg-yellow-100 text-yellow-700
-    @elseif($h->status == 'disetujui')
-        bg-indigo-100 text-indigo-700
-    @elseif($h->status == 'ditolak')
-        bg-red-100 text-red-700
-    @endif
-">
-    {{ ucfirst($h->status) }}
-</span>
+                        Rp{{ number_format($h->sisa_hutang,0,',','.') }}
+
+                    @else
+
+                        -
+
+                    @endif
+
                 </td>
 
-              <td>
-
-@if(in_array($h->status,['berjalan','terlambat','lunas']))
-
-    <span class="font-bold text-red-600 text-base">
-        {{ \Carbon\Carbon::parse($h->tanggal_jatuh_tempo)->format('d M Y') }}
-    </span>
-
-@else
-
-    <span class="text-gray-400">
-        -
-    </span>
-
-@endif
-
-</td>
                 <td>
 
-@if($h->status == 'ditolak')
+                    <span class="
+                        px-3 py-1 rounded-full text-sm font-semibold
 
-    <button
-        type="button"
-        onclick="openTolakModal({{ $h->id }})"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm font-semibold hover:bg-red-200 transition">
+                        @if($h->status == 'lunas')
+                            bg-green-100 text-green-700
+                        @elseif($h->status == 'terlambat')
+                            bg-red-100 text-red-700
+                        @elseif($h->status == 'berjalan')
+                            bg-blue-100 text-blue-700
+                        @elseif($h->status == 'pending')
+                            bg-yellow-100 text-yellow-700
+                        @elseif($h->status == 'disetujui')
+                            bg-indigo-100 text-indigo-700
+                        @elseif($h->status == 'ditolak')
+                            bg-red-100 text-red-700
+                        @endif
+                    ">
+                        {{ ucfirst($h->status) }}
+                    </span>
 
-        Lihat Alasan
+                </td>
 
-    </button>
+                <td>
 
-@else
+                    @if(in_array($h->status,['berjalan','terlambat','lunas']))
 
-<a
-    href="/hutang/detail/{{ $h->id }}"
-    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#5628C7] text-[#5628C7] text-sm font-semibold hover:bg-[#5628C7] hover:text-white transition">
+                        <span class="font-bold text-red-600 text-base">
+                            {{ \Carbon\Carbon::parse($h->tanggal_jatuh_tempo)->format('d M Y') }}
+                        </span>
 
-    Detail →
-</a>
+                    @else
 
-@endif
+                        <span class="text-gray-400">
+                            -
+                        </span>
+
+                    @endif
+
+                </td>
+
+                <td>
+
+                    @if($h->status == 'ditolak')
+
+                        <button
+                            type="button"
+                            onclick="openTolakModal({{ $h->id }})"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm font-semibold hover:bg-red-200 transition">
+
+                            Lihat Alasan
+
+                        </button>
+
+                    @else
+
+                        <a
+                            href="/hutang/detail/{{ $h->id }}"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-[#5628C7] text-[#5628C7] text-sm font-semibold hover:bg-[#5628C7] hover:text-white transition">
+
+                            Detail →
+                        </a>
+
+                    @endif
 
                 </td>
 
             </tr>
 
-            @endforeach
+            @empty
+
+            <tr>
+                <td colspan="7" class="text-center py-10 text-gray-400 text-sm">
+                    Belum ada riwayat pengajuan hutang
+                </td>
+            </tr>
+
+            @endforelse
 
             </tbody>
 
         </table>
+
+        @if($hutang->hasPages())
+        <div class="mt-6">
+            {{ $hutang->links() }}
+        </div>
+        @endif
 
     </div>
 
@@ -577,51 +622,6 @@ $hutangAktif = $hutang->whereIn('status', [
 @endforeach
 
 <script>
-
-
-
-const filterStatus =
-    document.getElementById('filterStatus');
-
-const filterTanggal =
-    document.getElementById('filterTanggal');
-
-function filterData() {
-
-    let status =
-        filterStatus.value;
-
-    let tanggal =
-        filterTanggal.value;
-
-    document.querySelectorAll('.status-row')
-    .forEach(function(row){
-
-        let cocokStatus =
-            status === 'all' ||
-            row.dataset.status === status;
-
-        let cocokTanggal =
-            tanggal === '' ||
-            row.dataset.tanggal === tanggal;
-
-        row.style.display =
-            cocokStatus && cocokTanggal
-            ? ''
-            : 'none';
-
-    });
-}
-
-filterStatus.addEventListener(
-    'change',
-    filterData
-);
-
-filterTanggal.addEventListener(
-    'change',
-    filterData
-);
 
 function openTolakModal(id)
 {

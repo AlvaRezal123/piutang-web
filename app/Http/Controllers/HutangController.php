@@ -126,9 +126,24 @@ class HutangController extends Controller
             }
 
   // menampilkan halaman Approval pengajuan hutang oleh owner
-    public function index()
-{
-    $hutang = Hutang::with('agen')->latest()->get();
+    public function index(request $request)
+        {
+            $query = Hutang::with('agen');
+
+        if ($request->filled('search')) {
+            $query->whereHas('agen', function ($q) use ($request) {
+                $q->where('username', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('status') && $request->status != 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $hutang = $query
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
     // Card 1: Total Piutang yang sudah dicairkan
     $totalPiutang = Hutang::whereIn('status', ['berjalan', 'terlambat', 'lunas'])
@@ -297,21 +312,43 @@ public function simpanTolak(Request $request, $id)
 }
 
     // Menampilkan Halaman Pencairan Hutang (data yang sudah disetujui oleh si owner)
-    public function pencairan()
-    {
-    $hutang = Hutang::with('agen')
+  public function pencairan(Request $request)
+{
+    $query = Hutang::with('agen')
         ->whereIn('status', [
             'disetujui',
             'berjalan',
             'lunas'
-        ])
-        ->latest()
-        ->get();
+        ]);
 
-    return view(
-        'hutang.pencairan',
-        compact('hutang')
-    );
+    // Cari nama agen
+    if ($request->filled('search')) {
+        $query->whereHas('agen', function ($q) use ($request) {
+            $q->where('username', 'like', '%' . $request->search . '%');
+        });
+    }
+
+    // Filter Status
+    if ($request->filled('status') && $request->status != 'all') {
+        $query->where('status', $request->status);
+    }
+
+    // Filter Tanggal
+    if ($request->filled('tanggal')) {
+        $query->whereDate('tanggal_pengajuan', $request->tanggal);
+    }
+
+    // Filter Tahun
+    if ($request->filled('tahun')) {
+        $query->whereYear('tanggal_pengajuan', $request->tahun);
+    }
+
+    $hutang = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('hutang.pencairan', compact('hutang'));
 }
 
     // melakukan pencairan saldo kepada agen setelah pengajuan hutang disetujui oleh owner
@@ -330,9 +367,26 @@ public function simpanTolak(Request $request, $id)
     }
 
     //menampilkan seluruh data hutang beserta informasi agen yang terkait
-  public function semuaHutang()
+  public function semuaHutang(request $request)
 {
-    $hutang = Hutang::with('agen')->get();
+    $query = Hutang::with('agen');
+
+if ($request->filled('bulan')) {
+    $query->whereMonth('tanggal_pengajuan', $request->bulan);
+}
+
+if ($request->filled('tahun')) {
+    $query->whereYear('tanggal_pengajuan', $request->tahun);
+}
+
+if ($request->filled('status') && $request->status != 'all') {
+    $query->where('status', $request->status);
+}
+
+$hutang = $query
+    ->latest()
+    ->paginate(10)
+    ->withQueryString();
 
     // Card 1: Total Piutang yang sudah dicairkan
     $totalPiutang = Hutang::whereIn('status', ['berjalan', 'terlambat', 'lunas'])
@@ -349,7 +403,50 @@ public function simpanTolak(Request $request, $id)
     // Card 4: Jumlah hutang terlambat
     $jumlahTerlambat = Hutang::where('status', 'terlambat')->count();
 
-    return view('hutang.semua', compact(
+
+return view('hutang.semua', compact(
+    'hutang',
+    'totalPiutang',
+    'sudahKembali',
+    'belumKembali',
+    'jumlahTerlambat'
+));
+}
+
+// menu Monitoring Hutang untuk admin
+public function monitoringAdmin(Request $request)
+{
+    $query = Hutang::with('agen');
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('tanggal_pengajuan', $request->bulan);
+    }
+
+    if ($request->filled('tahun')) {
+        $query->whereYear('tanggal_pengajuan', $request->tahun);
+    }
+
+    if ($request->filled('status') && $request->status != 'all') {
+        $query->where('status', $request->status);
+    }
+
+    $hutang = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    $totalPiutang = Hutang::whereIn('status', ['berjalan','terlambat','lunas'])
+        ->sum('jumlah_hutang');
+
+    $sudahKembali = Hutang::where('status','lunas')
+        ->sum('jumlah_hutang');
+
+    $belumKembali = Hutang::whereIn('status',['berjalan','terlambat'])
+        ->sum('sisa_hutang');
+
+    $jumlahTerlambat = Hutang::where('status','terlambat')->count();
+
+    return view('hutang.semua-admin', compact(
         'hutang',
         'totalPiutang',
         'sudahKembali',
@@ -358,17 +455,25 @@ public function simpanTolak(Request $request, $id)
     ));
 }
 
-    //menampilkan seluruh riwayat pengajuan hutang milik agen pada role agen
-    public function hutangSaya()
+    //menampilkan seluruh riwayat pengajuan hutang milik agen pada role agen // halaman hutang saya agen
+    public function hutangSaya (Request $request)
     {
         $idAgen = session('id_agen');
 
-        $hutang = Hutang::where(
-            'id_agen',
-            $idAgen
-        )
-        ->latest()
-        ->get();
+  $query = Hutang::where('id_agen', $idAgen);
+
+if ($request->filled('tanggal')) {
+    $query->whereDate('tanggal_pengajuan', $request->tanggal);
+}
+
+if ($request->filled('status') && $request->status != 'all') {
+    $query->where('status', $request->status);
+}
+
+$hutang = $query
+    ->latest()
+    ->paginate(10)
+    ->withQueryString();
     foreach ($hutang as $h) {
 
         // cek pembayaran pending
@@ -575,18 +680,29 @@ public function simpanPencairan(Request $request, $id)
             );
         }
 // menampilkan informasi lengkap mengenai data hutang yang dipilih, beserta riwayat pengajuan hutang milik agen oleh admin
-    public function detail($id)
-    {
-        $hutang = Hutang::with('agen')->findOrFail($id);
-        $riwayat = Hutang::where(
-            'id_agen',
-            $hutang->id_agen
-        )
-        ->orderBy(
-            'tanggal_pengajuan',
-            'desc'
-        )
-        ->get();
+    public function detail(Request $request, $id)
+{
+    $hutang = Hutang::with('agen')->findOrFail($id);
+
+    $query = Hutang::where('id_agen', $hutang->id_agen);
+
+    if ($request->filled('bulan')) {
+        $query->whereMonth('tanggal_pengajuan', $request->bulan);
+    }
+
+    if ($request->filled('tahun')) {
+        $query->whereYear('tanggal_pengajuan', $request->tahun);
+    }
+
+    if ($request->filled('status') && $request->status != 'all') {
+        $query->where('status', $request->status);
+    }
+
+    $riwayat = $query
+        ->orderBy('tanggal_pengajuan', 'desc')
+        ->paginate(10)
+        ->withQueryString();
+
 
         // Ambil cicilan yang sedang aktif
         $cicilanAktif = null;
@@ -617,15 +733,36 @@ public function simpanPencairan(Request $request, $id)
             )
         );
     }
-        //menampilkan seluruh data pengajuan hutang yang diajukan oleh agen oleh admin
-        public function pengajuanHutangAdmin()
-        {
-            $hutang = Hutang::with('agen')
-                ->latest()
-                ->get();
-            return view('hutang.pengajuan-admin', compact('hutang'));
-        }
+        //menampilkan seluruh data pengajuan hutang yang diajukan oleh agen oleh admin pada role admin
+     public function pengajuanHutangAdmin(Request $request)
+{
+    $query = Hutang::with('agen');
 
+    // Search nama agen
+    if ($request->filled('search')) {
+
+        $query->whereHas('agen', function ($q) use ($request) {
+
+            $q->where(
+                'username',
+                'like',
+                '%' . $request->search . '%'
+            );
+
+        });
+
+    }
+
+    $hutang = $query
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view(
+        'hutang.pengajuan-admin',
+        compact('hutang')
+    );
+}
     // menampilkan informasi lengkap mengenai pengajuan hutang yang dipilih oleh admin
     public function detailAdmin($id)
     {

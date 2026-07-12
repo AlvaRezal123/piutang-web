@@ -37,7 +37,7 @@
             </svg>
         </div>
         <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Total Pembayaran</p>
-        <h2 class="text-3xl font-medium text-[#534AB7] mt-1">{{ $pembayaran->count() }}</h2>
+        <h2 class="text-3xl font-medium text-[#534AB7] mt-1">{{ $pembayaran->total() }}</h2>
         <p class="text-xs text-gray-400 mt-1.5">Semua status</p>
     </div>
 
@@ -81,133 +81,128 @@
     </div>
 
 </div>
+
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
     <div class="flex items-center justify-between mb-6">
 
-    <h2 class="text-xl font-bold text-gray-800">
-        Data Pembayaran
-    </h2>
+        <h2 class="text-xl font-bold text-gray-800">
+            Data Pembayaran
+        </h2>
 
-    <div class="flex items-center gap-3">
+        <form method="GET">
 
-<form method="GET">
+            <div class="flex items-center gap-2">
 
-    <div class="flex items-center gap-2">
+                <!-- Cari Agen -->
+                <input
+                    type="text"
+                    name="cari_agen"
+                    value="{{ request('cari_agen') }}"
+                    placeholder="Cari Agen..."
+                    class="border border-gray-300 rounded-xl px-4 py-2">
 
-        <!-- Cari Agen -->
-        <input
-            type="text"
-            name="cari_agen"
-            value="{{ request('cari_agen') }}"
-            placeholder="Cari Agen..."
-            class="border border-gray-300 rounded-xl px-4 py-2">
+                <!-- Tanggal -->
+                <input
+                    type="date"
+                    name="tanggal"
+                    value="{{ request('tanggal') }}"
+                    class="border border-gray-300 rounded-xl px-4 py-2">
 
-        <!-- Tanggal -->
-        <input
-            type="date"
-            name="tanggal"
-            value="{{ request('tanggal') }}"
-            class="border border-gray-300 rounded-xl px-4 py-2">
+                <!-- Tahun -->
+                <select
+                    name="tahun"
+                    class="border border-gray-300 rounded-xl px-4 py-2">
 
+                    <option value="">Semua Tahun</option>
 
-<!-- Tahun -->
-<select
-    name="tahun"
-    class="border border-gray-300 rounded-xl px-4 py-2">
+                    @for($i = date('Y'); $i >= 2024; $i--)
 
-    <option value="">Semua Tahun</option>
+                        <option
+                            value="{{ $i }}"
+                            {{ request('tahun') == $i ? 'selected' : '' }}>
 
-    @for($i = date('Y'); $i >= 2024; $i--)
+                            {{ $i }}
 
-        <option
-            value="{{ $i }}"
-            {{ request('tahun') == $i ? 'selected' : '' }}>
+                        </option>
 
-            {{ $i }}
+                    @endfor
 
-        </option>
+                </select>
 
-    @endfor
+                <!-- Status -->
+                <select
+                    name="status"
+                    class="border border-gray-300 rounded-xl px-4 py-2">
 
-</select>
+                    <option value="">Semua Status</option>
 
-        <!-- Status -->
-        <select
-            name="status"
-            class="border border-gray-300 rounded-xl px-4 py-2">
+                    <option value="pending"
+                        {{ request('status')=='pending' ? 'selected' : '' }}>
+                        Pending
+                    </option>
 
-            <option value="">Semua Status</option>
+                    <option value="disetujui"
+                        {{ request('status')=='disetujui' ? 'selected' : '' }}>
+                        Disetujui
+                    </option>
 
-            <option value="pending"
-                {{ request('status')=='pending' ? 'selected' : '' }}>
-                Pending
-            </option>
+                    <option value="ditolak"
+                        {{ request('status')=='ditolak' ? 'selected' : '' }}>
+                        Ditolak
+                    </option>
 
-            <option value="disetujui"
-                {{ request('status')=='disetujui' ? 'selected' : '' }}>
-                Disetujui
-            </option>
+                </select>
 
-            <option value="ditolak"
-                {{ request('status')=='ditolak' ? 'selected' : '' }}>
-                Ditolak
-            </option>
+                <button
+                    type="submit"
+                    class="bg-purple-600 text-white px-4 py-2 rounded-xl">
 
-        </select>
+                    Cari
 
-        <button
-            type="submit"
-            class="bg-purple-600 text-white px-4 py-2 rounded-xl">
+                </button>
 
-            Cari
+                <a
+                    href="/admin/pembayaran"
+                    class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
 
-        </button>
+                    Reset
 
-        <a
-            href="/admin/pembayaran"
-            class="border border-gray-300 bg-red-600 text-white px-4 py-2 rounded-xl">
+                </a>
 
-            Reset
+            </div>
 
-        </a>
-
-    </div>
-
-</form>
+        </form>
 
     </div>
-
-</div>
-
-
-    
 
     <div class="overflow-x-auto">
-<table class="w-full table-auto">
+        <table class="w-full table-auto">
 
             <thead>
 
                 <tr class="border-b">
 
                     <th class="text-left py-3">
+                        ID Hutang
+                    </th>
+
+                    <th class="text-left py-3">
                         Nama Agen
                     </th>
 
-                     <th class="text-left py-3">
+                    <th class="text-left py-3">
                         Tanggal Pembayaran
                     </th>
 
-                    <th class="text-left py-3" >
-                      Metode Pembayaran
+                    <th class="text-left py-3">
+                        Metode Pembayaran
                     </th>
 
                     <th class="text-left py-3">
                         Jumlah Bayar
                     </th>
-
-                   
 
                     <th class="text-left py-3">
                         Status
@@ -237,63 +232,75 @@
                     class="border-b status-row"
                     data-status="{{ $p->status }}">
 
-                    <td class="py-4">
+                    <td class="py-4 text-sm text-gray-500">
 
-                        {{ $p->hutang->agen->username }}
+                        #{{ $p->hutang->id }}
 
                     </td>
 
-                       <td>
+                    <td class="py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-purple-100 text-[#5628C7] text-xs font-semibold flex items-center justify-center flex-shrink-0">
+                                {{ strtoupper(substr($p->hutang->agen->username, 0, 2)) }}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">{{ $p->hutang->agen->username }}</p>
+                                <p class="text-sm text-gray-500">{{ $p->hutang->agen->id_agen_pp }}</p>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
 
                         {{ \Carbon\Carbon::parse($p->tanggal_pembayaran)->format('d M Y') }}
 
                     </td>
 
-                <td>
-           @if($p->hutang->metode == 'cash')
+                    <td>
+                        @if($p->hutang->metode == 'cash')
 
-<div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2">
 
-    <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
 
-        <i class="ti ti-credit-card text-green-600 text-sm"></i>
+                                <i class="ti ti-credit-card text-green-600 text-sm"></i>
 
-    </div>
+                            </div>
 
-    <span class="font-medium">
-        Pembayaran Penuh
-    </span>
+                            <span class="font-medium">
+                                Pembayaran Penuh
+                            </span>
 
-</div>
+                        </div>
 
-@else
+                        @else
 
-<div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2">
 
-    <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
 
-        <i class="ti ti-calendar-time text-blue-600 text-sm"></i>
+                                <i class="ti ti-calendar-time text-blue-600 text-sm"></i>
 
-    </div>
+                            </div>
 
-    <span class="font-medium">
+                            <span class="font-medium">
 
-        Cicilan {{ $p->cicilan->cicilan_ke }}
-        dari
-        {{ $p->hutang->lama_tempo }}
+                                Cicilan {{ $p->cicilan->cicilan_ke }}
+                                dari
+                                {{ $p->hutang->lama_tempo }}
 
-    </span>
+                            </span>
 
-</div>
+                        </div>
 
-@endif
-                </td>
+                        @endif
+                    </td>
+
                     <td>
 
                         Rp{{ number_format($p->jumlah_bayar,0,',','.') }}
 
                     </td>
-                 
 
                     <td>
 
@@ -352,22 +359,24 @@
 
                         <div class="flex gap-2">
 
-                 <a
-    href="/admin/pembayaran/setujui/{{ $p->id }}"
-    onclick="return confirm('Apakah Anda yakin ingin menyetujui pembayaran ini?')"
-    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl text-sm">
+                            <a
+                                href="/admin/pembayaran/setujui/{{ $p->id }}"
+                                onclick="return confirm('Apakah Anda yakin ingin menyetujui pembayaran ini?')"
+                                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl text-sm">
 
-    Setujui
+                                Setujui
 
-</a>
-                         <button
+                            </a>
+
+                            <button
                                 type="button"
-                                onclick="openTolakModal({{$p->id}})"
+                                onclick="openTolakModal({{ $p->id }})"
                                 class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm">
 
                                 Tolak
 
                             </button>
+
                         </div>
 
                         @else
@@ -386,7 +395,7 @@
 
                 <tr>
 
-                    <td colspan="8" class="text-center py-8 text-gray-500">
+                    <td colspan="9" class="text-center py-8 text-gray-500">
 
                         Belum ada pembayaran
 
@@ -399,6 +408,27 @@
             </tbody>
 
         </table>
+
+        <!-- PAGINATION -->
+        @if($pembayaran->hasPages())
+
+        <div class="flex justify-between items-center mt-6">
+
+            <div class="text-sm text-gray-500">
+                Menampilkan
+                {{ $pembayaran->firstItem() }}
+                -
+                {{ $pembayaran->lastItem() }}
+                dari
+                {{ $pembayaran->total() }}
+                data
+            </div>
+
+            {{ $pembayaran->links() }}
+
+        </div>
+
+        @endif
 
     </div>
 
@@ -470,13 +500,13 @@
 
         </div>
 
-     <h3
-    id="detailJudulCicilan"
-    class="font-bold text-gray-800 mb-3">
+        <h3
+            id="detailJudulCicilan"
+            class="font-bold text-gray-800 mb-3">
 
-    Rincian Cicilan
+            Rincian Cicilan
 
-</h3>
+        </h3>
 
         <div id="detailCicilanList" class="flex flex-col gap-3">
         </div>
@@ -537,6 +567,7 @@
     </div>
 
 </div>
+
 <script>
 function openTolakModal(id)
 {
@@ -560,8 +591,8 @@ function closeTolakModal()
 
 <script>
 
-// Data seluruh pembayaran + cicilan dari hutang terkait, sudah
-// disiapkan di PembayaranController@index lalu di-dump satu kali
+// Data seluruh pembayaran (halaman berjalan) + cicilan dari hutang terkait,
+// sudah disiapkan di PembayaranController@index lalu di-dump satu kali
 // di sini supaya modal detail bisa langsung dipopulate tanpa AJAX.
 const pembayaranData = @json($pembayaranData);
 
@@ -581,15 +612,13 @@ function openDetailModal(id)
         data.metode === 'cash'
             ? 'Pembayaran Penuh'
             : 'Cicilan ' + (data.lamaTempo ?? '-') + ' bulan';
-            const judul =
-            document.getElementById(
-                'detailJudulCicilan'
-            );
 
-        judul.textContent =
-            data.metode === 'cash'
-                ? 'Rincian Pembayaran'
-                : 'Rincian Cicilan';
+    const judul = document.getElementById('detailJudulCicilan');
+
+    judul.textContent =
+        data.metode === 'cash'
+            ? 'Rincian Pembayaran'
+            : 'Rincian Cicilan';
 
     document.getElementById('detailTotalHutang').textContent = 'Rp' + data.totalHutang;
     document.getElementById('detailSisaHutang').textContent = 'Rp' + data.sisaHutang;
@@ -610,9 +639,26 @@ function openDetailModal(id)
 
             const isTerpilih = c.id === data.idCicilanTerpilih;
 
-            const statusBadge = c.status === 'lunas'
-                ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Lunas</span>'
-                : '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Belum Lunas</span>';
+         let statusBadge = '';
+
+if (c.status === 'lunas') {
+
+    statusBadge =
+    '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">Lunas</span>';
+
+}
+else if (c.status === 'terlambat') {
+
+    statusBadge =
+    '<span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">Terlambat</span>';
+
+}
+else {
+
+    statusBadge =
+    '<span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">Belum Lunas</span>';
+
+}
 
             const row = document.createElement('div');
 
@@ -628,16 +674,32 @@ function openDetailModal(id)
                         ${c.cicilanKe}
                     </div>
                     <div>
-                        <p class="font-semibold text-gray-800">
-
+                       <p class="font-semibold text-gray-800">
     ${
         data.metode === 'cash'
             ? 'Pembayaran Penuh'
             : 'Cicilan ke-' + c.cicilanKe
     }
+</p>
 
-</p>                       <p class="text-xs text-gray-500 mt-0.5">Jatuh Tempo: ${c.jatuhTempo}</p>
-                        ${c.tanggalLunas ? '<p class="text-xs text-gray-500">Tanggal Lunas: ' + c.tanggalLunas + '</p>' : ''}
+<p class="text-xs text-gray-500 mt-0.5">
+    Jatuh Tempo: ${c.jatuhTempo}
+</p>
+
+${
+    c.hariKeterlambatan > 0
+    ? `<p class="text-xs text-red-600 font-semibold mt-1">
+        ⚠ Terlambat ${c.hariKeterlambatan} hari
+    </p>`
+    : ''
+}
+
+${c.tanggalLunas
+    ? `<p class="text-xs text-gray-500 mt-1">
+        Tanggal Lunas: ${c.tanggalLunas}
+    </p>`
+    : ''
+}
                     </div>
                 </div>
                 <div class="text-right">

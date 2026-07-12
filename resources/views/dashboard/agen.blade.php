@@ -313,7 +313,7 @@
                 @else
 
                     <span class="px-4 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-600">
-                        Belum Ada Hutang
+                        Belum Ada Hutang/ Pengajuan yang Aktif
                     </span>
 
                 @endif
