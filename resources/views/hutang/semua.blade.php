@@ -16,53 +16,53 @@
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
 
     <!-- Card 1: Total Piutang Dicairkan -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mb-3">
-            <i class="ti ti-cash text-[#5628C7] text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-cash text-yellow-600 text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Total Piutang</p>
-        <p class="text-lg font-bold text-[#5628C7] leading-tight">
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Total Piutang</p>
+        <p class="text-lg font-bold text-yellow-600 leading-tight">
             Rp{{ number_format($totalPiutang, 0, ',', '.') }}
         </p>
         <p class="text-xs text-gray-400 mt-2">Sudah dicairkan ke agen</p>
     </div>
 
     <!-- Card 2: Sudah Kembali -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mb-3">
-            <i class="ti ti-circle-check text-green-600 text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-circle-check text-yellow-600 text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Sudah Kembali</p>
-        <p class="text-lg font-bold text-green-600 leading-tight">
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Sudah Kembali</p>
+        <p class="text-lg font-bold text-yellow-600 leading-tight">
             Rp{{ number_format($sudahKembali, 0, ',', '.') }}
         </p>
-        <p class="text-xs text-green-500 mt-2 flex items-center gap-1">
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
             <i class="ti ti-trending-up text-xs"></i> Lunas dibayar agen
         </p>
     </div>
 
     <!-- Card 3: Belum Kembali -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mb-3">
-            <i class="ti ti-clock-dollar text-blue-600 text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-clock-dollar text-yellow-600 text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Belum Kembali</p>
-        <p class="text-lg font-bold text-blue-600 leading-tight">
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Belum Kembali</p>
+        <p class="text-lg font-bold text-yellow-600 leading-tight">
             Rp{{ number_format($belumKembali, 0, ',', '.') }}
         </p>
-        <p class="text-xs text-blue-400 mt-2 flex items-center gap-1">
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
             <i class="ti ti-loader text-xs"></i> Masih berjalan / terlambat
         </p>
     </div>
 
     <!-- Card 4: Terlambat -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center mb-3">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
             <i class="ti ti-alert-triangle text-yellow-600 text-base"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Terlambat</p>
-        <p class="text-3xl font-bold text-yellow-600">{{ $jumlahTerlambat }}</p>
-        <p class="text-xs text-yellow-500 mt-2 flex items-center gap-1">
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Terlambat</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $jumlahTerlambat }}</h2>
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
             <i class="ti ti-alert-circle text-xs"></i> Perlu perhatian
         </p>
     </div>
@@ -165,10 +165,18 @@
                 @forelse($hutang as $h)
 
                     @php
-                        $jatuhTempo = \Carbon\Carbon::parse($h->tanggal_jatuh_tempo);
-                        $isLewat = $jatuhTempo->isPast() && !in_array($h->status, ['lunas','ditolak']);
-                        $sisaHari = now()->diffInDays($jatuhTempo, false);
-                    @endphp
+    $jatuhTempo = $h->tanggal_jatuh_tempo
+        ? \Carbon\Carbon::parse($h->tanggal_jatuh_tempo)
+        : null;
+
+    $isLewat = $jatuhTempo
+        ? $jatuhTempo->isPast() && !in_array($h->status, ['lunas','ditolak'])
+        : false;
+
+    $sisaHari = $jatuhTempo
+    ? round(now()->diffInDays($jatuhTempo, false))
+    : null;
+    @endphp
 
                     <tr
                         class="border-b status-row"
@@ -217,20 +225,37 @@
                         </td>
 
                         <!-- Jatuh Tempo -->
-                        <td>
-                            <p class="{{ $isLewat ? 'text-red-500 font-semibold' : 'text-gray-500' }}">
-                                {{ $jatuhTempo->format('d M Y') }}
-                            </p>
-                            @if(!in_array($h->status, ['lunas','ditolak']))
-                                @if($isLewat)
-                                    <p class="text-xs text-red-400 mt-0.5">Lewat {{ abs($sisaHari) }} hari</p>
-                                @elseif($sisaHari <= 7)
-                                    <p class="text-xs text-orange-400 mt-0.5">{{ $sisaHari }} hari lagi</p>
-                                @else
-                                    <p class="text-xs text-gray-400 mt-0.5">{{ $sisaHari }} hari lagi</p>
-                                @endif
-                            @endif
-                        </td>
+                      <td>
+
+@if($jatuhTempo)
+
+    <p class="{{ $isLewat ? 'text-red-500 font-semibold' : 'text-gray-500' }}">
+        {{ $jatuhTempo->format('d M Y') }}
+    </p>
+
+    @if(!in_array($h->status, ['lunas','ditolak']))
+        @if($isLewat)
+            <p class="text-xs text-red-400 mt-0.5">
+                Lewat {{ abs($sisaHari) }} hari
+            </p>
+        @elseif($sisaHari <= 7)
+            <p class="text-xs text-orange-400 mt-0.5">
+                {{ $sisaHari }} hari lagi
+            </p>
+        @else
+            <p class="text-xs text-gray-400 mt-0.5">
+                {{ $sisaHari }} hari lagi
+            </p>
+        @endif
+    @endif
+
+@else
+
+    <span class="text-gray-400">-</span>
+
+@endif
+
+</td>
 
                         <!-- Status -->
                         <td>

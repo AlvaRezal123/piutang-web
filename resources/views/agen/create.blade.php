@@ -5,116 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Registrasi Agen - SIMPAN</title>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gradient-to-br from-purple-100 via-purple-50 to-white min-h-screen flex items-center justify-center p-4">
-
-<div class="max-w-3xl w-full">
-
+    <body class="bg-gradient-to-br from-purple-100 via-purple-50 to-white min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-3xl w-full">
     <div class="bg-white rounded-3xl shadow-2xl border border-purple-100 overflow-hidden">
-
         <div class="p-8">
 
             <!-- Logo -->
             <div class="flex justify-center">
-
                 <div class="bg-purple-50 p-4 rounded-3xl border border-purple-100">
-
                     <img
                         src="{{ asset('images/logo-partnerpulsa.png') }}"
                         alt="Partner Pulsa"
                         class="w-20 h-20 object-contain">
-
                 </div>
-
             </div>
          
             <!-- Header -->
             <div class="text-center mt-4">
-
                 <h1 class="text-4xl font-black text-[#5628C7]">
                     Registrasi Agen
                 </h1>
-
                 <p class="text-gray-500 mt-2">
                     Lengkapi data untuk menjadi mitra Partner Pulsa
                 </p>
-
             </div>
 
             <!-- Error -->
             @if ($errors->any())
-
             <div class="mt-6 bg-red-50 border border-red-200 rounded-xl p-4">
-
                 <ul class="text-red-600 text-sm">
-
                     @foreach ($errors->all() as $error)
-
                         <li>• {{ $error }}</li>
-
                     @endforeach
-
                 </ul>
-
             </div>
-
             @endif
 
             <!-- Success -->
             @if(session('success'))
-
             <div class="mt-6 bg-green-50 border border-green-200 rounded-xl p-4 text-green-600">
-
                 {{ session('success') }}
-
             </div>
-
             @endif
 
             <!-- Progress -->
             <div class="mt-8">
-
                 <div class="flex items-center justify-center">
-
                     <div
                         id="circle1"
                         class="w-10 h-10 rounded-full bg-[#5628C7] text-white flex items-center justify-center font-bold">
-
                         1
-
                     </div>
-
                     <div class="w-20 h-1 bg-purple-200"></div>
-
                     <div
                         id="circle2"
                         class="w-10 h-10 rounded-full bg-purple-200 text-gray-500 flex items-center justify-center font-bold">
-
                         2
-
                     </div>
 
                     <div class="w-20 h-1 bg-purple-200"></div>
-
                     <div
                         id="circle3"
                         class="w-10 h-10 rounded-full bg-purple-200 text-gray-500 flex items-center justify-center font-bold">
-
                         3
-
                     </div>
-
                 </div>
 
                 <p
                     id="stepText"
                     class="text-center mt-4 text-sm text-gray-500">
-
                     Langkah 1 dari 3
-
                 </p>
 
             </div>
@@ -126,63 +89,45 @@
                 method="POST"
                 enctype="multipart/form-data"
                 class="mt-8">
-
                 @csrf
 
                 <!-- STEP 1 -->
                 <div id="step1">
-
                   <div class="mb-8">
 
-<div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-3xl p-6">
-
-    <div class="flex items-center gap-4">
-
-        <div class="w-14 h-14 rounded-2xl bg-[#5628C7] flex items-center justify-center text-white text-2xl shadow-lg">
-    🛡️
-
-        </div>
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-3xl p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-[#5628C7] flex items-center justify-center text-white text-2xl shadow-lg">
+                     🛡️
+                    </div>
 
         <div>
-
             <span class="inline-block text-xs font-bold tracking-widest text-purple-600 uppercase">
-
                 Langkah 1
-
             </span>
 
             <h2 class="text-2xl font-black text-gray-800 mt-1">
-
                 Buat Akun Anda
-
             </h2>
 
             <p class="text-gray-500 text-sm mt-1">
-
                 Lengkapi data akun yang akan digunakan untuk login ke sistem SIMPAN Partner Pulsa.
-
             </p>
 
         </div>
-
     </div>
-
 </div>
 
 
 </div>
-
 <div class="space-y-4">
 
     <!-- ID Agen PP + Tombol Cek -->
     <div class="bg-white border-2 border-purple-200 rounded-2xl p-3 shadow-sm">
-
         <span class="text-xs font-semibold text-purple-500">
             ID Agen PP
         </span>
-
         <div class="flex gap-2 mt-1">
-
             <input
                 type="text"
                 id="id_agen_pp_input"
@@ -190,19 +135,14 @@
                 value="{{ old('id_agen_pp') }}"
                 placeholder="Masukkan ID Agen PP"
                 class="w-full outline-none bg-transparent">
-
             <button
                 type="button"
                 id="btnCekId"
                 onclick="cekIdAgenPP()"
                 class="shrink-0 bg-[#5628C7] hover:bg-[#4c20bb] text-white text-sm font-semibold px-4 py-2 rounded-xl">
-
                 Cek ID
-
             </button>
-
         </div>
-
     </div>
 
     <!-- Pesan hasil cek -->
@@ -234,7 +174,6 @@
 
     <!-- Email -->
     <div class="bg-white border-2 border-purple-200 rounded-2xl p-3 shadow-sm">
-
         <span class="text-xs font-semibold text-purple-500">
             Email
         </span>
@@ -300,43 +239,28 @@
 
     <!-- Header -->
     <div class="mb-8">
-
         <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-3xl p-6">
-
             <div class="flex items-center gap-4">
-
                 <div class="w-14 h-14 rounded-2xl bg-[#5628C7] flex items-center justify-center text-white text-2xl shadow-lg">
-
                     🪪
-
                 </div>
 
                 <div>
-
                     <span class="inline-block text-xs font-bold tracking-widest text-purple-600 uppercase">
-
                         Langkah 2
-
                     </span>
 
                     <h2 class="text-2xl font-black text-gray-800 mt-1">
-
                         Verifikasi Identitas
-
                     </h2>
 
                     <p class="text-gray-500 text-sm mt-1">
-
                         Pastikan data identitas sesuai dengan KTP yang masih berlaku untuk mempercepat proses verifikasi.
-
                     </p>
 
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
     <!-- Form -->
@@ -396,15 +320,10 @@
 
         <!-- Info -->
         <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4">
-
             <p class="text-sm text-purple-700">
-
                 ℹ️ Langkah selanjutnya Anda akan diminta melengkapi informasi usaha dan foto toko fisik.
-
             </p>
-
         </div>
-
     </div>
 
     <!-- Button -->
@@ -434,45 +353,29 @@
 
                 <!-- STEP 3 -->
               <div id="step3" class="hidden">
-
                    <div class="mb-8">
-
     <div class="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-3xl p-6">
-
         <div class="flex items-center gap-4">
-
             <div class="w-14 h-14 rounded-2xl bg-[#5628C7] flex items-center justify-center text-white text-2xl shadow-lg">
-
                 🏪
-
             </div>
 
             <div>
-
                 <span class="inline-block text-xs font-bold tracking-widest text-purple-600 uppercase">
-
                     Langkah 3
-
                 </span>
 
                 <h2 class="text-2xl font-black text-gray-800 mt-1">
-
                     Informasi Usaha
-
                 </h2>
 
                 <p class="text-gray-500 text-sm mt-1">
-
                     Lengkapi data usaha dan foto toko fisik untuk proses validasi agen.
-
                 </p>
 
             </div>
-
         </div>
-
     </div>
-
 </div>
 
      <div class="space-y-4">

@@ -31,11 +31,6 @@
 </table>
 
 <p>
-    Demi keamanan akun Anda, kami sarankan untuk segera mengganti password
-    setelah login pertama kali melalui menu "Ganti Password" di halaman profil.
-</p>
-
-<p>
     Terima kasih telah bergabung sebagai Agen Partner Pulsa.
 </p>
 

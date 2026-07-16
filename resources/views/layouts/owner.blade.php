@@ -132,7 +132,9 @@
 
             <a href="/dashboard-owner"
                class="nav-link {{ request()->is('dashboard-owner') ? 'active' : '' }}">
-                <span class="icon-wrap">🏠</span>
+                <span class="icon-wrap">
+    <i class="ti ti-home"></i>
+</span>
                 Dashboard
             </a>
 
@@ -140,20 +142,34 @@
 
             <a href="/owner/hutang"
                class="nav-link {{ request()->is('owner/hutang*') ? 'active' : '' }}">
-                <span class="icon-wrap">📋</span>
+              <span class="icon-wrap">
+    <i class="ti ti-file-check"></i>
+</span>
                 Approval Pengajuan
+            </a>
+
+            <a href="/owner/approval-cicilan"
+            class="nav-link {{ request()->is('owner/approval-cicilan*') ? 'active' : '' }}">
+                <span class="icon-wrap">
+                    <i class="ti ti-credit-card"></i>
+                </span>
+                Approval Cicilan
             </a>
 
             <a href="/admin/hutang"
                class="nav-link {{ request()->is('admin/hutang*') ? 'active' : '' }}">
-                <span class="icon-wrap">📊</span>
+                  <span class="icon-wrap">
+    <i class="ti ti-chart-bar"></i>
+</span>
                 Monitoring Hutang
             </a>
 
             <div class="section-label">Akun</div>
 
             <a href="/logout" class="nav-link danger">
-                <span class="icon-wrap">🚪</span>
+                <span class="icon-wrap">
+    <i class="ti ti-logout"></i>
+</span>
                 Logout
             </a>
 

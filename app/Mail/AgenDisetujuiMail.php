@@ -8,6 +8,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
+//mengirim email ketika registrasi agen disetujui.
 class AgenDisetujuiMail extends Mailable
 {
     use Queueable, SerializesModels;

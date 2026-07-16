@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AgenDitolakMail;
 use App\Mail\AgenDisetujuiMail;
 use App\Models\Cicilan;
+use App\Mail\PenolakanAksesCicilanMail;
 
 class AgenController extends Controller
 {
@@ -104,17 +105,33 @@ if ($request->hasFile('foto_toko_fisik')) {
         ]);
     }
     // Fungsi untuk mengimpor excel menjadi database
-    public function importReferensiAgenPP(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls,csv'
-        ], [
-            'file.required' => 'File Excel wajib diupload',
-            'file.mimes' => 'Format file harus xlsx, xls, atau csv',
-        ]);
-        Excel::import(new ReferensiAgenPPImport, $request->file('file'));
-        return back()->with('success', 'Data referensi Agen PP berhasil diimport');
+public function importReferensiAgenPP(Request $request)
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,xls,csv',
+        'metode_import' => 'required'
+    ], [
+        'file.required' => 'File Excel wajib diupload',
+        'file.mimes' => 'Format file harus xlsx, xls, atau csv',
+        'metode_import.required' => 'Pilih metode import.'
+    ]);
+
+    if ($request->metode_import == 'replace') {
+
+        ReferensiAgenPP::truncate();
+
     }
+
+    Excel::import(
+        new ReferensiAgenPPImport($request->metode_import),
+        $request->file('file')
+    );
+
+    return back()->with(
+        'success',
+        'Data referensi Agen PP berhasil diimport.'
+    );
+}
     // Menampilkan data yang telah diimport dari excel (referensi)
     public function referensiIndex()
     {
@@ -388,6 +405,63 @@ if ($admin) {
         );
 }
 
+public function approvalCicilan()
+{
+    $agen = Agen::where(
+        'status_permohonan_cicilan',
+        'pending'
+    )
+    ->paginate(10);
+
+    return view(
+    'hutang.approval-cicilan',
+    compact('agen')
+
+    );
+}
+
+public function setujuiCicilan($id)
+{
+    $agen = Agen::findOrFail($id);
+
+    $agen->akses_cicilan = true;
+    $agen->status_permohonan_cicilan = 'disetujui';
+    $agen->save();
+
+    Notifikasi::create([
+        'id_user' => $agen->user_id,
+        'judul' => 'Permohonan Cicilan Disetujui',
+        'pesan' => 'Selamat! Fasilitas pembayaran cicilan Anda telah disetujui.',
+        'tipe' => 'persetujuan',
+        'media' => 'web',
+        'tanggal' => now(),
+        'status_baca' => 'belum'
+    ]);
+
+    return back()->with('success', 'Permohonan cicilan berhasil disetujui.');
+}
+
+public function tolakCicilan($id)
+{
+    $agen = Agen::findOrFail($id);
+
+    $agen->akses_cicilan = false;
+    $agen->status_permohonan_cicilan = 'ditolak';
+    $agen->save();
+
+    Notifikasi::create([
+        'id_user' => $agen->user_id,
+        'judul' => 'Permohonan Cicilan Ditolak',
+        'pesan' => 'Permohonan fasilitas pembayaran cicilan Anda ditolak.',
+        'tipe' => 'persetujuan',
+        'media' => 'web',
+        'tanggal' => now(),
+        'status_baca' => 'belum'
+    ]);
+
+    return back()->with('success', 'Permohonan cicilan berhasil ditolak.');
+}
+
 // Menolak registrasi agen yang baru saja mendaftar
     public function tolak($id)
     {
@@ -616,53 +690,54 @@ public function dashboardAdmin()
 
     // GABUNG SEMUA AKTIVITAS
 
-    $aktivitas = collect();
-    foreach ($aktivitasAgen as $a) {
-        $aktivitas->push([
-            'icon' => '✅',
-            'pesan' =>
-                'Anda berhasil memvalidasi akun agen ' .
-                $a->username,
-            'tanggal' =>
-                $a->updated_at
-        ]);
-    }
+  $aktivitas = collect();
 
-    foreach ($aktivitasPencairan as $h) {
-        $aktivitas->push([
-            'icon' => '💰',
-            'pesan' =>
-                'Anda berhasil mencairkan dana Rp' .
-                number_format(
-                    $h->jumlah_hutang,
-                    0,
-                    ',',
-                    '.'
-                ) .
-                ' kepada ' .
-                $h->agen->username,
+foreach ($aktivitasAgen as $a) {
+    $aktivitas->push([
+        'icon' => '<i class="ti ti-user-check text-green-600 text-lg"></i>',
+        'pesan' =>
+            'Anda berhasil memvalidasi akun agen ' .
+            $a->username,
+        'tanggal' =>
+            $a->updated_at
+    ]);
+}
 
-            'tanggal' =>
-                $h->updated_at
-        ]);
-    }
-    foreach ($aktivitasPembayaran as $p) {
-        $aktivitas->push([
-            'icon' => '💳',
-            'pesan' =>
-                'Validasi pembayaran sejumlah Rp' .
-                number_format(
-                    $p->jumlah_bayar,
-                    0,
-                    ',',
-                    '.'
-                ) .
-                ' berhasil dari ' .
-                $p->hutang->agen->username,
-            'tanggal' =>
-                $p->updated_at
-        ]);
-    }
+foreach ($aktivitasPencairan as $h) {
+    $aktivitas->push([
+        'icon' => '<i class="ti ti-cash text-blue-600 text-lg"></i>',
+        'pesan' =>
+            'Anda berhasil mencairkan dana Rp' .
+            number_format(
+                $h->jumlah_hutang,
+                0,
+                ',',
+                '.'
+            ) .
+            ' kepada ' .
+            $h->agen->username,
+        'tanggal' =>
+            $h->updated_at
+    ]);
+}
+
+foreach ($aktivitasPembayaran as $p) {
+    $aktivitas->push([
+        'icon' => '<i class="ti ti-credit-card text-purple-600 text-lg"></i>',
+        'pesan' =>
+            'Validasi pembayaran sejumlah Rp' .
+            number_format(
+                $p->jumlah_bayar,
+                0,
+                ',',
+                '.'
+            ) .
+            ' berhasil dari ' .
+            $p->hutang->agen->username,
+        'tanggal' =>
+            $p->updated_at
+    ]);
+}
 
     $aktivitas = $aktivitas
         ->sortByDesc('tanggal')
@@ -945,4 +1020,55 @@ public function updatePasswordAdmin(Request $request)
     $user->save();
     return back()->with('success', 'Password berhasil diubah.');
 }
+public function ajukanCicilan()
+{
+    $agen = Agen::findOrFail(session('id_agen'));
+
+    // Tidak boleh mengajukan jika sudah aktif
+    if ($agen->akses_cicilan) {
+        return back()->with('error', 'Fasilitas cicilan sudah aktif.');
+    }
+
+    // Tidak boleh mengajukan jika masih pending
+    if ($agen->status_permohonan_cicilan == 'pending') {
+        return back()->with('error', 'Permohonan sedang diproses.');
+    }
+
+    $agen->status_permohonan_cicilan = 'pending';
+    $agen->save();
+
+    return back()->with(
+        'success',
+        'Permohonan fasilitas cicilan berhasil dikirim.'
+    );
+}
+
+
+public function tolakCicilanakses(Request $request, $id)
+{
+    $request->validate([
+        'alasan' => 'required'
+    ], [
+        'alasan.required' => 'Alasan penolakan wajib diisi.'
+    ]);
+
+    $agen = Agen::findOrFail($id);
+
+    $agen->akses_cicilan = false;
+    $agen->status_permohonan_cicilan = 'ditolak';
+    $agen->alasan_penolakan_cicilan = $request->alasan;
+
+    $agen->save();
+    $user = User::find($agen->user_id);
+
+Mail::to($user->email)
+    ->send(new PenolakanAksesCicilanMail($agen));
+
+    return redirect('/owner/approval-cicilan')
+        ->with(
+            'success',
+            'Permohonan fasilitas cicilan berhasil ditolak.'
+        );
+}
+
 }

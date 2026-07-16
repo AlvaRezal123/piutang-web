@@ -1,10 +1,8 @@
 @extends('layouts.owner')
-
 @section('content')
 
 <!-- HEADER -->
 <div class="flex items-center justify-between mb-8">
-
     <div>
         <h1 class="text-3xl font-bold text-gray-800">Detail Pengajuan Hutang</h1>
         <p class="text-gray-400 text-sm mt-1">Informasi lengkap pengajuan dan riwayat hutang agen.</p>
@@ -506,7 +504,7 @@
 <!-- ACTION BUTTONS -->
 <div class="flex items-center justify-between">
 
-    <a href="/owner/hutang"
+    <a href="{{ request('from') == 'cicilan' ? '/owner/approval-cicilan' : '/owner/hutang' }}"
        class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-600 text-sm font-semibold hover:bg-gray-200 transition-colors">
         <i class="ti ti-arrow-left text-sm"></i> Kembali
     </a>

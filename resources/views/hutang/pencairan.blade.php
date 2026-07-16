@@ -19,136 +19,65 @@
 
 </div>
 
-<!-- STATISTIK -->
-<div class="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-8">
+<!-- CARD RINGKASAN -->
+<div class="grid md:grid-cols-[1.3fr_1fr_1fr_1fr] gap-6 mb-8">
 
     <!-- TOTAL NOMINAL HUTANG -->
-    <div class="lg:col-span-2 bg-gradient-to-r from-[#5628C7] to-purple-600 rounded-3xl p-8 text-white shadow-sm flex flex-col justify-center">
+    <div class="bg-gradient-to-r from-[#5628C7] to-purple-600 rounded-3xl p-6 shadow-sm text-white">
 
-        <p class="text-sm uppercase tracking-wider text-white/80">
-            Total Nominal Hutang
-        </p>
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                <i class="ti ti-cash text-2xl"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-white/80">Total Nominal Hutang</p>
+        </div>
 
-        <h2 class="text-5xl font-bold mt-4 break-words">
+        <h2 class="text-4xl font-bold">
             Rp{{ number_format($hutang->sum('jumlah_hutang'),0,',','.') }}
         </h2>
 
-        <p class="mt-4 text-white/80 leading-relaxed">
-            Akumulasi seluruh nominal hutang yang telah diajukan oleh agen.
-        </p>
-
+        <div class="border-t border-white/20 mt-4 pt-4">
+            <p class="text-sm text-white/80">Akumulasi seluruh nominal hutang yang diajukan agen.</p>
+        </div>
     </div>
 
     <!-- MENUNGGU PENCAIRAN -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-
-        <div class="absolute top-0 left-0 right-0 h-1 bg-[#EF9F27]"></div>
-
-        <div class="w-10 h-10 rounded-lg bg-[#FAEEDA] flex items-center justify-center mb-3">
-
-            <svg xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 text-[#854F0B]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5">
-
-                <path stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-
-            </svg>
-
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-clock-hour-4 text-2xl text-yellow-600"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Menunggu Pencairan</p>
         </div>
-
-        <p class="text-xs uppercase tracking-wide font-bold">
-            Menunggu Pencairan
-        </p>
-
-        <h2 class="text-4xl font-semibold text-[#BA7517] mt-2">
-            {{ $hutang->where('status','disetujui')->count() }}
-        </h2>
-
-        <p class="text-xs text-gray-400 mt-2">
-            Siap dicairkan
-        </p>
-
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $hutang->where('status','disetujui')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Pengajuan siap dicairkan</p>
     </div>
 
     <!-- SUDAH DICAIRKAN -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-
-        <div class="absolute top-0 left-0 right-0 h-1 bg-[#639922]"></div>
-
-        <div class="w-10 h-10 rounded-lg bg-[#EAF3DE] flex items-center justify-center mb-3">
-
-            <svg xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 text-[#3B6D11]"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5">
-
-                <path stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 6v6m0 0l3-3m-3 3l-3-3M5.25 15.75A2.25 2.25 0 017.5 13.5h9a2.25 2.25 0 012.25 2.25v2.25A2.25 2.25 0 0116.5 20.25h-9a2.25 2.25 0 01-2.25-2.25v-2.25z"/>
-
-            </svg>
-
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-wallet text-2xl text-yellow-600"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Sudah Dicairkan</p>
         </div>
-
-        <p class="text-xs uppercase tracking-wide font-bold">
-            Sudah Dicairkan
-        </p>
-
-        <h2 class="text-4xl font-semibold text-[#639922] mt-2">
-            {{ $hutang->where('status','berjalan')->count() }}
-        </h2>
-
-        <p class="text-xs text-gray-400 mt-2">
-            Saldo telah diberikan
-        </p>
-
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $hutang->where('status','berjalan')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Saldo berhasil diberikan</p>
     </div>
 
     <!-- HUTANG LUNAS -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-
-        <div class="absolute top-0 left-0 right-0 h-1 bg-[#3B82F6]"></div>
-
-        <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center mb-3">
-
-            <svg xmlns="http://www.w3.org/2000/svg"
-                class="w-5 h-5 text-blue-700"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5">
-
-                <path stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-
-            </svg>
-
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-circle-check text-2xl text-yellow-600"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Hutang Lunas</p>
         </div>
-
-        <p class="text-xs uppercase tracking-wide font-bold">
-            Hutang Lunas
-        </p>
-
-        <h2 class="text-4xl font-semibold text-blue-600 mt-2">
-            {{ $hutang->where('status','lunas')->count() }}
-        </h2>
-
-        <p class="text-xs text-gray-400 mt-2">
-            Telah dilunasi
-        </p>
-
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $hutang->where('status','lunas')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Hutang telah dilunasi</p>
     </div>
 
-</div>
-
+</div> 
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 shadow-sm border border-purple-100">
 

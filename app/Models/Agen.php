@@ -43,6 +43,10 @@ class Agen extends Model
         'status_kredit',
 
         'password_plain',
+
+        'akses_cicilan',
+
+        'status_permohonan_cicilan'
     ];
 
     // relasi ke users

@@ -134,37 +134,37 @@
 
             <a href="/dashboard-agen"
                class="nav-link {{ request()->is('dashboard-agen') ? 'active' : '' }}">
-                <span class="icon-wrap">🏠</span>
+                <span class="icon-wrap"><i class="ti ti-layout-dashboard"></i></span>
                 Dashboard
             </a>
 <div class="section-label">MENU UTAMA</div>
             <a href="/hutang/create"
                class="nav-link {{ request()->is('hutang/create') ? 'active' : '' }}">
-                <span class="icon-wrap">💰</span>
+                <span class="icon-wrap"><i class="ti ti-cash"></i></span>
                 Ajukan Hutang
             </a>
 
             <a href="/hutang-saya"
                class="nav-link {{ request()->is('hutang-saya*') ? 'active' : '' }}">
-                <span class="icon-wrap">📋</span>
+                <span class="icon-wrap"><i class="ti ti-file-invoice"></i></span>
                 Hutang Saya
             </a>
 
             <a href="/pembayaran"
                class="nav-link {{ request()->is('pembayaran*') ? 'active' : '' }}">
-                <span class="icon-wrap">💳</span>
+                <span class="icon-wrap"><i class="ti ti-credit-card"></i></span>
                 Pembayaran
             </a>
 <div class="section-label">Akun</div>
 
 <a href="/profil-agen"
    class="nav-link {{ request()->is('profil-agen') ? 'active' : '' }}">
-    <span class="icon-wrap">👤</span>
+   <span class="icon-wrap"><i class="ti ti-user"></i></span>
     Profil Saya
 </a>
 
 <a href="/logout" class="nav-link danger">
-                <span class="icon-wrap">🚪</span>
+                <span class="icon-wrap"><i class="ti ti-logout"></i></span>
                 Logout
             </a>
 
@@ -178,7 +178,7 @@
     </aside>
 
     <!-- CONTENT -->
-    <main class="flex-1 p-8">
+    <main class="flex-1 p-8 flex flex-col">
         @yield('content')
     </main>
 

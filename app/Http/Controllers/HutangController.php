@@ -10,42 +10,72 @@ use App\Models\Cicilan;
 use App\Models\User;
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Mail;    
+use App\Models\PeriodeCicilan;
 
 class HutangController extends Controller
 {
 
      // menampilkan halaman formulir pengajuan hutang
-    public function create()
-    {
-        $agen = Agen::find(session('id_agen'));
-        if (!$agen) {
-            return redirect('/login')
-                ->with('error', 'Silakan login terlebih dahulu');
-        }
-        return view('hutang.create', compact('agen'));
+// menampilkan halaman formulir pengajuan hutang
+public function create()
+{
+    $agen = Agen::find(session('id_agen'));
+
+    if (!$agen) {
+        return redirect('/login')
+            ->with('error', 'Silakan login terlebih dahulu');
     }
+
+    // Ambil daftar periode cicilan yang aktif
+    $periode = PeriodeCicilan::where('status', 'aktif')
+        ->orderBy('jumlah_bulan')
+        ->get();
+
+    return view(
+        'hutang.create',
+        compact(
+            'agen',
+            'periode'
+        )
+    );
+}
 
     // Pengajuan Hutang Agen
     public function store(Request $request)
     {
-        // ambil data agen login
-        $agen = Agen::find(session('id_agen'));
-        // cek apakah agen ditemukan
-        if (!$agen) {
-            return back()->with(
-                'error',
-                'Agen tidak ditemukan'
-            );
-        }
-        // cek hutang aktif (gabisa buat hutang lagi kalo ada hutang aktif)
-        $hutangAktif = Hutang::where('id_agen', $agen->id)
-            ->whereIn('status', [
-                'pending',
-                'disetujui',
-                'berjalan',
-                'terlambat'
-            ])
-            ->exists();
+// ambil data agen login
+$agen = Agen::find(session('id_agen'));
+
+// cek apakah agen ditemukan
+if (!$agen) {
+    return back()->with(
+        'error',
+        'Agen tidak ditemukan'
+    );
+}
+
+// ================================
+// CEK HAK AKSES CICILAN
+// ================================
+if (
+    $request->metode == 'cicil' &&
+    !$agen->akses_cicilan
+) {
+    return back()->with(
+        'error',
+        'Fasilitas pembayaran cicilan belum diaktifkan oleh owner.'
+    );
+}
+
+// cek hutang aktif
+$hutangAktif = Hutang::where('id_agen', $agen->id)
+    ->whereIn('status', [
+        'pending',
+        'disetujui',
+        'berjalan',
+        'terlambat'
+    ])
+    ->exists();
         if ($hutangAktif) {
             return back()->with(
                 'error',
@@ -541,15 +571,19 @@ public function simpanPencairan(Request $request, $id)
     $hutang->tanggal_pencairan = $tanggalPencairan;
 
     // Hitung tanggal jatuh tempo mulai dari tanggal pencairan
-    if ($hutang->metode == 'cash') {
-        $hutang->tanggal_jatuh_tempo = $tanggalPencairan->copy()->addMonth();
-    } else {
-        if ($hutang->lama_tempo == '2 bulan') {
-            $hutang->tanggal_jatuh_tempo = $tanggalPencairan->copy()->addMonths(2);
-        } else {
-            $hutang->tanggal_jatuh_tempo = $tanggalPencairan->copy()->addMonths(3);
-        }
-    }
+if ($hutang->metode == 'cash') {
+
+    $hutang->tanggal_jatuh_tempo =
+        $tanggalPencairan->copy()->addMonth();
+
+} else {
+
+    $hutang->tanggal_jatuh_tempo =
+        $tanggalPencairan->copy()->addMonths(
+            (int) $hutang->lama_tempo
+        );
+
+}
     $hutang->status = 'berjalan';
     $hutang->save();
 
@@ -588,30 +622,48 @@ public function simpanPencairan(Request $request, $id)
             'tanggal' => now(),
             'status_baca' => 'belum'
         ]); }
+        Cicilan::where(
+    'id_hutang',
+    $hutang->id
+)->delete();
 
-    $jumlahBulan = 1;
-    if ($hutang->lama_tempo == '2 bulan') {
-        $jumlahBulan = 2;
-    } elseif ($hutang->lama_tempo == '3 bulan') {
-        $jumlahBulan = 3;
+$jumlahBulan = (int) $hutang->lama_tempo;
+
+$nominalCicilan =
+    floor($hutang->jumlah_hutang / $jumlahBulan);
+
+$sisa =
+    $hutang->jumlah_hutang -
+    ($nominalCicilan * $jumlahBulan);
+
+for ($i = 1; $i <= $jumlahBulan; $i++) {
+
+    $nominal = $nominalCicilan;
+
+    if ($i == $jumlahBulan) {
+
+        $nominal += $sisa;
+
     }
-    $nominalCicilan =
-        $hutang->jumlah_hutang /
-        $jumlahBulan;
 
-    for ($i = 1; $i <= $jumlahBulan; $i++) {
-        Cicilan::create([
-            'id_hutang' => $hutang->id,
-            'cicilan_ke' => $i,
-            'jumlah_cicilan' => $nominalCicilan,
+    Cicilan::create([
 
-            // Sekarang dihitung dari tanggal pencairan
-            'tanggal_jatuh_tempo' =>
-                \Carbon\Carbon::parse(
-                    $hutang->tanggal_pencairan
-                )->addMonths($i),
-            'status' => 'belum'
-        ]); }
+        'id_hutang' => $hutang->id,
+
+        'cicilan_ke' => $i,
+
+        'jumlah_cicilan' => $nominal,
+
+        'tanggal_jatuh_tempo' =>
+            $tanggalPencairan
+                ->copy()
+                ->addMonths($i),
+
+        'status' => 'belum'
+
+    ]);
+
+}
 
     // NOTIFIKASI UNTUK ADMIN
     if ($admin) {
@@ -794,10 +846,10 @@ public function simpanPencairan(Request $request, $id)
     $pengajuanHariIni = Hutang::whereDate('created_at', today())->count();
 
     // Aktivitas Terbaru
-    $aktivitas = Hutang::with('agen')
-        ->latest()
-        ->take(5)
-        ->get();
+   $aktivitas = Hutang::with('agen')
+    ->orderBy('updated_at', 'desc')
+    ->take(5)
+    ->get();
 
     // Antrian Approval
     $antrianPending = Hutang::where('status', 'pending')

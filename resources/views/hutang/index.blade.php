@@ -29,47 +29,43 @@
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 
     <!-- Pending -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#EF9F27]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#FAEEDA] flex items-center justify-center mb-3">
-            <i class="ti ti-clock text-[#854F0B] text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-clock text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Pending</p>
-        <h2 class="text-3xl font-medium text-[#BA7517] mt-1">{{ $hutang->where('status','pending')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Menunggu review</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Pending</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $hutang->where('status','pending')->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-2">Menunggu review</p>
     </div>
 
     <!-- Disetujui -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#5628C7]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#EEEDFE] flex items-center justify-center mb-3">
-            <i class="ti ti-circle-check text-[#5628C7] text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-circle-check text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Disetujui</p>
-        <h2 class="text-3xl font-medium text-[#5628C7] mt-1">{{ $hutang->where('status','disetujui')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Pengajuan disetujui</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Disetujui</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $hutang->where('status','disetujui')->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-2">Pengajuan disetujui</p>
     </div>
 
     <!-- Ditolak -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#E24B4A]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#FCEBEB] flex items-center justify-center mb-3">
-            <i class="ti ti-circle-x text-[#A32D2D] text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-circle-x text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Ditolak</p>
-        <h2 class="text-3xl font-medium text-[#A32D2D] mt-1">{{ $hutang->where('status','ditolak')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Perlu ditinjau ulang</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Ditolak</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $hutang->where('status','ditolak')->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-2">Perlu ditinjau ulang</p>
     </div>
 
     <!-- Total Pengajuan -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#639922]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#EAF3DE] flex items-center justify-center mb-3">
-            <i class="ti ti-file-text text-[#3B6D11] text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-file-text text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Total Pengajuan</p>
-        <h2 class="text-3xl font-medium text-[#639922] mt-1">{{ $hutang->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Semua status</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Total Pengajuan</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $hutang->count() }}</h2>
+        <p class="text-xs text-gray-400 mt-2">Semua status</p>
     </div>
 
 </div>

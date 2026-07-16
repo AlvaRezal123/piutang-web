@@ -123,13 +123,14 @@
     </style>
 </head>
 
-<body class="bg-[#f7f5ff]">
-    @php
-        $notifBelum =
-            \App\Models\Notifikasi::where('id_user', session('id_user'))
-            ->where('status_baca', 'belum')
-            ->count();
-    @endphp
+@php
+    $notifBelum =
+        \App\Models\Notifikasi::where('id_user', session('id_user'))
+        ->where('status_baca', 'belum')
+        ->count();
+@endphp
+
+<body class="bg-[#f7f5ff]" data-notif-belum="{{ $notifBelum }}">
 
 <div class="flex min-h-screen">
 
@@ -177,7 +178,9 @@
 
             <a href="/dashboard-admin"
                class="nav-link {{ request()->is('dashboard-admin') ? 'active' : '' }}">
-                <span class="icon-wrap">🏠</span>
+                <span class="icon-wrap">
+                <i class="ti ti-home"></i>
+            </span>
                 Dashboard
             </a>
 
@@ -186,7 +189,9 @@
 
             <a href="/agen"
                class="nav-link {{ request()->is('agen*') ? 'active' : '' }}">
-                <span class="icon-wrap">👤</span>
+                <span class="icon-wrap">
+                <i class="ti ti-user-check"></i>
+                </span>
                 Validasi Agen
             </a>
 
@@ -195,24 +200,50 @@
 
             <a href="/admin/pencairan"
                class="nav-link {{ request()->is('admin/pencairan*') ? 'active' : '' }}">
-                <span class="icon-wrap">💰</span>
+                <span class="icon-wrap">
+                    <i class="ti ti-cash"></i>
+                </span>
                 Pencairan Saldo
             </a>
                 <a href="/admin/monitoring-hutang"
         class="nav-link {{ request()->is('admin/monitoring-hutang') ? 'active' : '' }}">
-            <span class="icon-wrap">📊</span>
+           <span class="icon-wrap">
+                <i class="ti ti-cash"></i>
+            </span>
             Monitoring Hutang
         </a>
+
+        <a href="/admin/periode-cicilan"
+   class="nav-link {{ request()->is('admin/periode-cicilan*') ? 'active' : '' }}">
+
+    <span class="icon-wrap">
+
+        <i class="ti ti-calendar-month"></i>
+
+    </span>
+
+    Periode Cicilan
+
+</a>
+
             <a href="/admin/pembayaran"
                class="nav-link {{ request()->is('admin/pembayaran*') ? 'active' : '' }}">
-                <span class="icon-wrap">💳</span>
+               <span class="icon-wrap">
+                <i class="ti ti-credit-card"></i>
+            </span>
                 Validasi Pembayaran
             </a>
+
+            
+
+            
 
             <a href="/admin/notifikasi"
                class="nav-link nav-link-between {{ request()->is('admin/notifikasi*') ? 'active' : '' }}">
                 <div class="flex items-center gap-[10px]">
-                    <span class="icon-wrap">🔔</span>
+                    <span class="icon-wrap">
+                        <i class="ti ti-bell"></i>
+                    </span>
                     <span>Notifikasi</span>
                 </div>
                 <span
@@ -226,7 +257,9 @@
             <div class="section-label">Akun</div>
 
             <a href="/logout" class="nav-link danger">
-                <span class="icon-wrap" style="background:rgba(255,100,100,0.15);">🚪</span>
+                <span class="icon-wrap" style="background:rgba(255,100,100,0.15);">
+                <i class="ti ti-logout"></i>
+                  </span>
                 Logout
             </a>
 
@@ -277,7 +310,8 @@ function closeSidebar()
     document.getElementById('sidebarOverlay').classList.add('hidden');
 }
 
-let notifLama = {{ $notifBelum }};
+let notifLama = parseInt(document.body.dataset.notifBelum, 10);
+
 setInterval(() => {
     fetch('/jumlah-notifikasi')
         .then(response => response.json())

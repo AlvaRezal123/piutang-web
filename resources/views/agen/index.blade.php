@@ -2,6 +2,8 @@
 
 @section('content')
 
+<div class="flex flex-col min-h-full">
+
 <!-- HEADER -->
 <div class="flex justify-between items-center mb-8">
     <div>
@@ -18,76 +20,74 @@
             Data Referensi
         </a>
 
-        <button type="button" onclick="openImportModal()"
-            class="inline-flex items-center gap-2 bg-[#5628C7] hover:bg-[#4b22b0] text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-            </svg>
-            Import Excel
-        </button>
+   
     </div>
 </div>
 
 
 <!-- STATISTIK -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+<div class="grid md:grid-cols-4 gap-6 mb-8">
 
     <!-- Agen Pending -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#EF9F27]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#FAEEDA] flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#854F0B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Agen Pending</p>
         </div>
-        <p class="text-xs uppercase tracking-wide font-bold text-black">Agen Pending</p>
-        <h2 class="text-3xl font-black text-[#BA7517] mt-1">{{ $agen->where('status','pending')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Menunggu persetujuan</p>
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $agen->where('status','pending')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Menunggu persetujuan</p>
     </div>
 
     <!-- Agen Aktif -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#639922]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#EAF3DE] flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3B6D11]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Agen Aktif</p>
         </div>
-        <p class="text-xs uppercase tracking-wide font-bold text-black">Agen Aktif</p>
-        <h2 class="text-3xl font-black text-[#639922] mt-1">{{ $agen->where('status','aktif')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Siap bertransaksi</p>
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $agen->where('status','aktif')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Siap bertransaksi</p>
     </div>
 
     <!-- Agen Ditolak -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#E24B4A]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#FCEBEB] flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#A32D2D]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Agen Ditolak</p>
         </div>
-        <p class="text-xs uppercase tracking-wide font-bold text-black">Agen Ditolak</p>
-        <h2 class="text-3xl font-black text-[#A32D2D] mt-1">{{ $agen->where('status','ditolak')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Pengajuan ditolak</p>
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $agen->where('status','ditolak')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Pengajuan ditolak</p>
     </div>
 
     <!-- Agen Diblokir -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#6B7280]"></div>
-        <div class="w-9 h-9 rounded-lg bg-gray-200 flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V7.875a4.5 4.5 0 10-9 0V10.5m-.75 0h10.5a.75.75 0 01.75.75v8.25a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75v-8.25a.75.75 0 01.75-.75z"/>
-            </svg>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V7.875a4.5 4.5 0 10-9 0V10.5m-.75 0h10.5a.75.75 0 01.75.75v8.25a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75v-8.25a.75.75 0 01.75-.75z"/>
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Agen Diblokir</p>
         </div>
-        <p class="text-xs uppercase tracking-wide font-bold text-black">Agen Diblokir</p>
-        <h2 class="text-3xl font-black text-gray-700 mt-1">{{ $agen->where('status','diblokir')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Akses dinonaktifkan</p>
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $agen->where('status','diblokir')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Akses dinonaktifkan</p>
     </div>
 
 </div>
 
 <!-- TABEL -->
-<div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
+<div class="bg-white rounded-3xl px-5 pt-5 pb-3 border border-purple-100 shadow-sm flex-1 flex flex-col">
 
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold text-gray-800">Data Agen</h2>
@@ -159,7 +159,7 @@
         </form>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto flex-1 flex flex-col">
         <table class="w-full">
             <thead>
                 <tr class="border-b">
@@ -230,8 +230,9 @@
                                     </svg>
                                     Setujui
                                 </a>
-                                <button type="button" onclick="openTolakModal({{ $a->id }})"
-                                    class="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-semibold transition">
+                                <button type="button"
+                                    class="btn-tolak inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-semibold transition"
+                                    data-id="{{ $a->id }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
@@ -270,7 +271,7 @@
         </table>
 
         <!-- PAGINATION -->
-        <div class="flex justify-between items-center mt-6">
+        <div class="flex justify-between items-center pt-4 mt-auto border-t border-gray-100">
 
             <div class="text-sm text-gray-500">
                 Menampilkan
@@ -287,6 +288,8 @@
         </div>
 
     </div>
+</div>
+
 </div>
 
 <!-- MODAL DETAIL PER AGEN (dipindah ke luar <table> supaya HTML valid) -->
@@ -513,6 +516,11 @@
 <script>
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-tolak');
+    if (btn) openTolakModal(btn.dataset.id);
+});
+
 function openTolakModal(id) {
     document.getElementById('formTolak').action = '/agen/simpan-tolak/' + id;
     document.getElementById('tolakModal').classList.remove('hidden');

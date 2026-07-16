@@ -29,16 +29,11 @@
             <div class="flex items-center gap-4 mt-4">
                 <span class="flex items-center gap-1.5 text-sm text-white/80">
                <i class="ti ti-{{ $hutang->metode == 'cicil' ? 'calendar-repeat' : 'credit-card' }}"></i>
-
-@if($hutang->metode == 'cash')
-
-    Pembayaran Penuh
-
-@else
-
-    Cicilan {{ $hutang->lama_tempo }}
-
-@endif
+                @if($hutang->metode == 'cash')
+                    Pembayaran Penuh
+                @else
+                    Cicilan {{ $hutang->lama_tempo }}
+                @endif
                 </span>
                 <span class="text-white/40">·</span>
                 <span class="flex items-center gap-1.5 text-sm text-white/80">
@@ -304,16 +299,11 @@
                     <td class="px-6 py-4 text-gray-500">
                         <span class="flex items-center gap-1.5">
                      <i class="ti ti-{{ $r->metode == 'cicil' ? 'calendar-repeat' : 'credit-card' }}"></i>
-
-@if($r->metode == 'cash')
-
-    Pembayaran Penuh
-
-@else
-
-    Cicilan {{ $r->lama_tempo }}
-
-@endif
+                    @if($r->metode == 'cash')
+                        Pembayaran Penuh
+                    @else
+                        Cicilan {{ $r->lama_tempo }}
+                    @endif
                         </span>
                     </td>
                     <td class="px-6 py-4">

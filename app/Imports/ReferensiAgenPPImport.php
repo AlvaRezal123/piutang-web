@@ -8,10 +8,13 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class ReferensiAgenPPImport implements ToModel, WithHeadingRow
 {
-    /**
-     * @param array $row
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
+    protected $metodeImport;
+
+    public function __construct($metodeImport)
+    {
+        $this->metodeImport = $metodeImport;
+    }
+
     public function model(array $row)
     {
         return ReferensiAgenPP::updateOrCreate(

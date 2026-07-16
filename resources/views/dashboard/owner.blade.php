@@ -7,21 +7,25 @@
 
     <div>
         <h1 class="text-2xl font-bold">Halo, Owner </h1>
-      <div class="mt-4 flex flex-wrap gap-3">
 
-    <span class="bg-white/15 px-4 py-2 rounded-xl text-sm">
-        📝 {{ $pengajuanHariIni }} Pengajuan Hari Ini
-    </span>
+        <div class="mt-4 flex flex-wrap gap-3">
 
-    <span class="bg-white/15 px-4 py-2 rounded-xl text-sm">
-        ⚠️ {{ $pending }} Menunggu Persetujuan
-    </span>
+            <span class="bg-white/15 px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                <i class="ti ti-file-invoice text-base"></i>
+                {{ $pengajuanHariIni }} Pengajuan Hari Ini
+            </span>
 
-    <span class="bg-white/15 px-4 py-2 rounded-xl text-sm">
-        🚨 {{ $terlambat }} Terlambat
-    </span>
+            <span class="bg-white/15 px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                <i class="ti ti-clock-hour-4 text-base"></i>
+                {{ $pending }} Menunggu Persetujuan
+            </span>
 
-</div>
+            <span class="bg-white/15 px-4 py-2 rounded-xl text-sm flex items-center gap-2">
+                <i class="ti ti-alert-triangle text-base"></i>
+                {{ $terlambat }} Terlambat
+            </span>
+
+        </div>
     </div>
 
     <div class="flex items-center gap-4 flex-shrink-0">
@@ -48,52 +52,51 @@
 <!-- STATISTIK -->
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center mb-4">
-            <i class="ti ti-file-text text-[#5628C7] text-lg"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-file-text text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Total pengajuan</p>
-        <p class="text-3xl font-bold text-[#5628C7]">{{ $totalPengajuan }}</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Total pengajuan</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $totalPengajuan }}</h2>
         <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
             <i class="ti ti-minus text-xs"></i> Sepanjang masa
         </p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-yellow-100 flex items-center justify-center mb-4">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
             <i class="ti ti-clock text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Menunggu persetujuan</p>
-        <p class="text-3xl font-bold text-yellow-600">{{ $pending }}</p>
-        <p class="text-xs text-yellow-500 mt-2 flex items-center gap-1">
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Menunggu persetujuan</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $pending }}</h2>
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
             <i class="ti ti-alert-circle text-xs"></i> Perlu ditinjau segera
         </p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center mb-4">
-            <i class="ti ti-circle-check text-green-600 text-lg"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-circle-check text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Disetujui</p>
-        <p class="text-3xl font-bold text-green-600">{{ $disetujui }}</p>
-        <p class="text-xs text-green-500 mt-2 flex items-center gap-1">
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Disetujui</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $disetujui }}</h2>
+        <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
             <i class="ti ti-trending-up text-xs"></i> Aktif berjalan
         </p>
     </div>
 
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center mb-4">
-            <i class="ti ti-circle-x text-red-500 text-lg"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center mb-4">
+            <i class="ti ti-circle-x text-yellow-600 text-lg"></i>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Ditolak</p>
-        <p class="text-3xl font-bold text-red-500">{{ $ditolak }}</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Ditolak</p>
+        <h2 class="text-3xl font-bold text-yellow-600">{{ $ditolak }}</h2>
         <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">
             <i class="ti ti-minus text-xs"></i> Total ditolak
         </p>
     </div>
 
 </div>
-
 <!-- BAWAH: AKTIVITAS + ANTRIAN -->
 <div class="grid md:grid-cols-2 gap-5">
 
@@ -119,7 +122,7 @@
 
 @if($a->status == 'pending')
 
-📝
+<i class="ti ti-file-invoice text-yellow-600 mr-1"></i>
 <span class="font-medium">{{ $a->agen->username }}</span>
 mengajukan pinjaman
 <span class="font-semibold text-[#5628C7]">
@@ -128,35 +131,35 @@ Rp{{ number_format($a->jumlah_hutang,0,',','.') }}
 
 @elseif($a->status == 'disetujui')
 
-✅
+<i class="ti ti-circle-check text-green-600 mr-1"></i>
 Pengajuan Hutang Agen
 <span class="font-medium">{{ $a->agen->username }}</span>
 telah disetujui.
 
 @elseif($a->status == 'ditolak')
 
-❌
+<i class="ti ti-circle-x text-red-600 mr-1"></i>
 Pengajuan Hutang Agen
 <span class="font-medium">{{ $a->agen->username }}</span>
 ditolak.
 
 @elseif($a->status == 'berjalan')
 
-🔵
+<i class="ti ti-wallet text-blue-600 mr-1"></i>
 Pengajuan Hutang Agen
 <span class="font-medium">{{ $a->agen->username }}</span>
 sedang berjalan.
 
 @elseif($a->status == 'lunas')
 
-🎉
+<i class="ti ti-rosette-discount-check text-green-600 mr-1"></i>
 Hutang Agen
 <span class="font-medium">{{ $a->agen->username }}</span>
 telah lunas.
 
 @elseif($a->status == 'terlambat')
 
-⚠️
+<i class="ti ti-alert-triangle text-orange-600 mr-1"></i>
 <span class="font-medium">{{ $a->agen->username }}</span>
 terlambat membayar.
 
@@ -186,7 +189,7 @@ terlambat membayar.
       <h2 class="flex items-center justify-between mb-5">
 
     <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+        <span class="w-2 h-2 rounded-full bg-purple-500"></span>
 
         <p class="text-sm font-semibold text-gray-800">
             Antrian Approval

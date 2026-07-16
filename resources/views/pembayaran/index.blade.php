@@ -26,62 +26,67 @@
 @endif
 
 <!-- STATISTIK -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+<div class="grid md:grid-cols-[1.3fr_1fr_1fr_1fr] gap-6 mb-8">
 
     <!-- Total Pembayaran -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#534AB7]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#EEEDFE] flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#534AB7]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l2 2 4-4M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
-            </svg>
+    <div class="bg-gradient-to-r from-[#5628C7] to-purple-600 rounded-3xl p-6 shadow-sm text-white">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 14l2 2 4-4M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-white/80">Total Pembayaran</p>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Total Pembayaran</p>
-        <h2 class="text-3xl font-medium text-[#534AB7] mt-1">{{ $pembayaran->total() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Semua status</p>
+        <h2 class="text-4xl font-bold">{{ $pembayaran->total() }}</h2>
+        <div class="border-t border-white/20 mt-4 pt-4">
+            <p class="text-sm text-white/80">Semua status</p>
+        </div>
     </div>
 
     <!-- Pending -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#EF9F27]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#FAEEDA] flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#854F0B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Pending</p>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Pending</p>
-        <h2 class="text-3xl font-medium text-[#BA7517] mt-1">{{ $pembayaran->where('status','pending')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Menunggu validasi</p>
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $pembayaran->where('status','pending')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Menunggu validasi</p>
     </div>
 
     <!-- Disetujui -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#639922]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#EAF3DE] flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#3B6D11]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Disetujui</p>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Disetujui</p>
-        <h2 class="text-3xl font-medium text-[#639922] mt-1">{{ $pembayaran->where('status','disetujui')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Pembayaran valid</p>
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $pembayaran->where('status','disetujui')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Pembayaran valid</p>
     </div>
 
     <!-- Ditolak -->
-    <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl bg-[#E24B4A]"></div>
-        <div class="w-9 h-9 rounded-lg bg-[#FCEBEB] flex items-center justify-center mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#A32D2D]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Ditolak</p>
         </div>
-        <p class="text-xs text-black-600 uppercase tracking-wide font-bold">Ditolak</p>
-        <h2 class="text-3xl font-medium text-[#A32D2D] mt-1">{{ $pembayaran->where('status','ditolak')->count() }}</h2>
-        <p class="text-xs text-gray-400 mt-1.5">Perlu tindak lanjut</p>
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $pembayaran->where('status','ditolak')->count() }}</h2>
+        <p class="text-sm text-gray-500 mt-4">Perlu tindak lanjut</p>
     </div>
 
 </div>
-
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
@@ -342,15 +347,14 @@
 
                     <td>
 
-                        <button
-                            type="button"
-                            onclick="openDetailModal({{ $p->id }})"
-                            class="bg-purple-100 text-[#5628C7] px-4 py-2 rounded-xl font-semibold text-sm">
+              <button
+                type="button"
+                class="btn-detail bg-purple-100 text-[#5628C7] px-4 py-2 rounded-xl font-semibold text-sm"
+                data-id="{{ $p->id }}">
 
-                            Detail
+                Detail
 
-                        </button>
-
+            </button>
                     </td>
 
                     <td>
@@ -368,14 +372,14 @@
 
                             </a>
 
-                            <button
-                                type="button"
-                                onclick="openTolakModal({{ $p->id }})"
-                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm">
+                          <button
+                            type="button"
+                            class="btn-tolak bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm"
+                            data-id="{{ $p->id }}">
 
-                                Tolak
+                            Tolak
 
-                            </button>
+                        </button>
 
                         </div>
 
@@ -589,12 +593,16 @@ function closeTolakModal()
 }
 </script>
 
+<script type="application/json" id="pembayaranDataJson">
+    @json($pembayaranData)
+</script>
+
 <script>
 
 // Data seluruh pembayaran (halaman berjalan) + cicilan dari hutang terkait,
 // sudah disiapkan di PembayaranController@index lalu di-dump satu kali
 // di sini supaya modal detail bisa langsung dipopulate tanpa AJAX.
-const pembayaranData = @json($pembayaranData);
+const pembayaranData = JSON.parse(document.getElementById('pembayaranDataJson').textContent);
 
 function openDetailModal(id)
 {
@@ -717,6 +725,18 @@ ${c.tanggalLunas
 
     document.getElementById('detailModal').classList.remove('hidden');
 }
+
+document.addEventListener('click', function(e) {
+    const btnDetail = e.target.closest('.btn-detail');
+    if (btnDetail) {
+        openDetailModal(btnDetail.dataset.id);
+    }
+
+    const btnTolak = e.target.closest('.btn-tolak');
+    if (btnTolak) {
+        openTolakModal(btnTolak.dataset.id);
+    }
+});
 
 function closeDetailModal()
 {

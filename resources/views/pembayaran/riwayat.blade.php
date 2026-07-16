@@ -37,13 +37,13 @@ $totalDitolak = $pembayaran
 <!-- CARD RINGKASAN -->
 <div class="grid md:grid-cols-4 gap-6 mb-8">
 
-    <!-- TOTAL UANG DIBAYARKAN -->
+    <!-- TOTAL DIBAYARKAN -->
     <div class="bg-gradient-to-r from-[#5628C7] to-purple-600 rounded-3xl p-6 shadow-sm text-white">
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
-                💰
+            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                <i class="ti ti-cash text-2xl"></i>
             </div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-white/80">
@@ -65,12 +65,12 @@ $totalDitolak = $pembayaran
     </div>
 
     <!-- TOTAL PENGAJUAN -->
-    <div class="bg-purple-50 rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
-                📄
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-file-invoice text-2xl text-yellow-600"></i>
             </div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
@@ -79,23 +79,23 @@ $totalDitolak = $pembayaran
 
         </div>
 
-        <h2 class="text-4xl font-bold text-[#5628C7]">
+        <h2 class="text-4xl font-bold text-yellow-600">
             {{ $totalPengajuan }}
         </h2>
 
-        <p class="text-sm text-gray-500 mt-4">
+        <p class="text-sm font-bold text-gray-500 mt-4">
             Total pengajuan pembayaran yang pernah dibuat
         </p>
 
     </div>
 
     <!-- DISETUJUI -->
-    <div class="bg-green-50 rounded-3xl p-6 border border-green-100 shadow-sm">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center text-xl">
-                ✅
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-circle-check text-2xl text-yellow-600"></i>
             </div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
@@ -104,23 +104,23 @@ $totalDitolak = $pembayaran
 
         </div>
 
-        <h2 class="text-4xl font-bold text-green-600">
+        <h2 class="text-4xl font-bold text-yellow-600">
             {{ $totalDisetujui }}
         </h2>
 
-        <p class="text-sm text-gray-500 mt-4">
+        <p class="text-sm font-bold text-gray-500 mt-4">
             Total pembayaran yang berhasil diverifikasi
         </p>
 
     </div>
 
     <!-- DITOLAK -->
-    <div class="bg-red-50 rounded-3xl p-6 border border-red-100 shadow-sm">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center text-xl">
-                ❌
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-circle-x text-2xl text-yellow-600"></i>
             </div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
@@ -129,7 +129,7 @@ $totalDitolak = $pembayaran
 
         </div>
 
-        <h2 class="text-4xl font-bold text-red-600">
+        <h2 class="text-4xl font-bold text-yellow-600">
             {{ $totalDitolak }}
         </h2>
 
@@ -140,7 +140,6 @@ $totalDitolak = $pembayaran
     </div>
 
 </div>
-
 <!-- TABEL -->
 <div class="bg-white rounded-3xl p-6 border border-purple-100 shadow-sm">
 
@@ -303,27 +302,27 @@ $totalDitolak = $pembayaran
                     <td>
 
                         <button
-                            type="button"
-                            onclick="openDetailModal({{ $p->id }})"
-                            class="bg-purple-100 text-[#5628C7] px-3 py-1 rounded-lg text-sm font-semibold hover:bg-purple-200">
+                        type="button"
+                        class="btn-detail bg-purple-100 text-[#5628C7] px-3 py-1 rounded-lg text-sm font-semibold hover:bg-purple-200"
+                        data-id="{{ $p->id }}">
 
-                            Detail
+                        Detail
 
-                        </button>
-
+                    </button>
                     </td>
 
                     <td>
 
                         @if($p->status == 'ditolak')
 
-                            <button
-                                onclick="openModal({{ $p->id }})"
-                                class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200">
+                         <button
+                        type="button"
+                        class="btn-lihat-alasan px-3 py-1 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200"
+                        data-id="{{ $p->id }}">
 
-                                Lihat Alasan
+                        Lihat Alasan
 
-                            </button>
+                    </button>
 
                         @else
 
@@ -467,13 +466,14 @@ $totalDitolak = $pembayaran
 
         <div class="mt-6 text-right">
 
-            <button
-                onclick="closeModal({{ $p->id }})"
-                class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">
+        <button
+    type="button"
+    class="btn-tutup-modal px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200"
+    data-id="{{ $p->id }}">
 
-                Tutup
+    Tutup
 
-            </button>
+</button>
 
         </div>
 
@@ -487,22 +487,27 @@ $totalDitolak = $pembayaran
 
 <script>
 
-function openModal(id)
-{
-    document
-        .getElementById('modal' + id)
-        .classList
-        .remove('hidden');
-}
+document.addEventListener('click', function(e) {
+    const btnDetail = e.target.closest('.btn-detail');
+    if (btnDetail) {
+        openDetailModal(btnDetail.dataset.id);
+    }
 
-function closeModal(id)
-{
-    document
-        .getElementById('modal' + id)
-        .classList
-        .add('hidden');
-}
+    const btnLihatAlasan = e.target.closest('.btn-lihat-alasan');
+    if (btnLihatAlasan) {
+        document.getElementById('modal' + btnLihatAlasan.dataset.id).classList.remove('hidden');
+    }
 
+    const btnTutupModal = e.target.closest('.btn-tutup-modal');
+    if (btnTutupModal) {
+        document.getElementById('modal' + btnTutupModal.dataset.id).classList.add('hidden');
+    }
+});
+
+</script>
+
+<script type="application/json" id="pembayaranDataJson">
+    @json($pembayaranData)
 </script>
 
 <script>
@@ -510,7 +515,7 @@ function closeModal(id)
 // Data seluruh pembayaran + cicilan dari hutang terkait, sudah
 // disiapkan di PembayaranController@riwayat lalu di-dump satu kali
 // di sini supaya modal detail bisa langsung dipopulate tanpa AJAX.
-const pembayaranData = @json($pembayaranData);
+const pembayaranData = JSON.parse(document.getElementById('pembayaranDataJson').textContent);
 
 function openDetailModal(id)
 {

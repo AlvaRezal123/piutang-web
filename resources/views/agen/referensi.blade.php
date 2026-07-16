@@ -163,8 +163,74 @@
                 <span class="text-sm font-semibold text-purple-600">Pilih File Excel</span>
                 <span id="namaFileImport" class="text-xs text-gray-400 text-center">Format .xlsx atau .csv</span>
             </label>
+
             <input type="file" id="fileReferensi" name="file" accept=".xlsx,.xls,.csv" class="hidden" required
                 onchange="document.getElementById('namaFileImport').innerHTML='✅ '+this.files[0].name">
+                <!-- METODE IMPORT -->
+<div class="mt-6">
+
+    <label class="block text-sm font-semibold text-gray-700 mb-3">
+        Metode Import
+    </label>
+
+    <!-- Opsi 1 -->
+    <label
+        class="flex items-start gap-3 p-4 rounded-2xl border border-gray-200 hover:border-[#5628C7] hover:bg-purple-50 cursor-pointer transition">
+
+        <input
+            type="radio"
+            name="metode_import"
+            value="replace"
+            checked
+            class="mt-1 text-[#5628C7]">
+
+        <div>
+
+            <p class="font-semibold text-gray-800">
+                Ganti Seluruh Data Referensi
+            </p>
+
+            <p class="text-sm text-gray-500 mt-1">
+
+                Seluruh data referensi lama akan dihapus,
+                kemudian diganti sesuai file Excel terbaru.
+
+            </p>
+
+        </div>
+
+    </label>
+
+    <!-- Opsi 2 -->
+    <label
+        class="flex items-start gap-3 p-4 rounded-2xl border border-gray-200 hover:border-[#5628C7] hover:bg-purple-50 cursor-pointer transition mt-3">
+
+        <input
+            type="radio"
+            name="metode_import"
+            value="sync"
+            class="mt-1 text-[#5628C7]">
+
+        <div>
+
+            <p class="font-semibold text-gray-800">
+                Sinkronisasi Data Referensi
+            </p>
+
+            <p class="text-sm text-gray-500 mt-1">
+
+                Memperbarui data lama,
+                menambahkan data baru,
+                serta menghapus data yang sudah tidak ada
+                pada file Excel terbaru.
+
+            </p>
+
+        </div>
+
+    </label>
+
+</div>
 
             <div class="flex justify-end gap-3 mt-5">
                 <button type="button" onclick="closeImportModal()"

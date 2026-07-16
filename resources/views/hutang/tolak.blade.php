@@ -7,7 +7,7 @@
     <div class="mb-8">
 
         <h1 class="text-3xl font-bold text-gray-800">
-            Tolak Pengajuan Hutang
+            Tolak Pengajuan Hutangs
         </h1>
 
         <p class="text-gray-500 mt-2">

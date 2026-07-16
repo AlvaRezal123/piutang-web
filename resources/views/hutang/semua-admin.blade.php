@@ -13,57 +13,61 @@
 </div>
 
 <!-- STATISTIK -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<div class="grid md:grid-cols-[1.3fr_1fr_1fr_1fr] gap-6 mb-8">
 
     <!-- Card 1: Total Piutang Dicairkan -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mb-3">
-            <i class="ti ti-cash text-[#5628C7] text-base"></i>
+    <div class="bg-gradient-to-r from-[#5628C7] to-purple-600 rounded-3xl p-6 shadow-sm text-white">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                <i class="ti ti-cash text-2xl"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-white/80">Total Piutang</p>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Total Piutang</p>
-        <p class="text-lg font-bold text-[#5628C7] leading-tight">
-            Rp{{ number_format($totalPiutang, 0, ',', '.') }}
-        </p>
-        <p class="text-xs text-gray-400 mt-2">Sudah dicairkan ke agen</p>
+        <h2 class="text-4xl font-bold">Rp{{ number_format($totalPiutang, 0, ',', '.') }}</h2>
+        <div class="border-t border-white/20 mt-4 pt-4">
+            <p class="text-sm text-white/80">Sudah dicairkan ke agen</p>
+        </div>
     </div>
 
     <!-- Card 2: Sudah Kembali -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center mb-3">
-            <i class="ti ti-circle-check text-green-600 text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-circle-check text-2xl text-yellow-600"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Sudah Kembali</p>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Sudah Kembali</p>
-        <p class="text-lg font-bold text-green-600 leading-tight">
-            Rp{{ number_format($sudahKembali, 0, ',', '.') }}
-        </p>
-        <p class="text-xs text-green-500 mt-2 flex items-center gap-1">
-            <i class="ti ti-trending-up text-xs"></i> Lunas dibayar agen
+        <h2 class="text-3xl font-bold text-yellow-600">Rp{{ number_format($sudahKembali, 0, ',', '.') }}</h2>
+        <p class="text-sm text-gray-500 mt-4 flex items-center gap-1">
+            <i class="ti ti-trending-up text-sm"></i> Lunas dibayar agen
         </p>
     </div>
 
     <!-- Card 3: Belum Kembali -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center mb-3">
-            <i class="ti ti-clock-dollar text-blue-600 text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-clock-dollar text-2xl text-yellow-600"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Belum Kembali</p>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Belum Kembali</p>
-        <p class="text-lg font-bold text-blue-600 leading-tight">
-            Rp{{ number_format($belumKembali, 0, ',', '.') }}
-        </p>
-        <p class="text-xs text-blue-400 mt-2 flex items-center gap-1">
-            <i class="ti ti-loader text-xs"></i> Masih berjalan / terlambat
+        <h2 class="text-3xl font-bold text-yellow-600">Rp{{ number_format($belumKembali, 0, ',', '.') }}</h2>
+        <p class="text-sm text-gray-500 mt-4 flex items-center gap-1">
+            <i class="ti ti-loader text-sm"></i> Masih berjalan / terlambat
         </p>
     </div>
 
     <!-- Card 4: Terlambat -->
-    <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-sm">
-        <div class="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center mb-3">
-            <i class="ti ti-alert-triangle text-yellow-600 text-base"></i>
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+                <i class="ti ti-alert-triangle text-2xl text-yellow-600"></i>
+            </div>
+            <p class="text-sm font-bold uppercase tracking-wide text-gray-500">Terlambat</p>
         </div>
-        <p class="text-xs text-gray-400 mb-1">Terlambat</p>
-        <p class="text-3xl font-bold text-yellow-600">{{ $jumlahTerlambat }}</p>
-        <p class="text-xs text-yellow-500 mt-2 flex items-center gap-1">
-            <i class="ti ti-alert-circle text-xs"></i> Perlu perhatian
+        <h2 class="text-4xl font-bold text-yellow-600">{{ $jumlahTerlambat }}</h2>
+        <p class="text-sm text-gray-500 mt-4 flex items-center gap-1">
+            <i class="ti ti-alert-circle text-sm"></i> Perlu perhatian
         </p>
     </div>
 
@@ -149,12 +153,11 @@
 
             <thead>
                 <tr class="border-b">
-                    <th class="text-left py-3">ID Hutang</th>
-                    <th class="text-left py-3">Agen</th>
+                    <th class="text-left py-3">ID Pengajuan</th>
+                    <th class="text-left py-3"> Nama Agen</th>
                     <th class="text-left py-3">Jumlah</th>
-                    <th class="text-left py-3">Metode</th>
-                    <th class="text-left py-3">Pengajuan</th>
-                    <th class="text-left py-3">Jatuh Tempo</th>
+                    <th class="text-left py-3">Metode Pembayaran</th>
+                    <th class="text-left py-3">Tanggal  Pengajuan</th>
                     <th class="text-left py-3">Status</th>
                 </tr>
             </thead>
@@ -215,22 +218,7 @@
                             {{ \Carbon\Carbon::parse($h->tanggal_pengajuan)->format('d M Y') }}
                         </td>
 
-                        <!-- Jatuh Tempo -->
-                        <td>
-                            <p class="{{ $isLewat ? 'text-red-500 font-semibold' : 'text-gray-500' }}">
-                                {{ $jatuhTempo->format('d M Y') }}
-                            </p>
-                            @if(!in_array($h->status, ['lunas','ditolak']))
-                                @if($isLewat)
-                                    <p class="text-xs text-red-400 mt-0.5">Lewat {{ abs($sisaHari) }} hari</p>
-                                @elseif($sisaHari <= 7)
-                                    <p class="text-xs text-orange-400 mt-0.5">{{ $sisaHari }} hari lagi</p>
-                                @else
-                                    <p class="text-xs text-gray-400 mt-0.5">{{ $sisaHari }} hari lagi</p>
-                                @endif
-                            @endif
-                        </td>
-
+                  
                         <!-- Status -->
                         <td>
                             @if($h->status == 'pending')

@@ -27,8 +27,8 @@
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
-                💰
+            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+             <i class="ti ti-cash text-2xl"></i>
             </div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-white/80">
@@ -58,13 +58,13 @@
 
     <!-- TOTAL PENGAJUAN -->
    
-    <div class="bg-purple-50 rounded-3xl p-6 border border-purple-100 shadow-sm">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-purple-100 shadow-sm">
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
-                📄
-            </div>
+            <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+    <i class="ti ti-file-invoice text-2xl text-yellow-600"></i>
+</div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
                 Total Pengajuan
@@ -72,24 +72,24 @@
 
         </div>
 
-        <h2 class="text-4xl font-bold text-[#5628C7]">
+        <h2 class="text-4xl font-bold text-yellow-600">
             {{ $hutang->total() }}
         </h2>
 
-        <p class="text-sm text-gray-500 mt-4">
+        <p class="text-sm font-bold text-gray-500 mt-4">
             Total pengajuan yang pernah dibuat
         </p>
 
     </div>
 
     <!-- LUNAS -->
-    <div class="bg-green-50 rounded-3xl p-6 border border-green-100 shadow-sm">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-green-100 shadow-sm">
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-green-100 flex items-center justify-center text-xl">
-                ✅
-            </div>
+           <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+    <i class="ti ti-circle-check text-2xl text-yellow-600"></i>
+</div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
                 Lunas
@@ -97,24 +97,24 @@
 
         </div>
 
-        <h2 class="text-4xl font-bold text-green-600">
+        <h2 class="text-4xl font-bold text-yellow-600">
             {{ $hutang->where('status','lunas')->count() }}
         </h2>
 
-        <p class="text-sm text-gray-500 mt-4">
+        <p class="text-sm font-bold text-gray-500 mt-4">
             Total hutang yang telah selesai dibayar
         </p>
 
     </div>
 
     <!-- DITOLAK -->
-    <div class="bg-red-50 rounded-3xl p-6 border border-red-100 shadow-sm">
+    <div class="bg-yellow-50 rounded-3xl p-6 border border-yellow-100 shadow-sm">
 
         <div class="flex items-center gap-3 mb-4">
 
-            <div class="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center text-xl">
-                ❌
-            </div>
+        <div class="w-12 h-12 rounded-2xl bg-yellow-100 flex items-center justify-center">
+    <i class="ti ti-circle-x text-2xl text-yellow-600"></i>
+</div>
 
             <p class="text-sm font-bold uppercase tracking-wide text-gray-500">
                 Ditolak
@@ -122,7 +122,7 @@
 
         </div>
 
-        <h2 class="text-4xl font-bold text-red-600">
+        <h2 class="text-4xl font-bold text-yellow-600">
             {{ $hutang->where('status','ditolak')->count() }}
         </h2>
 
@@ -282,14 +282,34 @@ $hutangAktif = $hutang->whereIn('status', [
 
             </div>
 
+            @php
+                $cicilanBerikutnya = $hutangAktif->cicilan
+                    ->where('status', 'belum')
+                    ->sortBy('cicilan_ke')
+                    ->first();
+
+                $tanggalJatuhTempoTampil = $cicilanBerikutnya?->tanggal_jatuh_tempo;
+
+                $labelJatuhTempo = ($hutangAktif->metode == 'cicil' && $cicilanBerikutnya)
+                    ? 'Cicilan ke-' . $cicilanBerikutnya->cicilan_ke
+                    : null;
+            @endphp
+
             <div class="bg-red-50 rounded-2xl p-5">
 
                 <p class="text-sm text-gray-500">
                     Jatuh Tempo
+                    @if($labelJatuhTempo)
+                        <span class="text-xs text-gray-400">({{ $labelJatuhTempo }})</span>
+                    @endif
                 </p>
 
                 <p class="text-2xl font-bold text-red-600">
-                    {{ \Carbon\Carbon::parse($hutangAktif->tanggal_jatuh_tempo)->format('d M Y') }}
+                    @if($tanggalJatuhTempoTampil)
+                        {{ \Carbon\Carbon::parse($tanggalJatuhTempoTampil)->format('d M Y') }}
+                    @else
+                        -
+                    @endif
                 </p>
 
             </div>
@@ -495,9 +515,29 @@ $hutangAktif = $hutang->whereIn('status', [
 
                     @if(in_array($h->status,['berjalan','terlambat','lunas']))
 
-                        <span class="font-bold text-red-600 text-base">
-                            {{ \Carbon\Carbon::parse($h->tanggal_jatuh_tempo)->format('d M Y') }}
-                        </span>
+                        @php
+                            $cicilanBerikutnyaRow = $h->cicilan
+                                ->where('status', 'belum')
+                                ->sortBy('cicilan_ke')
+                                ->first();
+
+                            $tanggalRow = $cicilanBerikutnyaRow?->tanggal_jatuh_tempo;
+
+                            $labelRow = ($h->metode == 'cicil' && $cicilanBerikutnyaRow)
+                                ? 'Cicilan ke-' . $cicilanBerikutnyaRow->cicilan_ke
+                                : null;
+                        @endphp
+
+                        @if($tanggalRow)
+                            <span class="font-bold text-red-600 text-base block">
+                                {{ \Carbon\Carbon::parse($tanggalRow)->format('d M Y') }}
+                            </span>
+                            @if($labelRow)
+                                <span class="text-xs text-gray-400">{{ $labelRow }}</span>
+                            @endif
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
 
                     @else
 
@@ -513,14 +553,14 @@ $hutangAktif = $hutang->whereIn('status', [
 
                     @if($h->status == 'ditolak')
 
-                        <button
-                            type="button"
-                            onclick="openTolakModal({{ $h->id }})"
-                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm font-semibold hover:bg-red-200 transition">
+                                    <button
+                        type="button"
+                        class="btn-lihat-alasan inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm font-semibold hover:bg-red-200 transition"
+                        data-id="{{ $h->id }}">
 
-                            Lihat Alasan
+                        Lihat Alasan
 
-                        </button>
+                    </button>
 
                     @else
 
@@ -602,14 +642,14 @@ $hutangAktif = $hutang->whereIn('status', [
 
         <div class="mt-6 text-right">
 
-            <button
-                type="button"
-                onclick="closeTolakModal({{ $h->id }})"
-                class="px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200">
+          <button
+    type="button"
+    class="btn-tutup-tolak px-4 py-2 bg-gray-100 rounded-xl hover:bg-gray-200"
+    data-id="{{ $h->id }}">
 
-                Tutup
+    Tutup
 
-            </button>
+</button>
 
         </div>
 
@@ -623,21 +663,17 @@ $hutangAktif = $hutang->whereIn('status', [
 
 <script>
 
-function openTolakModal(id)
-{
-    document
-        .getElementById('tolakModal' + id)
-        .classList
-        .remove('hidden');
-}
+document.addEventListener('click', function(e) {
+    const btnOpen = e.target.closest('.btn-lihat-alasan');
+    if (btnOpen) {
+        document.getElementById('tolakModal' + btnOpen.dataset.id).classList.remove('hidden');
+    }
 
-function closeTolakModal(id)
-{
-    document
-        .getElementById('tolakModal' + id)
-        .classList
-        .add('hidden');
-}
+    const btnClose = e.target.closest('.btn-tutup-tolak');
+    if (btnClose) {
+        document.getElementById('tolakModal' + btnClose.dataset.id).classList.add('hidden');
+    }
+});
 
 </script>
 

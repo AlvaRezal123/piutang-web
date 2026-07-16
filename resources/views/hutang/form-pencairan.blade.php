@@ -15,70 +15,7 @@
 
 </div>
 
-<!-- RINGKASAN PENCAIRAN -->
-<div class="grid md:grid-cols-2 gap-6 mb-8">
 
-    <!-- CARD 1: INFO AGEN & JUMLAH -->
-    <div class="bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
-
-        <p class="text-sm text-gray-500">
-            Agen
-        </p>
-        <h2 class="text-2xl font-bold text-gray-800 mt-1">
-            {{ $hutang->agen->username }}
-        </h2>
-        <p class="text-sm text-[#5628C7] font-semibold mt-1">
-            ID Agen: {{ $hutang->agen->id_agen_pp }}
-        </p>
-
-        <div class="border-t border-gray-100 mt-6 pt-6">
-
-            <p class="text-sm text-gray-500">
-                Jumlah Pencairan
-            </p>
-            <h2 class="text-3xl font-bold text-green-600 mt-1">
-                Rp{{ number_format($hutang->jumlah_hutang,0,',','.') }}
-            </h2>
-
-        </div>
-
-    </div>
-
-    <!-- CARD 2: DETAIL PENGAJUAN -->
-    <div class="bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
-
-        <p class="text-sm text-gray-500 mb-1">
-            Metode
-        </p>
-        <h2 class="text-2xl font-bold text-blue-600 mt-1">
-            {{ $hutang->metode == 'cash' ? 'Pembayaran Penuh' : 'Cicilan ' . $hutang->lama_tempo . ' Bulan' }}
-        </h2>
-
-        <div class="border-t border-gray-100 mt-6 pt-6 grid grid-cols-2 gap-6">
-
-            <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">
-                    Tanggal Pengajuan
-                </p>
-                <p class="font-semibold text-gray-800 mt-1">
-                    {{ \Carbon\Carbon::parse($hutang->tanggal_pengajuan)->format('d M Y') }}
-                </p>
-            </div>
-
-            <div>
-                <p class="text-xs text-gray-500 uppercase tracking-wide font-bold">
-                    Jatuh Tempo
-                </p>
-                <p class="font-semibold text-red-500 mt-1">
-                    {{ \Carbon\Carbon::parse($hutang->tanggal_jatuh_tempo)->format('d M Y') }}
-                </p>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 
 <!-- FORM PENCAIRAN -->
 <div class="bg-white rounded-3xl p-8 border border-purple-100 shadow-sm">
@@ -105,7 +42,19 @@
 
     @endif
 
+    <!-- Pesan error ukuran file (client-side) -->
+    <div
+        id="error_ukuran_file"
+        class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
+
+        <p class="text-red-600 text-sm">
+            • Ukuran file melebihi batas maksimal 2 MB.
+        </p>
+
+    </div>
+
     <form
+        id="form_pencairan"
         action="/admin/simpan-pencairan/{{ $hutang->id }}"
         method="POST"
         enctype="multipart/form-data">
@@ -148,7 +97,7 @@
             </p>
 
             <p class="text-sm text-gray-500 mt-2">
-                JPG, JPEG, PNG
+                JPG, JPEG, PNG (Maks. 2 MB)
             </p>
 
             <p
@@ -226,6 +175,7 @@
             </a>
 
             <button
+                id="btn_cairkan"
                 type="submit"
                 class="bg-[#5628C7] hover:bg-[#4720aa] text-white px-8 py-3 rounded-2xl font-semibold transition">
 
@@ -246,12 +196,55 @@ document.addEventListener('DOMContentLoaded', function () {
     const namaFile = document.getElementById('nama_file');
     const preview = document.getElementById('preview');
     const previewEmpty = document.getElementById('preview_empty');
+    const errorUkuranFile = document.getElementById('error_ukuran_file');
+    const btnCairkan = document.getElementById('btn_cairkan');
+
+    // Batas maksimal ukuran file: 2 MB
+    const MAKS_UKURAN_FILE = 2 * 1024 * 1024; // dalam bytes
+
+    // ==========================
+    // Validasi Ukuran File
+    // ==========================
+
+    function validasiUkuranFile(file) {
+
+        if (file.size > MAKS_UKURAN_FILE) {
+
+            errorUkuranFile.classList.remove('hidden');
+
+            // reset input & preview
+            inputFile.value = '';
+            namaFile.classList.add('hidden');
+            preview.classList.add('hidden');
+            previewEmpty.classList.remove('hidden');
+
+            btnCairkan.disabled = true;
+            btnCairkan.classList.add('opacity-50', 'cursor-not-allowed');
+
+            return false;
+
+        }
+
+        errorUkuranFile.classList.add('hidden');
+
+        btnCairkan.disabled = false;
+        btnCairkan.classList.remove('opacity-50', 'cursor-not-allowed');
+
+        return true;
+
+    }
 
     // ==========================
     // Tampilkan Preview
     // ==========================
 
     function tampilkanPreview(file) {
+
+        if (!validasiUkuranFile(file)) {
+
+            return;
+
+        }
 
         // tampilkan nama file
         namaFile.classList.remove('hidden');
